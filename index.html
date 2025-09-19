@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Étterem</title>
+  <style>
+    /* Háttér beállítás */
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-image: url('pictures/homepage.jpg'); /* háttérkép */
+      background-size: cover;
+      background-position: center;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    /* Bal oldali sáv */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200px;
+      height: 100%;
+      background-color: rgba(128, 128, 128, 0.5); /* átlátszó szürke */
+      border-top-right-radius: 15px;
+      border-bottom-right-radius: 15px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* Felirat középen fent */
+    .title {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(128, 128, 128, 0.5);
+      padding: 10px 30px;
+      border-radius: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Bejelentkezés gomb */
+    .login-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: rgba(128, 128, 128, 0.5);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background-color: rgba(180, 180, 180, 0.7);
+      transform: scale(1.05);
+    }
+
+    /* Későbbi elemek helye a sidebarban */
+    .sidebar button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateX(5px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Bal oldali sáv -->
+  <div class="sidebar">
+    <button>Főoldal</button>
+    <button>Menü</button>
+    <button>Kapcsolat</button>
+    <!-- Ide jöhetnek további elemek -->
+  </div>
+
+  <!-- Felirat középen fent -->
+  <div class="title">ÉTTEREM</div>
+
+  <!-- Bejelentkezés gomb -->
+  <button class="login-btn">Bejelentkezés</button>
+
+</body>
+</html>
