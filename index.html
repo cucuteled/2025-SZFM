@@ -84,16 +84,74 @@
       background-color: rgba(255, 255, 255, 0.3);
       transform: translateX(5px);
     }
+    
+    .screencontent {
+      margin-left: 220px; /* helyet hagy a sidebar-nak */
+      padding: 30px;
+      padding-top: 100px; /* a title alatt legyen */
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+        
+    /* Egy étel doboz */
+    .etel-kartya {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      width: 200px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(3px);
+      transition: transform 0.3s ease;
+    }
+    
+    .etel-kartya:hover {
+      transform: scale(1.05);
+    }
+    
+    .etel-kartya img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .etel-kartya .nev {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+    
+    .etel-kartya .ar {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    
+    .etel-kartya button {
+      background-color: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    .etel-kartya button:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
   </style>
 </head>
 <body>
 
   <!-- Bal oldali sáv -->
   <div class="sidebar">
-    <button>Főoldal</button>
-    <button>Menü</button>
-    <button>Rólunk</button>
-    <button>Kapcsolat</button>
+    <button onclick="foodal()">Főoldal</button>
+    <button onclick="listfoods()">Menü</button>
+    <button onclick="rolunk()">Rólunk</button>
+    <button onclick="kapcsolat()">Kapcsolat</button>
     <!-- Ide jöhetnek további elemek -->
   </div>
 
@@ -103,5 +161,58 @@
   <!-- Bejelentkezés gomb -->
   <button class="login-btn">Bejelentkezés</button>
 
+  <!-- ÉTEL/ITAL CONTAINER -->
+  <div id="etel-container" class="screencontent"></div>
+  
+  <script>
+  
+        function deletecontent() {
+          const container = document.getElementById('etel-container');
+          container.innerHTML = '';
+        }
+        
+        function listfoods() {
+          deletecontent();
+        
+          fetch('/etelek')
+            .then(res => res.json())
+            .then(etelek => {
+              const container = document.getElementById('etel-container');
+              etelek.forEach(etel => {
+                const kartya = document.createElement('div');
+                kartya.classList.add('etel-kartya');
+        
+                // (pl. "Pizza Margherita" -> "pictures/pizza margherita.jpg")
+                const kepNev = etel.nev.toLowerCase();//replace(/\s+/g, '-');
+                const kepEleres = `pictures/${kepNev}.jpg`;
+        
+                kartya.innerHTML = `
+                  <img src="${kepEleres}" alt="${etel.nev}" onerror="this.src='pictures/default.jpg'">
+                  <div class="nev">${etel.nev}</div>
+                  <div class="ar">${etel.ar} Ft</div>
+                  <button>Hozzáadás</button>
+                `;
+        
+                container.appendChild(kartya);
+              });
+            })
+            .catch(err => {
+              console.error('Hiba az ételek lekérésekor:', err);
+            });
+        }
+        
+        function rolunk() {
+            deletecontent();
+        }
+        
+        function kapcsolat() {
+            deletecontent();
+        }
+        
+        function fooldal() {
+            deletecontent();
+        }
+
+  </script>
 </body>
 </html>

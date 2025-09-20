@@ -68,6 +68,11 @@ db.prepare(`
   )
 `).run();
 
+// egy minta beszúrása
+const etelCount = db.prepare('SELECT COUNT(*) AS count FROM etelek').get().count;
+if (etelCount === 0) {
+  db.prepare('INSERT INTO etelek (nev, ar) VALUES (?, ?)').run('Pizza Szalámis tejfölös', 2990);
+}
 
 // Exportáljuk az adatbázist
 export default db;
