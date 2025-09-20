@@ -1,2 +1,0 @@
-ha a node.js lent van a gépeden parancssorban:
-npm install better-sqlite3
