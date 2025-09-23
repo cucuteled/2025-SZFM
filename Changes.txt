@@ -9,3 +9,11 @@ A Swagger tesztelő felület a localhost:8080/swagger-ui/index.html-en érhető 
 A választ json-ben adja vissza.
 
 A kártyákhoz a dinamikus kép hozzáadás még nincs implementálva.
+
+---------------------------------------------
+
+Patrik 09.23 - Login
+
+A spring boot security starter dependency ad egy kezdetleges login oldalt az index.html elé és admin adminnal lehet még csak belépni.
+
+---------------------------------------------
