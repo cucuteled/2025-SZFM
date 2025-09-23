@@ -1,0 +1,11 @@
+Létre lett hozva a Food entitás, a FoodRepository és a FoodController.
+
+A Food-ban vannak egy étel adattagjai, a FoodControllerben pedig az API hívások.
+
+A program jelenleg azt tudja, hogy a backenden le lehet kérdezni az összes food-ot, le lehet kérdezni 1-et név alapján,
+lehet törölni, módosítani, hozzáadni.
+
+A Swagger tesztelő felület a localhost:8080/swagger-ui/index.html-en érhető el. Tesztelni a try out - > execute gombokkal lehet.
+A választ json-ben adja vissza.
+
+A kártyákhoz a dinamikus kép hozzáadás még nincs implementálva.
