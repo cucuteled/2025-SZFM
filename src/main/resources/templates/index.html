@@ -1,218 +1,220 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Étterem</title>
-  <style>
-    /* Háttér beállítás */
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      background-image: url('pictures/homepage.jpg'); /* háttérkép */
-      background-size: cover;
-      background-position: center;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Étterem</title>
+    <style>
+        /* Háttér beállítás */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-image: url('pictures/homepage.jpg'); /* háttérkép */
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
 
-    /* Bal oldali sáv */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 200px;
-      height: 100%;
-      background-color: rgba(128, 128, 128, 0.5); /* átlátszó szürke */
-      border-top-right-radius: 15px;
-      border-bottom-right-radius: 15px;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+        /* Bal oldali sáv */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 100%;
+            background-color: rgba(128, 128, 128, 0.5); /* átlátszó szürke */
+            border-top-right-radius: 15px;
+            border-bottom-right-radius: 15px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-    /* Felirat középen fent */
-    .title {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(128, 128, 128, 0.5);
-      padding: 10px 30px;
-      border-radius: 20px;
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
+        /* Felirat középen fent */
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(128, 128, 128, 0.5);
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
 
-    /* Bejelentkezés gomb */
-    .login-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background-color: rgba(128, 128, 128, 0.5);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
+        /* Bejelentkezés gomb */
+        .login-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(128, 128, 128, 0.5);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
 
-    .login-btn:hover {
-      background-color: rgba(180, 180, 180, 0.7);
-      transform: scale(1.05);
-    }
+        .login-btn:hover {
+            background-color: rgba(180, 180, 180, 0.7);
+            transform: scale(1.05);
+        }
 
-    /* Későbbi elemek helye a sidebarban */
-    .sidebar button {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+        /* Későbbi elemek helye a sidebarban */
+        .sidebar button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    .sidebar button:hover {
-      background-color: rgba(255, 255, 255, 0.3);
-      transform: translateX(5px);
-    }
-    
-    .screencontent {
-      margin-left: 220px; /* helyet hagy a sidebar-nak */
-      padding: 30px;
-      padding-top: 100px; /* a title alatt legyen */
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-        
-    /* Egy étel doboz */
-    .etel-kartya {
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 15px;
-      width: 200px;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      backdrop-filter: blur(3px);
-      transition: transform 0.3s ease;
-    }
-    
-    .etel-kartya:hover {
-      transform: scale(1.05);
-    }
-    
-    .etel-kartya img {
-      width: 100%;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-    
-    .etel-kartya .nev {
-      font-weight: bold;
-      font-size: 18px;
-      margin-bottom: 5px;
-    }
-    
-    .etel-kartya .ar {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    
-    .etel-kartya button {
-      background-color: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    
-    .etel-kartya button:hover {
-      background-color: rgba(255, 255, 255, 0.4);
-    }
-  </style>
+        .sidebar button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .screencontent {
+            margin-left: 220px; /* helyet hagy a sidebar-nak */
+            padding: 30px;
+            padding-top: 100px; /* a title alatt legyen */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        /* Egy étel doboz */
+        .etel-kartya {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            width: 200px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(3px);
+            transition: transform 0.3s ease;
+        }
+
+        .etel-kartya:hover {
+            transform: scale(1.05);
+        }
+
+        .etel-kartya img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .etel-kartya .nev {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .etel-kartya .ar {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .etel-kartya button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .etel-kartya button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Bal oldali sáv -->
-  <div class="sidebar">
+<!-- Bal oldali sáv -->
+<div class="sidebar">
     <button onclick="foodal()">Főoldal</button>
     <button onclick="listfoods()">Menü</button>
     <button onclick="rolunk()">Rólunk</button>
     <button onclick="kapcsolat()">Kapcsolat</button>
     <!-- Ide jöhetnek további elemek -->
-  </div>
+</div>
 
-  <!-- Felirat középen fent -->
-  <div class="title">ÉTTEREM</div>
+<!-- Felirat középen fent -->
+<div class="title">ÉTTEREM</div>
 
-  <!-- Bejelentkezés gomb -->
-  <button class="login-btn">Bejelentkezés</button>
+<!-- Bejelentkezés gomb -->
+<button class="login-btn">Bejelentkezés</button>
 
-  <!-- ÉTEL/ITAL CONTAINER -->
-  <div id="etel-container" class="screencontent"></div>
-  
-  <script>
-  
-        function deletecontent() {
-          const container = document.getElementById('etel-container');
-          container.innerHTML = '';
-        }
-        
-        function listfoods() {
-          deletecontent();
-        
-          fetch('/etelek')
+<!-- ÉTEL/ITAL CONTAINER -->
+<div id="etel-container" class="screencontent"></div>
+
+<script>
+
+    function deletecontent() {
+        const container = document.getElementById('etel-container');
+        container.innerHTML = '';
+    }
+
+    // ÉTEL LISTÁZÁSA
+    function listfoods() {
+        deletecontent();
+
+        fetch('/etelek') //
             .then(res => res.json())
             .then(etelek => {
-              const container = document.getElementById('etel-container');
-              etelek.forEach(etel => {
-                const kartya = document.createElement('div');
-                kartya.classList.add('etel-kartya');
-        
-                // (pl. "Pizza Margherita" -> "pictures/pizza margherita.jpg")
-                const kepNev = etel.nev.toLowerCase();//replace(/\s+/g, '-');
-                const kepEleres = `pictures/${kepNev}.jpg`;
-        
-                kartya.innerHTML = `
-                  <img src="${kepEleres}" alt="${etel.nev}" onerror="this.src='pictures/default.jpg'">
-                  <div class="nev">${etel.nev}</div>
-                  <div class="ar">${etel.ar} Ft</div>
+                const container = document.getElementById('etel-container');
+                etelek.forEach(etel => {
+                    const kartya = document.createElement('div');
+                    kartya.classList.add('etel-kartya');
+
+                    // (pl. "Pizza Margherita" -> "pictures/pizza margherita.jpg")
+                    const kepNev = etel.name.toLowerCase();
+                    const kepEleres = `pictures/${kepNev}.jpg`;
+
+                    kartya.innerHTML = `
+                  <img src="${kepEleres}" alt="${etel.name}" onerror="this.src='pictures/default.jpg'">
+                  <div class="nev">${etel.name}</div>
+                  <div class="ar">${etel.price} Ft</div>
                   <button>Hozzáadás</button>
                 `;
-        
-                container.appendChild(kartya);
-              });
+
+                    container.appendChild(kartya);
+                });
             })
             .catch(err => {
-              console.error('Hiba az ételek lekérésekor:', err);
+                console.error('Hiba az ételek lekérésekor:', err);
             });
-        }
-        
-        function rolunk() {
-            deletecontent();
-        }
-        
-        function kapcsolat() {
-            deletecontent();
-        }
-        
-        function fooldal() {
-            deletecontent();
-        }
+    }
 
-  </script>
+
+    function rolunk() {
+        deletecontent();
+    }
+
+    function kapcsolat() {
+        deletecontent();
+    }
+
+    function fooldal() {
+        deletecontent();
+    }
+
+</script>
 </body>
 </html>

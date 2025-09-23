@@ -19,34 +19,34 @@ public class Sfm2025Application {
 	}
 }
 
-@RestController
-class EtelController {
-
-    private final String DB_URL = "jdbc:sqlite:src/main/resources/static/data/mydb.sqlite";
-
-    @GetMapping("/etelek")
-    public List<Map<String, Object>> getEtelek() {
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM etelek")) {
-
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    row.put(metaData.getColumnName(i), rs.getObject(i));
-                }
-                result.add(row);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-}
+//@RestController
+//class EtelController {
+//
+//    private final String DB_URL = "jdbc:sqlite:src/main/resources/static/data/mydb.sqlite";
+//
+//    @GetMapping("/etelek")
+//    public List<Map<String, Object>> getEtelek() {
+//        List<Map<String, Object>> result = new ArrayList<>();
+//
+//        try (Connection conn = DriverManager.getConnection(DB_URL);
+//             Statement stmt = conn.createStatement();
+//             ResultSet rs = stmt.executeQuery("SELECT * FROM etelek")) {
+//
+//            ResultSetMetaData metaData = rs.getMetaData();
+//            int columnCount = metaData.getColumnCount();
+//
+//            while (rs.next()) {
+//                Map<String, Object> row = new HashMap<>();
+//                for (int i = 1; i <= columnCount; i++) {
+//                    row.put(metaData.getColumnName(i), rs.getObject(i));
+//                }
+//                result.add(row);
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return result;
+//    }
+//}

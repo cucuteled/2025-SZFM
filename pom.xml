@@ -73,6 +73,12 @@
             <version>2.6.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+            <version>6.6.29.Final</version>
+        </dependency>
+
 	</dependencies>
 
 	<build>
