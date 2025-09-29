@@ -75,14 +75,13 @@
         .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
 
         .screencontent {
-          margin-left: 220px;
-          padding: 30px;
-          padding-top: 100px;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           display: flex;
           justify-content: center;
-          align-items: flex-start;
-          gap: 20px;
-          min-height: calc(100vh - 100px);
+          align-items: center;
           box-sizing: border-box;
         }
 
@@ -90,15 +89,32 @@
           background-color: rgba(255,255,255,0.08);
           border-radius: 12px;
           padding: 24px;
-          width: 420px;
+          width: 320px;
           color: white;
           backdrop-filter: blur(4px);
           box-shadow: 0 6px 18px rgba(0,0,0,0.4);
         }
 
         .card h2 { margin-top: 0; margin-bottom: 10px; letter-spacing: 1px; }
-        .form-row { margin-top: 12px; display: flex; gap: 10px; }
-        input[type="email"], input[type="password"] { width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(0,0,0,0.15); color: white; }
+        .form-row { margin-top: 12px; display: flex; gap: 10px; flex-direction:column; }
+
+        input[type="email"],
+        input[type="password"] {
+          width: 90%;
+          max-width: 300px;
+          margin: 0 auto;
+          padding: 10px;
+          border-radius: 8px;
+          border: none;
+          background: rgba(0,0,0,0.15);
+          color: white;
+          display: block;
+        }
+
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
 
         .btn {
           margin-top: 16px;
@@ -124,13 +140,6 @@
     </style>
 </head>
 <body>
-<div class="sidebar">
-    <button onclick="fooldal()">Főoldal</button>
-    <button onclick="listfoods()">Menü</button>
-    <button onclick="rolunk()">Rólunk</button>
-    <button onclick="kapcsolat()">Kapcsolat</button>
-</div>
-
 <div class="title">ÉTTEREM</div>
 <a class="login-btn" href="/register">Regisztráció</a>
 
@@ -139,11 +148,11 @@
         <h2>Bejelentkezés</h2>
 
         <form id="loginForm" autocomplete="on">
-            <div class="form-row" style="flex-direction:column;">
+            <div class="form-row">
                 <input name="email" type="email" placeholder="Email" required />
             </div>
 
-            <div class="form-row" style="flex-direction:column;">
+            <div class="form-row">
                 <input name="password" type="password" placeholder="Jelszó" required />
             </div>
 
@@ -153,9 +162,6 @@
             <div class="small">Nincs fiókod? <a class="inline" href="/register">Regisztráció</a></div>
 
             <hr style="border: none; height: 1px; background: rgba(255,255,255,0.08); margin-top: 16px;">
-            <h3 style="margin: 8px 0 6px 0;">Teszt: védett végpont</h3>
-            <button id="callDemo" class="btn" type="button"> /api/v1/demo-controller hívása </button>
-            <pre id="demoResult"></pre>
         </form>
     </div>
 </div>
@@ -169,8 +175,6 @@
 
     const loginForm = document.getElementById('loginForm');
     const message = document.getElementById('message');
-    const callDemoBtn = document.getElementById('callDemo');
-    const demoResult = document.getElementById('demoResult');
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -196,34 +200,12 @@
           return;
         }
 
-        // Siker — backend beállította a jwt cookie-t; átirányítás a főoldalra
         message.textContent = 'Sikeres bejelentkezés, átirányítás...';
         message.classList.add('success');
         setTimeout(() => window.location.href = '/', 600);
       } catch (err) {
         console.error(err);
         message.textContent = 'Hálózati hiba: ' + err.message;
-      }
-    });
-
-    // Teszt gomb: cookie-alapú auth miatt a fetch-hez credentials kell
-    callDemoBtn.addEventListener('click', async () => {
-      demoResult.textContent = '';
-      try {
-        const res = await fetch('/api/v1/demo-controller', {
-          method: 'GET',
-          credentials: 'same-origin'
-        });
-
-        if (!res.ok) {
-          const txt = await res.text();
-          demoResult.textContent = `Hiba: ${res.status} ${res.statusText}\n${txt}`;
-          return;
-        }
-        const text = await res.text();
-        demoResult.textContent = `Siker: ${text}`;
-      } catch (err) {
-        demoResult.textContent = 'Hiba: ' + err.message;
       }
     });
 </script>

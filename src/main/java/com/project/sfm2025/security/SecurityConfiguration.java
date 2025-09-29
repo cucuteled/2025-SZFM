@@ -26,7 +26,7 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/api/v1/auth/**",
                                 "/register", "/login",
-                                "/css/**", "/js/**", "/images/**", "/favicon.ico"
+                                "/css/**", "/js/**", "/pictures/**", "/favicon.ico"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

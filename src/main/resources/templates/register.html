@@ -75,16 +75,16 @@
         .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
 
         .screencontent {
-          margin-left: 220px;
-          padding: 30px;
-          padding-top: 100px;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           display: flex;
           justify-content: center;
-          align-items: flex-start;
-          gap: 20px;
-          min-height: calc(100vh - 100px);
+          align-items: center;
           box-sizing: border-box;
         }
+
 
         /* Regisztrációs panel */
         .card {
@@ -98,10 +98,33 @@
         }
 
         .card h2 { margin-top: 0; margin-bottom: 10px; letter-spacing: 1px; }
+
+        /* Módosítás 1: A form-row flex container, alapból sorban */
         .form-row { margin-top: 12px; display: flex; gap: 10px; }
+
+        /* Módosítás 2: Az input mezők az első sorban egyenlő szélességűek */
         .form-row input { flex: 1; padding: 10px; border-radius: 8px; border: none; background: rgba(0,0,0,0.15); color: white; }
+
         .form-row input::placeholder { color: rgba(255,255,255,0.6); }
-        input[type="email"], input[type="password"], input[type="text"] { width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(0,0,0,0.15); color: white; }
+
+        /* Módosítás 3: Az email és jelszó input mezők szélességének eltávolítása */
+        /* Ezt a szabályt teljesen eltávolítjuk vagy felülírjuk */
+        /* input[type="email"], input[type="password"], input[type="text"] { width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(0,0,0,0.15); color: white; } */
+
+        /* Módosítás 4: Új stílus az egy oszlopban lévő form-row-hoz, hogy a mezők kitöltsék a rendelkezésre álló helyet,
+           ami a flex-row-ban lévő elemek szélessége lesz. Ezt a szélességet felveszi az alatta lévő email és jelszó div */
+        .full-width-input-container {
+             /* A szélességét a felette lévő form-row-ban lévő elemek határozzák meg */
+             /* A flex: 1; stílust használjuk a HTML-ben, hogy a form-row-ban lévő többi mezővel egyenlő szélességű legyen */
+             margin-top: 12px;
+        }
+
+        /* Módosítás 5: Az email és jelszó input mezők is felveszik a flex: 1 stílust a .form-row-ban */
+        .form-row .full-width-input-container input {
+            width: 100%; /* Kitölti a full-width-input-container-t */
+        }
+
+        /* A .form-row input stílust használjuk az email és jelszó mezőkre is, ha külön div-ben vannak (lásd lentebb) */
 
         .btn {
           margin-top: 16px;
@@ -125,13 +148,6 @@
     </style>
 </head>
 <body>
-<div class="sidebar">
-    <button onclick="fooldal()">Főoldal</button>
-    <button onclick="listfoods()">Menü</button>
-    <button onclick="rolunk()">Rólunk</button>
-    <button onclick="kapcsolat()">Kapcsolat</button>
-</div>
-
 <div class="title">ÉTTEREM</div>
 <a class="login-btn" href="/login">Bejelentkezés</a>
 
@@ -145,12 +161,18 @@
                 <input name="lastname" type="text" placeholder="Keresztnév" required />
             </div>
 
-            <div class="form-row" style="flex-direction:column;">
-                <input name="email" type="email" placeholder="Email cím" required />
+            <div class="form-row">
+                <div class="full-width-input-container" style="flex: 1;">
+                    <input name="email" type="email" placeholder="Email cím" required />
+                </div>
+                <div style="flex: 1;"></div>
             </div>
 
-            <div class="form-row" style="flex-direction:column;">
-                <input name="password" type="password" placeholder="Jelszó (min. 6 karakter)" minlength="6" required />
+            <div class="form-row">
+                <div class="full-width-input-container" style="flex: 1;">
+                    <input name="password" type="password" placeholder="Jelszó (min. 6 karakter)" minlength="6" required />
+                </div>
+                <div style="flex: 1;"></div>
             </div>
 
             <button class="btn" type="submit">Regisztrálok</button>
