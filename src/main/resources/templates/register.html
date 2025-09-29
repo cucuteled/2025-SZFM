@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Regisztráció — ÉTTEREM</title>
+    <style>
+        /* Az indexeddel megegyező stílus */
+        body {
+          margin: 0;
+          padding: 0;
+          min-height: 100vh;
+          background-image: url('/pictures/homepage.jpg');
+          background-size: cover;
+          background-position: center;
+          font-family: Arial, sans-serif;
+          color: white;
+        }
+
+        .sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 200px;
+          height: 100%;
+          background-color: rgba(128,128,128,0.5);
+          border-top-right-radius: 15px;
+          border-bottom-right-radius: 15px;
+          padding: 20px;
+          box-sizing: border-box;
+        }
+
+        .title {
+          position: absolute;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: rgba(128,128,128,0.5);
+          padding: 10px 30px;
+          border-radius: 20px;
+          font-size: 24px;
+          font-weight: bold;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+        }
+
+        .login-btn {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background-color: rgba(128,128,128,0.5);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.3s ease;
+          text-decoration: none;
+        }
+        .login-btn:hover { background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
+
+        .sidebar button {
+          display: block;
+          width: 100%;
+          margin: 10px 0;
+          padding: 10px;
+          background-color: rgba(255,255,255,0.1);
+          color: white;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
+
+        .screencontent {
+          margin-left: 220px;
+          padding: 30px;
+          padding-top: 100px;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          gap: 20px;
+          min-height: calc(100vh - 100px);
+          box-sizing: border-box;
+        }
+
+        /* Regisztrációs panel */
+        .card {
+          background-color: rgba(255,255,255,0.08);
+          border-radius: 12px;
+          padding: 24px;
+          width: 420px;
+          color: white;
+          backdrop-filter: blur(4px);
+          box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+        }
+
+        .card h2 { margin-top: 0; margin-bottom: 10px; letter-spacing: 1px; }
+        .form-row { margin-top: 12px; display: flex; gap: 10px; }
+        .form-row input { flex: 1; padding: 10px; border-radius: 8px; border: none; background: rgba(0,0,0,0.15); color: white; }
+        .form-row input::placeholder { color: rgba(255,255,255,0.6); }
+        input[type="email"], input[type="password"], input[type="text"] { width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(0,0,0,0.15); color: white; }
+
+        .btn {
+          margin-top: 16px;
+          display: inline-block;
+          padding: 10px 16px;
+          border-radius: 20px;
+          border: none;
+          cursor: pointer;
+          background-color: rgba(255,255,255,0.15);
+          color: white;
+          font-weight: bold;
+          transition: all 0.22s ease;
+        }
+        .btn:hover { transform: translateY(-2px); background-color: rgba(255,255,255,0.28); }
+
+        .msg { margin-top: 12px; color: #ffdddd; font-size: 0.95rem; }
+        .success { color: #c8ffcf; }
+
+        .small { font-size: 0.9rem; margin-top: 10px; }
+        a.inline { color: #fff; text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <button onclick="fooldal()">Főoldal</button>
+    <button onclick="listfoods()">Menü</button>
+    <button onclick="rolunk()">Rólunk</button>
+    <button onclick="kapcsolat()">Kapcsolat</button>
+</div>
+
+<div class="title">ÉTTEREM</div>
+<a class="login-btn" href="/login">Bejelentkezés</a>
+
+<div class="screencontent">
+    <div class="card" role="region" aria-label="Regisztráció">
+        <h2>Regisztráció</h2>
+
+        <form id="registerForm" autocomplete="on">
+            <div class="form-row">
+                <input name="firstname" type="text" placeholder="Vezetéknév" required />
+                <input name="lastname" type="text" placeholder="Keresztnév" required />
+            </div>
+
+            <div class="form-row" style="flex-direction:column;">
+                <input name="email" type="email" placeholder="Email cím" required />
+            </div>
+
+            <div class="form-row" style="flex-direction:column;">
+                <input name="password" type="password" placeholder="Jelszó (min. 6 karakter)" minlength="6" required />
+            </div>
+
+            <button class="btn" type="submit">Regisztrálok</button>
+            <div id="message" class="msg" aria-live="polite"></div>
+
+            <div class="small">Van már fiókod? <a class="inline" href="/login">Bejelentkezés</a></div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Egyszerű oldal navigáció (ugyanaz, mint indexben)
+    function deletecontent(){const c=document.getElementById('etel-container'); if(c) c.innerHTML='';}
+    function listfoods(){ window.location.href = '/'; }
+    function rolunk(){ window.location.href = '/'; }
+    function kapcsolat(){ window.location.href = '/'; }
+    function fooldal(){ window.location.href = '/'; }
+
+    const form = document.getElementById('registerForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      message.textContent = '';
+      const fd = new FormData(form);
+      const payload = {
+        firstname: fd.get('firstname'),
+        lastname: fd.get('lastname'),
+        email: fd.get('email'),
+        password: fd.get('password')
+      };
+
+      try {
+        const res = await fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          message.textContent = 'Hiba: ' + (text || res.statusText);
+          return;
+        }
+
+        // Siker → a backend beállítja a jwt cookie-t; átirányítjuk a főoldalra
+        message.textContent = 'Sikeres regisztráció, átirányítás...';
+        message.classList.add('success');
+        setTimeout(() => window.location.href = '/', 700);
+      } catch (err) {
+        console.error(err);
+        message.textContent = 'Hálózati hiba: ' + err.message;
+      }
+    });
+</script>
+</body>
+</html>
