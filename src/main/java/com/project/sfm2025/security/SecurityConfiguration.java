@@ -24,9 +24,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable()) // jelenleg fetch/JSON használatával dolgozunk; ha form POST-okat akarsz használni, érdemes CSRF-t engedélyezni és Thymeleaf token-t kezelni
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/v1/auth/**",
-                                "/register", "/login",
-                                "/css/**", "/js/**", "/pictures/**", "/favicon.ico"
+                                "/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
