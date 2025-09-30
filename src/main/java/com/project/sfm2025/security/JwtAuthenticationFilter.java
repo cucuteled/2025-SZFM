@@ -49,8 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        if (jwt != null) {
-            userEmail = jwtService.extractUsername(jwt);
+        if (jwt != null) { // HIBA JAVÍTVA lejárt cookie dobott hiába kezelve ✔️
+            try {
+                userEmail = jwtService.extractUsername(jwt);
+            } catch (Exception e) {
+                // Token érvénytelen vagy lejárt → nem autentikálunk, de nem dobunk hibát
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
