@@ -24,20 +24,26 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable()) // jelenleg fetch/JSON használatával dolgozunk; ha form POST-okat akarsz használni, érdemes CSRF-t engedélyezni és Thymeleaf token-t kezelni
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/",
                                 "/api/v1/auth/**",
-                                "/register", "/login",
-                                "/css/**", "/js/**", "/pictures/**", "/favicon.ico", "/etelek"
+                                "/register",
+                                "/login",
+                                "/pictures/**",
+                                "/etelek",
+                                "/index",
+                                "/index.html",
+                                "/?continue"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin(login -> login
-                        .loginPage("/login")
-                        .permitAll()
-                )
-                .logout(logout -> logout.permitAll());
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                //.formLogin(login -> login
+                //       .loginPage("/login")
+                //        .permitAll()
+                //)
+                //.logout(logout -> logout.permitAll());
 
         return http.build();
     }
