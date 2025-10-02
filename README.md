@@ -6,7 +6,9 @@ The project is developed for the **SFM 2025 university lecture**. 🎓
 ---
 
 ## 📅 Development Period  
-2025.09 – 2025.11 (YYMM format)  
+2025.09 – 2025.11 (YYMM format)
+
+![Preview screenshot](src/markdownimg.png "Preview")  
 
 ---
 
