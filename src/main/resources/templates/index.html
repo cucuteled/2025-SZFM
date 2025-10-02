@@ -23,6 +23,56 @@
         .hero { margin-left: 220px; padding: 60px 40px 20px 40px; color: white; }
         .hero h1 { font-size: 36px; margin: 0 0 10px 0; letter-spacing: 2px; }
         .hero p { margin: 0 0 16px 0; max-width: 800px; color: #fffdd0; }
+        .cart-btn {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background-color: rgba(128,128,128,0.5);
+            color: white;
+            border: none;
+            padding: 10px 45px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .cart {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background-color: rgba(128,128,128,0.8);
+            color: white;
+            border-radius: 20px;
+            padding: 20px;
+            width: 250px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            max-height: 80vh;         
+            overflow-y: auto;         
+            transition: all 0.3s ease;
+        }
+        
+        .cart-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .cart button.order-btn {
+            align-self: center;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -36,6 +86,7 @@
 <div class="title">ÉTTEREM</div>
 
 <button id="authBtn" class="auth-btn">Bejelentkezés</button>
+<button id="cartBtn" class="cart-btn" onclick="opencart()">Kosár</button> <!-- onmouseleave="closecart()" !--> 
 
 <!-- Hero / Főoldal tartalom -->
 <div id="hero" class="hero" style="display:none;">
@@ -48,6 +99,106 @@
 
 <script>
     // --- segédf-ök ---
+        async function opencart() {
+            // Ne nyisson többet, ha már van
+            if (document.getElementById('cartDiv')) return;
+        
+            const cartDiv = document.createElement('div');
+            cartDiv.id = 'cartDiv';
+            cartDiv.className = 'cart';
+        
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'cart-content';
+        
+            try {
+                const res = await fetch('/api/v1/cart/getcart', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+        
+                if (res.ok) {
+                    const items = await res.json();
+        
+                    if (items.length === 0) {
+                        contentDiv.textContent = "A kosarad üres.";
+                    } else {
+                        const list = document.createElement('ul');
+                        list.style.listStyle = 'none';
+                        list.style.padding = '0';
+            // itemek hozzáadása !!!!!!!!!!!!!!!!!!
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.style.textDecoration = 'underline'; // Aláhúzás
+                    li.style.cursor = 'pointer'; // Kurzor kézre vált
+                    li.title = 'Mennyiség csökkentése -1-el'; // Tooltip szöveg
+                
+                    const total = item.price * item.quantity;
+                    li.textContent = `${item.name} - ${item.quantity} db = ${total} Ft`;
+                
+                    li.addEventListener('click', async () => {
+                        try {
+                            const res = await fetch(`/api/v1/cart/remove/${encodeURIComponent(item.productId)}`, {
+                                method: 'POST',
+                                credentials: 'same-origin'
+                            });
+                
+                            if (res.ok) {
+                                closecart();
+                                opencart(); // újratöltjük a kosarat
+                            } else {
+                                const msg = await res.text().catch(() => res.statusText);
+                                alert("Hiba a törlés során: " + msg);
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            alert("Hálózati hiba: " + err.message);
+                        }
+                    });
+                
+                    list.appendChild(li);
+                });
+        // vége!!!!!!!!!!!!!
+                        contentDiv.appendChild(list);
+                    }
+                } else {
+                    contentDiv.textContent = "Hiba történt a kosár lekérdezésekor.";
+                }
+            } catch (e) {
+                contentDiv.textContent = "Nem sikerült lekérni a kosár tartalmát.";
+            }
+        
+            // Megrendelem gomb
+            const orderBtn = document.createElement('button');
+            orderBtn.className = 'order-btn';
+            orderBtn.textContent = 'Megrendelem';
+        
+            orderBtn.onclick = async function() {
+                const res = await fetch('/api/v1/cart/order', { method: 'POST', credentials: 'same-origin' });
+                if (res.ok) {
+                    alert('Rendelés sikeres!');
+                    closecart();
+                } else {
+                    alert('Rendelés sikertelen!');
+                }
+            };
+        
+            cartDiv.appendChild(contentDiv);
+            cartDiv.appendChild(orderBtn);
+        
+            // Eltüntetés egér elhagyásakor
+            cartDiv.addEventListener('mouseleave', closecart);
+        
+            document.body.appendChild(cartDiv);
+        }
+
+        
+        function closecart() {
+            const cartDiv = document.getElementById('cartDiv');
+            if (cartDiv) {
+                cartDiv.remove();
+            }
+        }
+    
     function deletecontent(){ document.getElementById('etel-container').innerHTML = ''; document.getElementById('hero').style.display = 'none'; }
     function fooldal(){
       deletecontent();
@@ -151,21 +302,23 @@
           credentials: 'same-origin'
         });
 
-        if (res.status === 401) {
+        if (res.status === 403 || res.status === 401) {
           const go = confirm('A kosár használatához be kell jelentkezned. Belépsz most?');
           if (go) window.location.href = '/login';
           return;
         }
-        if (res.status === 403) {
+        
+       //if (res.status === 403) {
           // valószínű jogosultsági probléma a backend oldalon (például hasRole vs ROLE_ mismatch)
-          const text = await res.text().catch(()=>res.statusText);
-          alert('Nincs jogosultságod a művelethez: ' + text);
-          return;
-        }
-        if (res.status === 404) {
-          alert('A kosár funkció még nincs készítve (404).');
-          return;
-        }
+          //const text = await res.text().catch(()=>res.statusText);
+          //alert('Nincs jogosultságod a művelethez: ' + text);
+          //return;
+        
+        
+        //if (res.status === 404) {
+          //alert('A kosár funkció még nincs készítve (404).');
+          //return;
+        //}
         if (!res.ok) {
           const text = await res.text().catch(()=>res.statusText);
           alert('Hiba: ' + text);
