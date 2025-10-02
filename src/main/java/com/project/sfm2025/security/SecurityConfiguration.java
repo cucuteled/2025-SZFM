@@ -32,7 +32,9 @@ public class SecurityConfiguration {
                                 "/etelek",
                                 "/index",
                                 "/index.html",
-                                "/?continue"
+                                "/css/**",
+                                "/?continue",
+                                "/api/contact"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
