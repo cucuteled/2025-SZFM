@@ -1,3 +1,10 @@
+2025.10.02 - Félix
+Bejelentkezési lehetőségek:
+admin@admin.hu admin123
+teszt@teszt.hu teszt123
+
+--------------------------------
+
 Létre lett hozva a Food entitás, a FoodRepository és a FoodController.
 
 A Food-ban vannak egy étel adattagjai, a FoodControllerben pedig az API hívások.
@@ -17,3 +24,5 @@ Patrik 09.23 - Login
 A spring boot security starter dependency ad egy kezdetleges login oldalt az index.html elé és admin adminnal lehet még csak belépni.
 
 ---------------------------------------------
+
+

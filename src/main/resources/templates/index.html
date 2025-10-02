@@ -154,14 +154,20 @@
                             alert("Hálózati hiba: " + err.message);
                         }
                     });
-                
+					
+					const br = document.createElement('br');
+					const hr = document.createElement('hr');
                     list.appendChild(li);
+					// szépítés
+					list.appendChild(br);
+					list.appendChild(hr);
+					list.appendChild(br);
                 });
         // vége!!!!!!!!!!!!!
                         contentDiv.appendChild(list);
                     }
                 } else {
-                    contentDiv.textContent = "Hiba történt a kosár lekérdezésekor.";
+                    contentDiv.textContent = "Jelentkezz be a kosarad megtekintéséhez!";
                 }
             } catch (e) {
                 contentDiv.textContent = "Nem sikerült lekérni a kosár tartalmát.";
