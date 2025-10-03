@@ -3,6 +3,14 @@ Bejelentkezési lehetőségek:
 admin@admin.hu admin123
 teszt@teszt.hu teszt123
 
+---------------------------
+
+2025.10.03 16:03
+ContactSupport mentés az adatbázisba
+Láthatósági javítás
+Food tábla owner beállítás: ez a cég aki felrakta
+orderitemnél az etelowner a cég és az owner aki letette a rendelést felhasználó
+
 --------------------------------
 
 Létre lett hozva a Food entitás, a FoodRepository és a FoodController.

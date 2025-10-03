@@ -1,10 +1,22 @@
 package com.project.sfm2025.controllers;
 
+import com.project.sfm2025.entities.SupportMSG;
+import com.project.sfm2025.repositories.SupportMSGRepository;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+
+
 
 @RestController
 @RequestMapping("/api")
 public class ContactController {
+
+    private final SupportMSGRepository supportMSGRepository;
+
+    public ContactController(SupportMSGRepository supportMSGRepository) {
+        this.supportMSGRepository = supportMSGRepository;
+    }
 
     public static class ContactMessage {
         private String name;
@@ -38,7 +50,15 @@ public class ContactController {
         System.out.println("Új kapcsolat üzenet: "
                 + msg.getName() + " | " + msg.getEmail() + " | " + msg.getMessage());
 
-        // Itt jöhetne: adatbázis mentés, email küldés stb.
+        // Itt jöhetne: adatbázis mentés, email küldés stb
+        SupportMSG mi = new SupportMSG();
+        mi.setFeladonev(msg.getName());
+        mi.setFelado(msg.getEmail());
+        mi.setUzenet(msg.getMessage());
+        mi.setIdo(LocalDateTime.now());
+
+        supportMSGRepository.save(mi);
+
         return new ContactResponse("success", "Üzenet fogadva");
     }
 }
