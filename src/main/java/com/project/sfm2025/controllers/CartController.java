@@ -128,6 +128,12 @@ public class CartController {
             oi.setPrice(ci.getPrice());
             oi.setOrderTime(LocalDateTime.now());
             oi.setQuantity(ci.getQuantity());
+
+            // lekérjük a Food entitást a repositoryból
+            foodRepository.findByName(ci.getName()).ifPresent(food -> {
+                oi.setEtelowner(food.getOwner()); // az étel tulajdonosa
+            });
+
             oi.setAddress("Alapértelmezett cím"); // később módosítható
 
             orderItemRepository.save(oi);

@@ -24,6 +24,16 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
+    private String etelowner;
+
+    public String getEtelowner() {
+        return etelowner;
+    }
+
+    public void setEtelowner(String etelowner) {
+        this.etelowner = etelowner;
+    }
+
     private String owner;  // felhasználó
     private LocalDateTime orderTime;
 

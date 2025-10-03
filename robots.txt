@@ -1,0 +1,9 @@
+# THIS TXT FILE SHOWS WERE CRAWLERS BOT SHOULDN'T GO
+
+# Restrictions:
+Disallow: /src/main/resources/static/data/
+Disallow: /src/main/resources/static/css/
+Disallow: /target/
+Disallow: /.mvn/
+
+Allow: /src/main/resources/

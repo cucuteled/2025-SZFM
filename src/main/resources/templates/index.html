@@ -24,6 +24,20 @@
         .hero { margin-left: 220px; padding: 60px 40px 20px 40px; color: white; }
         .hero h1 { font-size: 36px; margin: 0 0 10px 0; letter-spacing: 2px; }
         .hero p { margin: 0 0 16px 0; max-width: 800px; color: #fffdd0; }
+		
+		.wmsg {
+			color:#fff;
+			text-align:left;
+
+		/* fekete körvonal (sok kis shadow minden irányban) */
+			text-shadow:
+				1px 1px 0 #000,
+
+				/* plusz glow fehérrel */
+				0 0 50px #fff,
+				0 0 50px #ccc;
+		}
+		
         .cart-btn {
             position: absolute;
             top: 60px;
@@ -91,8 +105,8 @@
 
 <!-- Hero / Főoldal tartalom -->
 <div id="hero" class="hero" style="display:none;">
-    <h1>Üdvözlünk az Étteremben</h1>
-    <p>Kínálatunk friss, finom és helyi alapanyagokból készül. Nézd meg a menüt, és ha tetszik valami, tedd a kosárba — a rendeléshez be kell jelentkezni.</p>
+    <h1 class="wmsg">Üdvözlünk az Étteremben</h1>
+    <p class="wmsg">Kínálatunk friss, finom és helyi alapanyagokból készül. Nézd meg a menüt, és ha tetszik valami, tedd a kosárba — a rendeléshez be kell jelentkezni.</p>
     <button onclick="listfoods()" style="padding:10px 16px;border-radius:12px;border:none;background:rgba(255,255,255,0.15);color:white;cursor:pointer">Megnézem a menüt</button>
 </div>
 

@@ -11,6 +11,15 @@ public class Food
     @GeneratedValue int id;
     private String name;
     private int price;
+    private String owner;
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
     public Food()
     {
