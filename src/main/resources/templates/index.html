@@ -13,18 +13,32 @@
         .auth-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
         .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
         .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
-        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; }
+        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: block; flex-wrap: wrap; gap: 20px; }
         .etel-kartya { background-color: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; width: 200px; color: white; display: flex; flex-direction: column; align-items: center; backdrop-filter: blur(3px); transition: transform 0.3s ease; }
+        .ital-kartya { background-color: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; width: 200px; color: white; display: flex; flex-direction: column; align-items: center; backdrop-filter: blur(3px); transition: transform 0.3s ease; }
         .etel-kartya:hover { transform: scale(1.05); }
+        .ital-kartya:hover { transform: scale(1.05); }
         .etel-kartya img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
+        .ital-kartya img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
         .etel-kartya .nev { font-weight: bold; font-size: 18px; margin-bottom: 5px; text-align:center; }
+        .ital-kartya .nev { font-weight: bold; font-size: 18px; margin-bottom: 5px; text-align:center; }
         .etel-kartya .ar { font-size: 16px; margin-bottom: 10px; }
+        .ital-kartya .ar { font-size: 16px; margin-bottom: 10px; }
         .etel-kartya button { background-color: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; }
+        .ital-kartya button { background-color: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; }
         .etel-kartya button:hover { background-color: rgba(255,255,255,0.4); }
+        .ital-kartya button:hover { background-color: rgba(255,255,255,0.4); }
         .hero { margin-left: 220px; padding: 60px 40px 20px 40px; color: white; }
         .hero h1 { font-size: 36px; margin: 0 0 10px 0; letter-spacing: 2px; }
         .hero p { margin: 0 0 16px 0; max-width: 800px; color: #fffdd0; }
-		
+        section {margin-bottom: 60px;}
+        .etel-lista,
+        .ital-lista {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+        }
+
 		.wmsg {
 			color:#fff;
 			text-align:left;
@@ -37,7 +51,7 @@
 				0 0 50px #fff,
 				0 0 50px #ccc;
 		}
-		
+
         .cart-btn {
             position: absolute;
             top: 60px;
@@ -52,7 +66,7 @@
             transition: all 0.3s ease;
             text-decoration: none;
         }
-        
+
         .cart {
             position: absolute;
             top: 100px;
@@ -65,11 +79,11 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            max-height: 80vh;         
-            overflow-y: auto;         
+            max-height: 80vh;
+            overflow-y: auto;
             transition: all 0.3s ease;
         }
-        
+
         .cart-content {
             flex-grow: 1;
             display: flex;
@@ -77,7 +91,7 @@
             justify-content: center;
             text-align: center;
         }
-        
+
         .cart button.order-btn {
             align-self: center;
             margin-top: 10px;
@@ -101,7 +115,7 @@
 <div class="title">ÉTTEREM</div>
 
 <button id="authBtn" class="auth-btn">Bejelentkezés</button>
-<button id="cartBtn" class="cart-btn" onclick="opencart()">Kosár</button> <!-- onmouseleave="closecart()" !--> 
+<button id="cartBtn" class="cart-btn" onclick="opencart()">Kosár</button> <!-- onmouseleave="closecart()" !-->
 
 <!-- Hero / Főoldal tartalom -->
 <div id="hero" class="hero" style="display:none;">
@@ -112,28 +126,30 @@
 
 <div id="etel-container" class="screencontent"></div>
 
+
+
 <script>
     // --- segédf-ök ---
         async function opencart() {
             // Ne nyisson többet, ha már van
             if (document.getElementById('cartDiv')) return;
-        
+
             const cartDiv = document.createElement('div');
             cartDiv.id = 'cartDiv';
             cartDiv.className = 'cart';
-        
+
             const contentDiv = document.createElement('div');
             contentDiv.className = 'cart-content';
-        
+
             try {
                 const res = await fetch('/api/v1/cart/getcart', {
                     method: 'GET',
                     credentials: 'same-origin'
                 });
-        
+
                 if (res.ok) {
                     const items = await res.json();
-        
+
                     if (items.length === 0) {
                         contentDiv.textContent = "A kosarad üres.";
                     } else {
@@ -146,17 +162,17 @@
                     li.style.textDecoration = 'underline'; // Aláhúzás
                     li.style.cursor = 'pointer'; // Kurzor kézre vált
                     li.title = 'Mennyiség csökkentése -1-el'; // Tooltip szöveg
-                
+
                     const total = item.price * item.quantity;
                     li.textContent = `${item.name} - ${item.quantity} db = ${total} Ft`;
-                
+
                     li.addEventListener('click', async () => {
                         try {
                             const res = await fetch(`/api/v1/cart/remove/${encodeURIComponent(item.productId)}`, {
                                 method: 'POST',
                                 credentials: 'same-origin'
                             });
-                
+
                             if (res.ok) {
                                 closecart();
                                 opencart(); // újratöltjük a kosarat
@@ -169,7 +185,7 @@
                             alert("Hálózati hiba: " + err.message);
                         }
                     });
-					
+
 					const br = document.createElement('br');
 					const hr = document.createElement('hr');
                     list.appendChild(li);
@@ -187,12 +203,12 @@
             } catch (e) {
                 contentDiv.textContent = "Nem sikerült lekérni a kosár tartalmát.";
             }
-        
+
             // Megrendelem gomb
             const orderBtn = document.createElement('button');
             orderBtn.className = 'order-btn';
             orderBtn.textContent = 'Megrendelem';
-        
+
             orderBtn.onclick = async function() {
                 const res = await fetch('/api/v1/cart/order', { method: 'POST', credentials: 'same-origin' });
                 if (res.ok) {
@@ -202,24 +218,24 @@
                     alert('Rendelés sikertelen!');
                 }
             };
-        
+
             cartDiv.appendChild(contentDiv);
             cartDiv.appendChild(orderBtn);
-        
+
             // Eltüntetés egér elhagyásakor
             cartDiv.addEventListener('mouseleave', closecart);
-        
+
             document.body.appendChild(cartDiv);
         }
 
-        
+
         function closecart() {
             const cartDiv = document.getElementById('cartDiv');
             if (cartDiv) {
                 cartDiv.remove();
             }
         }
-    
+
     function deletecontent(){ document.getElementById('etel-container').innerHTML = ''; document.getElementById('hero').style.display = 'none'; }
     function fooldal(){
       deletecontent();
@@ -319,48 +335,101 @@
     }
 
     // -- ételek betöltése --
-    async function listfoods(){
-      deletecontent();
-      const container = document.getElementById('etel-container');
-      const loading = document.createElement('div'); loading.textContent = 'Ételek betöltése...'; container.appendChild(loading);
+    async function listfoods() {
+        deletecontent();
 
-      try {
-        const res = await fetch('/etelek', { method: 'GET', credentials: 'same-origin' });
-        if (!res.ok) {
-          const txt = await res.text().catch(()=>res.statusText);
-          container.innerHTML = '<p>Hiba az ételek lekérésekor: ' + txt + '</p>';
-          return;
+        const mainContainer = document.getElementById('etel-container');
+        mainContainer.innerHTML = '';
+
+        // --- Ételek szekció ---
+        const etelSection = document.createElement('section');
+        etelSection.innerHTML = '<h2>Ételek</h2>';
+        mainContainer.appendChild(etelSection);
+
+        const etelContainer = document.createElement('div');
+        etelContainer.className = 'etel-lista';
+        etelSection.appendChild(etelContainer);
+
+        const etelLoading = document.createElement('div');
+        etelLoading.textContent = 'Ételek betöltése...';
+        etelContainer.appendChild(etelLoading);
+
+        try {
+            const resEtelek = await fetch('/etelek', { method: 'GET', credentials: 'same-origin' });
+            if (!resEtelek.ok) throw new Error(await resEtelek.text());
+            const etelek = await resEtelek.json();
+
+            etelContainer.innerHTML = etelek.length
+                ? ''
+                : '<p>Nincs elérhető étel.</p>';
+
+            etelek.forEach(etel => {
+                const kartya = document.createElement('div');
+                kartya.className = 'etel-kartya';
+                const kepNev = (etel.name || 'default').toLowerCase();
+                const kepEleres = `/pictures/${encodeURIComponent(kepNev)}.jpg`;
+                const idVal = etel.id ?? etel.name;
+
+                kartya.innerHTML = `
+        <img src="${kepEleres}" alt="${escapeHtml(etel.name)}" onerror="this.src='/pictures/default.jpg'">
+        <div class="nev">${escapeHtml(etel.name)}</div>
+        <div class="ar">${escapeHtml(String(etel.price))} Ft</div>
+        <button type="button">Hozzáadás</button>
+      `;
+
+                kartya.querySelector('button').addEventListener('click', () => addToCart(idVal, etel));
+                etelContainer.appendChild(kartya);
+            });
+
+        } catch (err) {
+            console.error('Hiba az ételek lekérésekor:', err);
+            etelContainer.innerHTML = '<p>Hiba történt az ételek betöltésekor.</p>';
         }
-        const etelek = await res.json();
-        container.innerHTML = '';
-        if (!Array.isArray(etelek) || etelek.length === 0) {
-          container.innerHTML = '<p>Nincs elérhető étel.</p>';
-          return;
+
+        // --- Italok szekció ---
+        const italSection = document.createElement('section');
+        italSection.innerHTML = '<h2>Italok</h2>';
+        mainContainer.appendChild(italSection);
+
+        const italContainer = document.createElement('div');
+        italContainer.className = 'ital-lista';
+        italSection.appendChild(italContainer);
+
+        const italLoading = document.createElement('div');
+        italLoading.textContent = 'Italok betöltése...';
+        italContainer.appendChild(italLoading);
+
+        try {
+            const resItalok = await fetch('/italok', { method: 'GET', credentials: 'same-origin' });
+            if (!resItalok.ok) throw new Error(await resItalok.text());
+            const italok = await resItalok.json();
+
+            italContainer.innerHTML = italok.length
+                ? ''
+                : '<p>Nincs elérhető ital.</p>';
+
+            italok.forEach(ital => {
+                const kartya = document.createElement('div');
+                kartya.className = 'ital-kartya';
+                const kepNev = (ital.name || 'default').toLowerCase();
+                const kepEleres = `/pictures/${encodeURIComponent(kepNev)}.jpg`;
+                const idVal = ital.id ?? ital.name;
+
+                kartya.innerHTML = `
+        <img src="${kepEleres}" alt="${escapeHtml(ital.name)}" onerror="this.src='/pictures/default.jpg'">
+        <div class="nev">${escapeHtml(ital.name)}</div>
+        <div class="ar">${escapeHtml(String(ital.price))} Ft</div>
+        <button type="button">Hozzáadás</button>
+      `;
+
+                kartya.querySelector('button').addEventListener('click', () => addToCart(idVal, ital));
+                italContainer.appendChild(kartya);
+            });
+
+        } catch (err) {
+            console.error('Hiba az italok lekérésekor:', err);
+            italContainer.innerHTML = '<p>Hiba történt az italok betöltésekor.</p>';
         }
-
-        etelek.forEach(etel => {
-          const kartya = document.createElement('div');
-          kartya.className = 'etel-kartya';
-          const kepNev = (etel.name || 'default').toString().toLowerCase();
-          const kepEleres = `/pictures/${encodeURIComponent(kepNev)}.jpg`;
-          const idVal = (typeof etel.id !== 'undefined') ? etel.id : (etel.name || '');
-
-          kartya.innerHTML = `
-            <img src="${kepEleres}" alt="${escapeHtml(etel.name)}" onerror="this.src='/pictures/default.jpg'">
-            <div class="nev">${escapeHtml(etel.name)}</div>
-            <div class="ar">${escapeHtml(String(etel.price))} Ft</div>
-            <button type="button">Hozzáadás</button>
-          `;
-
-          const btn = kartya.querySelector('button');
-          btn.addEventListener('click', () => addToCart(idVal, etel));
-          container.appendChild(kartya);
-        });
-
-      } catch (err) {
-        console.error('Hiba az ételek lekérésekor:', err);
-        container.innerHTML = '<p>Hálózati hiba az ételek lekérésekor.</p>';
-      }
     }
 
     function escapeHtml(str){ if (str == null) return ''; return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
@@ -378,14 +447,14 @@
           if (go) window.location.href = '/login';
           return;
         }
-        
+
        //if (res.status === 403) {
           // valószínű jogosultsági probléma a backend oldalon (például hasRole vs ROLE_ mismatch)
           //const text = await res.text().catch(()=>res.statusText);
           //alert('Nincs jogosultságod a művelethez: ' + text);
           //return;
-        
-        
+
+
         //if (res.status === 404) {
           //alert('A kosár funkció még nincs készítve (404).');
           //return;

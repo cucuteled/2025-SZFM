@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@RestController
+@RequestMapping("/italok")
 public class DrinkController
 {
     private final DrinkRepository drinkRepository;
@@ -19,7 +21,7 @@ public class DrinkController
         this.drinkRepository = drinkRepository;
     }
 
-    @GetMapping("/etelek")
+    @GetMapping
     public ResponseEntity<List<Drink>> getAll()
     {
         return ResponseEntity.ok(drinkRepository.findAll());
@@ -32,7 +34,7 @@ public class DrinkController
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/etelek")
+    @PostMapping
     public ResponseEntity<?> add(@RequestBody Drink drink)
     {
         if (drinkRepository.existsById(drink.getId()))
