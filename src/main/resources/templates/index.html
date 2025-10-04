@@ -96,6 +96,7 @@
     <button onclick="listfoods()">Menü</button>
     <button onclick="rolunk()">Rólunk</button>
     <button onclick="kapcsolat()">Kapcsolat</button>
+    <a id="myprofilebutton" style="text-decoration:none; visibility: hidden;"><button style="align:top; background-color: rgba(100,100,100,0.1);">Profilom</button></a>
 </div>
 
 <div class="title">ÉTTEREM</div>
@@ -291,15 +292,25 @@
           const display = (user && user.email) ? user.email : 'Profil';
           btn.textContent = 'Kijelentkezés (' + display + ')';
           btn.onclick = () => { if (confirm('Biztos kijelentkezel?')) logout(); };
+          const profilgomb = document.getElementById("myprofilebutton");
+          profilgomb.style.visibility = 'visible';
+          profilgomb.onclick = () => window.location.href = '/myprofile';
         } else {
-          btn.textContent = 'Bejelentkezés';
-          btn.onclick = () => window.location.href = '/login';
+            loggedoutstate();
         }
       } catch (err) {
         console.error('Auth státusz hiba:', err);
+        loggedoutstate();
+      }
+    }
+    // DRY
+    function loggedoutstate() {
+        const btn = document.getElementById('authBtn');
         btn.textContent = 'Bejelentkezés';
         btn.onclick = () => window.location.href = '/login';
-      }
+        //
+        const profilgomb = document.getElementById("myprofilebutton");
+        profilgomb.style.visibility = 'hidden';
     }
 
     async function logout(){

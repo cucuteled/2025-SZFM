@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="/css/contactStyle.css">
+    <title>Étterem</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            min-height: 100vh; 
+            font-family: Arial, sans-serif; 
+            color: white; 
+            overflow: hidden;
+        }
+        .sidebar { position: fixed; top: 0; left: 0; width: 200px; height: 100%; background-color: rgba(128,128,128,0.5); border-top-right-radius: 15px; border-bottom-right-radius: 15px; padding: 20px; box-sizing: border-box; }
+        .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(128,128,128,0.5); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+        .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
+        .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
+        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; }
+        .vissza-btn { position: absolute; top: 20px; right: 20px; background-color: rgba(128,128,128,0.5); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
+        .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
+        .bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 2s ease-in-out;
+            z-index: -1;
+        }
+        #bg1 { opacity: 1; }
+        #bg2 { opacity: 0; }
+    </style>
+</head>
+<body onload="load()">
+<!-- háttérdiv-ek -->
+<div id="bg1" class="bg" style="background-image: url('/pictures/background/profileback.png');"></div>
+<div id="bg2" class="bg"></div>
+
+<div class="sidebar">
+    <button onclick="">Profil Adatok</button>
+    <button onclick="">Kredit & Kupon</button>
+    <button onclick="">Rendeléseim</button>
+    <button onclick="">Támogatás és segítségkérés</button>
+    <button onclick="">Adatvédelem és biztonság</button>
+    <br>
+    <button onclick="">Kijelentkezés</button>
+    <button onclick="">Profil törlés</button>
+</div>
+
+<div class="title">Profil Adatok</div>
+<button id="vissza" class="vissza-btn">Vissza a főoldalra</button>
+
+
+
+
+
+<script>
+
+function load() {
+    const vb = document.getElementById("vissza");
+    vb.onclick = () => window.location.href = '/';
+}
+// --------------- függvények
+// body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/background/profileback.jpg'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
+    const images = [
+      "/pictures/background/backcar.png",
+      "/pictures/background/profileback.png",
+      "/pictures/background/backhouse.png",
+      "/pictures/background/backuni.png"
+    ];
+
+    let current = 0;
+    const bg1 = document.getElementById("bg1");
+    const bg2 = document.getElementById("bg2");
+    let showingBg1 = true;
+
+    setInterval(() => {
+      const nextImage = images[(current + 1) % images.length];
+      if (showingBg1) {
+        bg2.style.backgroundImage = `url(${nextImage})`;
+        bg2.style.opacity = 1;
+        bg1.style.opacity = 0;
+      } else {
+        bg1.style.backgroundImage = `url(${nextImage})`;
+        bg1.style.opacity = 1;
+        bg2.style.opacity = 0;
+      }
+      showingBg1 = !showingBg1;
+      current = (current + 1) % images.length;
+    }, 6000); // 6 másodpercenként vált
+
+
+// --------------- vége
+</script>
+</body>
+</html>
