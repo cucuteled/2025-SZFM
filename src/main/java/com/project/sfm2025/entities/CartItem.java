@@ -15,6 +15,17 @@ public class CartItem {
     private Integer price;
     private Integer quantity;
 
+    @Column(nullable = false)
+    private String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public Integer getQuantity() {
         return quantity;
     }

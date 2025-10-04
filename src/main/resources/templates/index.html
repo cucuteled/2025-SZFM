@@ -169,7 +169,7 @@
 
                     li.addEventListener('click', async () => {
                         try {
-                            const res = await fetch(`/api/v1/cart/remove/${encodeURIComponent(item.productId)}`, {
+                            const res = await fetch(`/api/v1/cart/remove/${encodeURIComponent(item.productId)}?type=${encodeURIComponent(item.type)}`, {
                                 method: 'POST',
                                 credentials: 'same-origin'
                             });
@@ -344,13 +344,10 @@
         alert('Hálózati hiba: ' + e.message);
       }
     }
-
-    // -- ételek betöltése --
-    async function listfoods() {
-        deletecontent();
-
+    
+    // ételek listázása
+    async function listetelek() {
         const mainContainer = document.getElementById('etel-container');
-        mainContainer.innerHTML = '';
 
         // --- Ételek szekció ---
         const etelSection = document.createElement('section');
@@ -388,7 +385,7 @@
         <button type="button">Hozzáadás</button>
       `;
 
-                kartya.querySelector('button').addEventListener('click', () => addToCart(idVal, etel));
+                kartya.querySelector('button').addEventListener('click', () => addToCart(idVal, "etel"));
                 etelContainer.appendChild(kartya);
             });
 
@@ -396,7 +393,12 @@
             console.error('Hiba az ételek lekérésekor:', err);
             etelContainer.innerHTML = '<p>Hiba történt az ételek betöltésekor.</p>';
         }
-
+    }
+    
+    // italok listázása
+    async function listitalok() {
+        const mainContainer = document.getElementById('etel-container');
+        
         // --- Italok szekció ---
         const italSection = document.createElement('section');
         italSection.innerHTML = '<h2>Italok</h2>';
@@ -433,7 +435,7 @@
         <button type="button">Hozzáadás</button>
       `;
 
-                kartya.querySelector('button').addEventListener('click', () => addToCart(idVal, ital));
+                kartya.querySelector('button').addEventListener('click', () => addToCart(idVal, "ital"));
                 italContainer.appendChild(kartya);
             });
 
@@ -443,40 +445,38 @@
         }
     }
 
+    // -- ételek betöltése --
+    async function listfoods() {
+        deletecontent();
+        listetelek();
+        listitalok(); // DRY!!!
+    }
+
     function escapeHtml(str){ if (str == null) return ''; return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
 
     // -- kosár hozzáadás --
-    async function addToCart(etelId, etelObj=null){
+    async function addToCart(productId, type = 'etel') {
       try {
-        const res = await fetch(`/api/v1/cart/add/${encodeURIComponent(etelId)}`, {
+        const res = await fetch(`/api/v1/cart/add/${encodeURIComponent(productId)}?type=${encodeURIComponent(type)}`, {
           method: 'POST',
           credentials: 'same-origin'
         });
-
+    
         if (res.status === 403 || res.status === 401) {
           const go = confirm('A kosár használatához be kell jelentkezned. Belépsz most?');
           if (go) window.location.href = '/login';
           return;
         }
-
-       //if (res.status === 403) {
-          // valószínű jogosultsági probléma a backend oldalon (például hasRole vs ROLE_ mismatch)
-          //const text = await res.text().catch(()=>res.statusText);
-          //alert('Nincs jogosultságod a művelethez: ' + text);
-          //return;
-
-
-        //if (res.status === 404) {
-          //alert('A kosár funkció még nincs készítve (404).');
-          //return;
-        //}
+    
         if (!res.ok) {
           const text = await res.text().catch(()=>res.statusText);
           alert('Hiba: ' + text);
           return;
         }
+    
         const body = await res.text();
         alert(body || 'Sikeresen hozzáadva a kosárhoz!');
+    
       } catch (err) {
         console.error('addToCart hiba:', err);
         alert('Hálózati hiba: ' + err.message);

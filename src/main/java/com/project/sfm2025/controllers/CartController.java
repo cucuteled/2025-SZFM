@@ -2,8 +2,10 @@ package com.project.sfm2025.controllers;
 
 import com.project.sfm2025.entities.CartItem;
 import com.project.sfm2025.entities.Food;
+import com.project.sfm2025.entities.Drink;
 import com.project.sfm2025.entities.OrderItem;
 import com.project.sfm2025.repositories.CartItemRepository;
+import com.project.sfm2025.repositories.DrinkRepository;
 import com.project.sfm2025.repositories.OrderItemRepository;
 import com.project.sfm2025.repositories.FoodRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,62 +25,78 @@ public class CartController {
     private final CartItemRepository cartItemRepository;
     private final OrderItemRepository orderItemRepository;
     private final FoodRepository foodRepository;
+    private final DrinkRepository drinkRepository;
 
     private String sanitize(String input) {
         return input.replaceAll("[^a-zA-Z0-9_]", "_");
     }
 
     @PostMapping("/add/{productId}")
-    public ResponseEntity<String> addToCart(@PathVariable String productId, Authentication auth) {
+    public ResponseEntity<String> addToCart(
+            @PathVariable String productId,
+            @RequestParam String type,
+            Authentication auth) {
+
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(401).body("Nem vagy bejelentkezve");
         }
 
         String username = sanitize(auth.getName());
 
-        //  Lekérjük az ételt az adatbázisból
-        Optional<Food> foodOptional = foodRepository.findById(Integer.parseInt(productId));
-        if (foodOptional.isEmpty()) {
-            return ResponseEntity.status(404).body("A megadott termék nem található");
+        String productName;
+        int price;
+
+        if ("etel".equalsIgnoreCase(type)) {
+            Optional<Food> foodOpt = foodRepository.findById(Integer.parseInt(productId));
+            if (foodOpt.isEmpty()) return ResponseEntity.status(404).body("A megadott étel nem található");
+            Food food = foodOpt.get();
+            productName = food.getName();
+            price = food.getPrice();
+
+        } else if ("ital".equalsIgnoreCase(type)) {
+            Optional<Drink> drinkOpt = drinkRepository.findById(Integer.parseInt(productId));
+            if (drinkOpt.isEmpty()) return ResponseEntity.status(404).body("A megadott ital nem található");
+            Drink drink = drinkOpt.get();
+            productName = drink.getName();
+            price = drink.getPrice();
+
+        } else {
+            return ResponseEntity.badRequest().body("Ismeretlen terméktípus: " + type);
         }
 
-        Food food = foodOptional.get();
-
-        // Megnézzük, van-e már ilyen tétel a kosárban
-        Optional<CartItem> existingItemOpt = cartItemRepository.findByOwnerAndProductId(username, productId);
+        Optional<CartItem> existingItemOpt = cartItemRepository.findByOwnerAndProductIdAndType(username, productId, type);
 
         if (existingItemOpt.isPresent()) {
-            // Már van ilyen, növeljük a quantity-t
             CartItem existingItem = existingItemOpt.get();
             int currentQuantity = (existingItem.getQuantity() != null) ? existingItem.getQuantity() : 1;
             existingItem.setQuantity(currentQuantity + 1);
             cartItemRepository.save(existingItem);
-            return ResponseEntity.ok("Mennyiség növelve: " + food.getName());
+            return ResponseEntity.ok("Mennyiség növelve: " + productName);
         }
 
-        // Ha még nincs, újként hozzáadjuk
         CartItem item = new CartItem();
         item.setOwner(username);
         item.setProductId(productId);
-        item.setName(food.getName());
-        item.setPrice(food.getPrice());
+        item.setName(productName);
+        item.setPrice(price);
         item.setQuantity(1);
+        item.setType(type);
 
         cartItemRepository.save(item);
 
-        return ResponseEntity.ok("Hozzáadva a kosárhoz: " + food.getName());
+        return ResponseEntity.ok("Hozzáadva a kosárhoz: " + productName);
     }
 
 
     @PostMapping("/remove/{productId}")
-    public ResponseEntity<String> deleteFromCart(@PathVariable String productId, Authentication auth) {
+    public ResponseEntity<String> deleteFromCart(@PathVariable String productId,@RequestParam String type, Authentication auth) {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(401).body("Nem vagy bejelentkezve");
         }
 
         String username = sanitize(auth.getName());
 
-        Optional<CartItem> itemOptional = cartItemRepository.findByOwnerAndProductId(username, productId);
+        Optional<CartItem> itemOptional = cartItemRepository.findByOwnerAndProductIdAndType(username, productId, type);
 
         if (itemOptional.isEmpty()) {
             return ResponseEntity.status(404).body("A tétel nem található a kosárban.");
@@ -129,10 +147,13 @@ public class CartController {
             oi.setOrderTime(LocalDateTime.now());
             oi.setQuantity(ci.getQuantity());
 
-            // lekérjük a Food entitást a repositoryból
-            foodRepository.findByName(ci.getName()).ifPresent(food -> {
-                oi.setEtelowner(food.getOwner()); // az étel tulajdonosa
-            });
+            if ("etel".equalsIgnoreCase(ci.getType())) {
+                foodRepository.findByName(ci.getName())
+                        .ifPresent(food -> oi.setEtelowner(food.getOwner()));
+            } else if ("ital".equalsIgnoreCase(ci.getType())) {
+                drinkRepository.findByName(ci.getName())
+                        .ifPresent(drink -> oi.setEtelowner(drink.getOwner()));
+            }
 
             oi.setAddress("Alapértelmezett cím"); // később módosítható
 
