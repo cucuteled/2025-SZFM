@@ -30,6 +30,7 @@ public class SecurityConfiguration {
                                 "/login",
                                 "/pictures/**",
                                 "/etelek",
+                                "/italok",
                                 "/index",
                                 "/index.html",
                                 "/css/**",

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/etelek")
 public class FoodController
 {
     private final FoodRepository foodRepository;
@@ -19,7 +19,7 @@ public class FoodController
         this.foodRepository = foodRepository;
     }
 
-    @GetMapping("/etelek")
+    @GetMapping
     public ResponseEntity<List<Food>> getAll()
     {
         return ResponseEntity.ok(foodRepository.findAll());
@@ -32,7 +32,7 @@ public class FoodController
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/etelek")
+    @PostMapping
     public ResponseEntity<?> add(@RequestBody Food food)
     {
         if (foodRepository.existsById(food.getId()))
