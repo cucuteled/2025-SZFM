@@ -209,16 +209,18 @@
             const orderBtn = document.createElement('button');
             orderBtn.className = 'order-btn';
             orderBtn.textContent = 'Megrendelem';
-
-            orderBtn.onclick = async function() {
-                const res = await fetch('/api/v1/cart/order', { method: 'POST', credentials: 'same-origin' });
-                if (res.ok) {
-                    alert('Rendelés sikeres!');
-                    closecart();
-                } else {
-                    alert('Rendelés sikertelen!');
-                }
-            };
+            
+            // ORDERGOMB
+            //orderBtn.onclick = async function() {
+                //const res = await fetch('/api/v1/cart/order', { method: 'POST', credentials: 'same-origin' });
+                //if (res.ok) {
+                    //alert('Rendelés sikeres!');
+                  //  closecart();
+                //} else {
+               //     alert('Rendelés sikertelen!');
+             //   }
+           // };
+           orderBtn.onclick = () => window.location.href = '/checkout';
 
             cartDiv.appendChild(contentDiv);
             cartDiv.appendChild(orderBtn);

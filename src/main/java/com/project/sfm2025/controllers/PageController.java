@@ -11,4 +11,9 @@ public class PageController {
     public String myProfile() {
         return "myprofile";
     }
+    // rendelés leadás oldal
+    @GetMapping("/checkout")
+    public String OrderCheckOut() {
+        return "checkout";
+    }
 }

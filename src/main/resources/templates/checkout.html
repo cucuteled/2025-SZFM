@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="/css/contactStyle.css">
+    <title>Étterem</title>
+    <style>
+        body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
+        .wrapper {
+          margin-top: 100px; /* állítsd be a title + padding alapján */
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .itemcontent, .ordercontent {
+          margin: 5px 0;
+          background-color: rgba(5,5,5,0.8);
+          border-radius: 20px;
+          color: white;
+          padding: 30px;
+          width: 600px;
+          box-sizing: border-box;
+        }
+        .ordercontent input { flex: 1; padding: 10px; border-radius: 8px; border: none; background: rgba(0,0,0,0.5); color: white; }
+        
+        /* form mezők */
+        .ordercontent input {
+          padding: 10px;
+          border-radius: 8px;
+          border: none;
+          background: rgba(255,255,255,0.85);
+          color: black;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        /* Sor formázása */
+        .form-row {
+          margin-bottom: 5px;
+          display: flex;
+          flex-direction: column;
+        }
+        .form-row.double {
+          flex-direction: row;
+          gap: 10px;
+        }
+        .form-row.double > div { flex: 1; }
+        
+        .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: white; }
+        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; }
+        .vissza-btn { position: fixed; top: 20px; right: 20px; background-color: rgba(128,128,128,0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
+        .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
+        
+        .order-btn {
+            position: relative;
+            top: 50px;
+            right: -80px;
+            background-color: rgba(50,140,50,0.5);
+            color: white;
+            border: none;
+            padding: 10px 45px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body onload="load()">
+
+<div class="title">Kosár</div>
+<button id="vissza" class="vissza-btn">Vissza a főoldalra</button>
+
+<!-- Középső elemek !-->
+<div class="wrapper">
+
+    <!-- itembox !-->
+    <div id="itembox" class="itemcontent">
+    
+    
+    </div>
+    <!-- orderbox !-->
+    <div id="orderbox" class="ordercontent">
+<div class="form-row double">
+      <div>
+        <p>Vezetéknév</p>
+        <input id="userfirstname" type="text">
+      </div>
+      <div>
+        <p>Keresztnév</p>
+        <input id="usersecondname" type="text">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <p>Szállítási cím</p>
+      <input id="useraddress" type="text">
+    </div>
+
+    <div>
+      <label style="display: inline-flex; align-items: center; gap: 5px;">
+              A szállítási és számlázási cím megegyezik
+        <input id="useraddressequals" type="checkbox" checked>
+
+      </label>
+    </div>
+
+
+    <div class="form-row">
+      <p>Számlázási cím</p>
+      <input id="userbillingaddress" type="text">
+    </div>
+
+    <div class="form-row double">
+      <div>
+        <p>Telefonszám</p>
+        <input id="userphonenumber" type="tel">
+      </div>
+      <div>
+        <button class="order-btn" onclick="order()">Megrendelés</button>
+      </div>
+    </div>
+    </div>
+
+</div>
+<!-- Középső elemek vége !-->
+
+<script>
+// ------------------- js
+async function load() {
+    const vb = document.getElementById("vissza");
+    vb.onclick = () => window.location.href = '/';
+    
+    // teszt feltöltés
+  try {
+    const res = await fetch('/api/v1/cart/getcart', {
+      method: 'GET',
+      credentials: 'same-origin'
+    });
+
+    if (!res.ok) throw new Error('Sikertelen lekérés');
+
+    const items = await res.json();
+    const box = document.getElementById("itembox");
+    box.innerHTML = ""; // előző tartalom törlése
+
+    let total = 0;
+    if (items && items.length > 0) {
+    for (const item of items) {
+      const itemDiv = document.createElement('div');
+      itemDiv.style.display = 'flex';
+      itemDiv.style.gap = '20px';
+      itemDiv.style.marginBottom = '20px';
+      itemDiv.style.alignItems = 'flex-start';
+
+      // kép
+    const pic = document.createElement('img');
+    pic.src = `/pictures/${encodeURIComponent(item.name || 'default')}.jpg`;
+    pic.alt = escapeHtml(item.name);
+    pic.onerror = function () {
+      this.src = '/pictures/default.jpg';
+    };
+      pic.style.width = '100px';
+      pic.style.height = '100px';
+      pic.style.objectFit = 'cover';
+      pic.style.borderRadius = '10px';
+
+      // jobb oldali tartalom (szövegek + gombok)
+      const right = document.createElement('div');
+      right.style.flex = '1';
+
+      const name = document.createElement('h3');
+      name.textContent = item.name;
+      name.style.margin = '0';
+
+      const quantity = document.createElement('p');
+      quantity.textContent = `Mennyiség: ${item.quantity} db`;
+      quantity.style.color = 'gray';
+      quantity.style.margin = '5px 0';
+
+      // gombok
+      const buttons = document.createElement('div');
+      buttons.style.display = 'flex';
+      buttons.style.gap = '10px';
+      buttons.style.margin = '10px 0';
+
+      const plusBtn = document.createElement('button');
+      plusBtn.textContent = '+';
+      plusBtn.style.width = '40px';
+      plusBtn.style.height = '40px';
+      plusBtn.style.borderRadius = '5px';
+      plusBtn.style.cursor = 'pointer';
+      plusBtn.onclick = () => addToCart(item.productId, item.type.toString());
+
+      const minusBtn = document.createElement('button');
+      minusBtn.textContent = '−';
+      minusBtn.style.width = '40px';
+      minusBtn.style.height = '40px';
+      minusBtn.style.borderRadius = '5px';
+      minusBtn.style.cursor = 'pointer';
+minusBtn.onclick = async () => {
+  try {
+    const res = await fetch(`/api/v1/cart/remove/${encodeURIComponent(item.productId)}?type=${encodeURIComponent(item.type)}`, {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
+
+    if (res.ok) {
+      item.quantity -= 1; // csökkentjük lokálisan
+
+      if (item.quantity <= 0) {
+        await load(); // újratölti a kosarat
+      } else {
+        quantity.textContent = `Mennyiség: ${item.quantity} db`;
+        price.textContent = `Ár: ${item.price * item.quantity} Ft`;
+      }
+    } else {
+      const msg = await res.text().catch(() => res.statusText);
+      alert("Hiba a törlés során: " + msg);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Hálózati hiba: " + err.message);
+  }
+};
+
+      
+      buttons.appendChild(minusBtn);
+      buttons.appendChild(plusBtn);
+
+
+      // ár
+      const price = document.createElement('p');
+      price.textContent = `Ár: ${item.price * item.quantity} Ft`;
+      price.style.marginTop = '10px';
+
+      total += item.price * item.quantity;
+
+      // összerakás
+      right.appendChild(name);
+      right.appendChild(quantity);
+      right.appendChild(buttons);
+      right.appendChild(price);
+
+      itemDiv.appendChild(pic);
+      itemDiv.appendChild(right);
+
+      box.appendChild(itemDiv);
+    }
+    
+    
+    // Szaggatott vonal
+    const separator = document.createElement('hr');
+    separator.style.border = '1px dashed gray';
+    box.appendChild(separator);
+
+    // Teljes összeg
+    const totalPrice = document.createElement('p');
+    totalPrice.textContent = `Teljes összeg: ${total} Ft`;
+    totalPrice.style.fontWeight = 'bold';
+    box.appendChild(totalPrice);
+
+    // Szállítási díj
+    const shipping = 990;
+    const shippingLine = document.createElement('p');
+    shippingLine.textContent = `Szállítási díj: +${shipping} Ft`;
+    box.appendChild(shippingLine);
+
+    // Végösszeg
+    const final = document.createElement('p');
+    final.textContent = `Végösszeg: ${total + shipping} Ft`;
+    final.style.fontSize = '18px';
+    final.style.fontWeight = 'bold';
+    final.style.marginTop = '10px';
+    box.appendChild(final);
+    
+    } else { // ha üres
+            const box = document.getElementById("itembox");
+            box.innerHTML = "A kosarad üres."; // előző tartalom törlése
+    }
+
+  } catch (err) {
+    console.error("Hiba a kosár betöltésekor:", err);
+    const box = document.getElementById("itembox");
+    box.innerHTML = "<p style='color: red;'>Hiba történt a kosár betöltése közben.</p>";
+  }
+    
+}
+
+ function escapeHtml(str){ if (str == null) return ''; return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+
+    // -- kosár hozzáadás --
+    async function addToCart(productId, type = 'etel') {
+      try {
+        const res = await fetch(`/api/v1/cart/add/${encodeURIComponent(productId)}?type=${encodeURIComponent(type)}`, {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+    
+        if (res.status === 403 || res.status === 401) {
+          const go = confirm('A kosár használatához be kell jelentkezned. Belépsz most?');
+          if (go) window.location.href = '/login';
+          return;
+        }
+    
+        if (!res.ok) {
+          const text = await res.text().catch(()=>res.statusText);
+          alert('Hiba: ' + text);
+          return;
+        }
+    
+        const body = await res.text();
+        load();
+        //alert(body || 'Sikeresen hozzáadva a kosárhoz!');
+    
+      } catch (err) {
+        console.error('addToCart hiba:', err);
+        alert('Hálózati hiba: ' + err.message);
+      }
+    }
+    
+async function order() {
+  const res = await fetch('/api/v1/cart/order', { method: 'POST', credentials: 'same-origin' });
+  const box = document.getElementById("orderbox");
+  if (res.ok) {
+    box.innerHTML = '<p style="color:green;">Rendelés sikeres! :)</p>';
+  } else {
+    box.innerHTML = '<p style="color:red;">Rendelés sikertelen :(</p>';
+  }
+}
+
+
+    
+
+
+// ------------------
+</script>
+</body>
+</html>
