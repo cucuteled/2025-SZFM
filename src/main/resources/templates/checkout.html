@@ -119,7 +119,7 @@
         <input id="userphonenumber" type="tel">
       </div>
       <div>
-        <button class="order-btn" onclick="order()">Megrendelés</button>
+        <button id="orderbutton" class="order-btn" onclick="order()" stlye="visibility: hidden;">Megrendelés</button>
       </div>
     </div>
     </div>
@@ -154,7 +154,9 @@ async function load() {
       itemDiv.style.gap = '20px';
       itemDiv.style.marginBottom = '20px';
       itemDiv.style.alignItems = 'flex-start';
-
+      //
+      const orderbutton = document.getElementById("orderbutton")
+      orderbutton.hidden = false;
       // kép
     const pic = document.createElement('img');
     pic.src = `/pictures/${encodeURIComponent(item.name || 'default')}.jpg`;
@@ -279,6 +281,8 @@ minusBtn.onclick = async () => {
     } else { // ha üres
             const box = document.getElementById("itembox");
             box.innerHTML = "A kosarad üres."; // előző tartalom törlése
+            const orderbutton = document.getElementById("orderbutton")
+            orderbutton.hidden = true;
     }
 
   } catch (err) {

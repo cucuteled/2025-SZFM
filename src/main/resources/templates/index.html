@@ -133,6 +133,7 @@
     // --- segédf-ök ---
         async function opencart() {
             // Ne nyisson többet, ha már van
+            closecart();
             if (document.getElementById('cartDiv')) return;
 
             const cartDiv = document.createElement('div');
@@ -141,6 +142,9 @@
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'cart-content';
+            
+            const orderBtn = document.createElement('button');
+            orderBtn.className = 'order-btn';
 
             try {
                 const res = await fetch('/api/v1/cart/getcart', {
@@ -153,6 +157,7 @@
 
                     if (items.length === 0) {
                         contentDiv.textContent = "A kosarad üres.";
+                        orderBtn.hidden = true;
                     } else {
                         const list = document.createElement('ul');
                         list.style.listStyle = 'none';
@@ -186,7 +191,8 @@
                             alert("Hálózati hiba: " + err.message);
                         }
                     });
-
+                    orderBtn.textContent = 'Megrendelem';
+                    orderBtn.onclick = () => window.location.href = '/checkout';
 					const br = document.createElement('br');
 					const hr = document.createElement('hr');
                     list.appendChild(li);
@@ -200,27 +206,13 @@
                     }
                 } else {
                     contentDiv.textContent = "Jelentkezz be a kosarad megtekintéséhez!";
+                    orderBtn.textContent = 'Bejelentkezés';
+                    orderBtn.onclick = () => window.location.href = '/login';
                 }
             } catch (e) {
                 contentDiv.textContent = "Nem sikerült lekérni a kosár tartalmát.";
+                orderBtn.hidden = true;
             }
-
-            // Megrendelem gomb
-            const orderBtn = document.createElement('button');
-            orderBtn.className = 'order-btn';
-            orderBtn.textContent = 'Megrendelem';
-            
-            // ORDERGOMB
-            //orderBtn.onclick = async function() {
-                //const res = await fetch('/api/v1/cart/order', { method: 'POST', credentials: 'same-origin' });
-                //if (res.ok) {
-                    //alert('Rendelés sikeres!');
-                  //  closecart();
-                //} else {
-               //     alert('Rendelés sikertelen!');
-             //   }
-           // };
-           orderBtn.onclick = () => window.location.href = '/checkout';
 
             cartDiv.appendChild(contentDiv);
             cartDiv.appendChild(orderBtn);
