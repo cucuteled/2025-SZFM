@@ -99,7 +99,7 @@
 
   <!-- itembox -->
   <div class="itemcontent">
-    <div class="collapsible-header" onclick="toggleBox('itembox')">
+    <div id="itemcontent-collapsible" class="collapsible-header" onclick="toggleBox('itembox')">
       Tételek <span id="itembox-arrow">▼</span>
     </div>
     <div id="itembox" class="collapsible-body">
@@ -109,7 +109,7 @@
 
   <!-- orderbox -->
   <div class="ordercontent">
-    <div class="collapsible-header" onclick="toggleBox('orderbox')">
+    <div id="ordercontent-collapsible" class="collapsible-header" onclick="toggleBox('orderbox')">
       Megrendelés <span id="orderbox-arrow">▼</span>
     </div>
     <div id="orderbox" class="collapsible-body">
@@ -362,6 +362,10 @@ async function order() {
   const box = document.getElementById("orderbox");
   if (res.ok) {
     box.innerHTML = '<p style="color:green;"><br>Rendelés sikeres! :)</p>';
+    const c1 = document.getElementById("ordercontent-collapsible");
+    const c2 = document.getElementById("itemcontent-collapsible");
+    c1.remove();
+    c2.remove();
   } else {
     box.innerHTML = '<p style="color:red;"><br>Rendelés sikertelen :(</p>';
   }
