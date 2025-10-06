@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/css/contactStyle.css">
     <title>Étterem</title>
     <style>
-        body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
+        body { margin: 0; padding: 0; min-height: 100vh; align-items: inherit; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
         .wrapper {
           margin-top: 100px; /* állítsd be a title + padding alapján */
           display: flex;
@@ -66,6 +66,27 @@
             transition: all 0.3s ease;
             text-decoration: none;
         }
+        
+        .collapsible-header {
+          cursor: pointer;
+          font-weight: bold;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.1);
+          padding: 5px 10px;
+          border-radius: 10px;
+          margin-bottom: 0px;
+        }
+        
+        .collapsible-body {
+          display: block; /* alapértelmezetten látszik */
+          transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-body.hidden {
+          display: none;
+        }
     </style>
 </head>
 <body onload="load()">
@@ -73,56 +94,65 @@
 <div class="title">Kosár</div>
 <button id="vissza" class="vissza-btn">Vissza a főoldalra</button>
 
-<!-- Középső elemek !-->
+<!-- Középső elemek -->
 <div class="wrapper">
 
-    <!-- itembox !-->
-    <div id="itembox" class="itemcontent">
-    
-    
+  <!-- itembox -->
+  <div class="itemcontent">
+    <div class="collapsible-header" onclick="toggleBox('itembox')">
+      Tételek <span id="itembox-arrow">▼</span>
     </div>
-    <!-- orderbox !-->
-    <div id="orderbox" class="ordercontent">
-<div class="form-row double">
-      <div>
-        <p>Vezetéknév</p>
-        <input id="userfirstname" type="text">
+    <div id="itembox" class="collapsible-body">
+      <!-- Ide jönnek a tételek -->
+    </div>
+  </div>
+
+  <!-- orderbox -->
+  <div class="ordercontent">
+    <div class="collapsible-header" onclick="toggleBox('orderbox')">
+      Megrendelés <span id="orderbox-arrow">▼</span>
+    </div>
+    <div id="orderbox" class="collapsible-body">
+      <!-- Form mezők -->
+      <div class="form-row double">
+        <div>
+          <p>Vezetéknév</p>
+          <input id="userfirstname" type="text">
+        </div>
+        <div>
+          <p>Keresztnév</p>
+          <input id="usersecondname" type="text">
+        </div>
       </div>
+
+      <div class="form-row">
+        <p>Szállítási cím</p>
+        <input id="useraddress" onchange="billing()" type="text">
+      </div>
+
       <div>
-        <p>Keresztnév</p>
-        <input id="usersecondname" type="text">
+        <label style="display: inline-flex; align-items: center; gap: 5px;">
+          A szállítási és számlázási cím megegyezik
+          <input id="useraddressequals" type="checkbox" onchange="billing()" checked>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <p>Számlázási cím</p>
+        <input id="userbillingaddress" type="text">
+      </div>
+
+      <div class="form-row double">
+        <div>
+          <p>Telefonszám</p>
+          <input id="userphonenumber" type="tel">
+        </div>
+        <div>
+          <button id="orderbutton" class="order-btn" onclick="order()">Megrendelés</button>
+        </div>
       </div>
     </div>
-
-    <div class="form-row">
-      <p>Szállítási cím</p>
-      <input id="useraddress" type="text">
-    </div>
-
-    <div>
-      <label style="display: inline-flex; align-items: center; gap: 5px;">
-              A szállítási és számlázási cím megegyezik
-        <input id="useraddressequals" type="checkbox" checked>
-
-      </label>
-    </div>
-
-
-    <div class="form-row">
-      <p>Számlázási cím</p>
-      <input id="userbillingaddress" type="text">
-    </div>
-
-    <div class="form-row double">
-      <div>
-        <p>Telefonszám</p>
-        <input id="userphonenumber" type="tel">
-      </div>
-      <div>
-        <button id="orderbutton" class="order-btn" onclick="order()" stlye="visibility: hidden;">Megrendelés</button>
-      </div>
-    </div>
-    </div>
+  </div>
 
 </div>
 <!-- Középső elemek vége !-->
@@ -132,6 +162,8 @@
 async function load() {
     const vb = document.getElementById("vissza");
     vb.onclick = () => window.location.href = '/';
+    
+    billing();
     
     // teszt feltöltés
   try {
@@ -144,7 +176,7 @@ async function load() {
 
     const items = await res.json();
     const box = document.getElementById("itembox");
-    box.innerHTML = ""; // előző tartalom törlése
+    box.innerHTML = "<br>"; // előző tartalom törlése
 
     let total = 0;
     if (items && items.length > 0) {
@@ -280,7 +312,7 @@ minusBtn.onclick = async () => {
     
     } else { // ha üres
             const box = document.getElementById("itembox");
-            box.innerHTML = "A kosarad üres."; // előző tartalom törlése
+            box.innerHTML = "<br>A kosarad üres."; // előző tartalom törlése
             const orderbutton = document.getElementById("orderbutton")
             orderbutton.hidden = true;
     }
@@ -329,14 +361,46 @@ async function order() {
   const res = await fetch('/api/v1/cart/order', { method: 'POST', credentials: 'same-origin' });
   const box = document.getElementById("orderbox");
   if (res.ok) {
-    box.innerHTML = '<p style="color:green;">Rendelés sikeres! :)</p>';
+    box.innerHTML = '<p style="color:green;"><br>Rendelés sikeres! :)</p>';
   } else {
-    box.innerHTML = '<p style="color:red;">Rendelés sikertelen :(</p>';
+    box.innerHTML = '<p style="color:red;"><br>Rendelés sikertelen :(</p>';
   }
 }
 
 
-    
+    function toggleBox(id) {
+    const body = document.getElementById(id);
+    const arrow = document.getElementById(id + '-arrow');
+    const parentBox = body.parentElement;
+    const htmlBody = document.body;
+
+    if (body.classList.contains('hidden')) {
+      body.classList.remove('hidden');
+      arrow.textContent = '▼';
+      parentBox.style.padding = '30px';
+      //htmlBody.style.alignItems = 'center';
+    } else {
+      body.classList.add('hidden');
+      arrow.textContent = '▲';
+      parentBox.style.padding = '10px';
+      //htmlBody.style.alignItems = '';
+    }
+  }
+  
+function billing() {
+    const shippinga = document.getElementById("useraddress");
+    const billa = document.getElementById("userbillingaddress");
+    const checkbox = document.getElementById("useraddressequals");
+
+    if (checkbox.checked) {
+        billa.readOnly = true;
+        billa.value = shippinga.value;
+        billa.style = "background: rgba(200,200,200,0.2); color: gray;"
+    } else {
+        billa.readOnly = false;
+        billa.style = "background: rgba(255,255,255,0.85); color: black;"
+    }
+} 
 
 
 // ------------------
