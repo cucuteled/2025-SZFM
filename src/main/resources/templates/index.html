@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="/css/contactStyle.css">
+    <link rel="stylesheet" href="/css/aboutStyle.css">
     <title>Étterem</title>
     <style>
         body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/homepage.jpg'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; display: block;}
@@ -298,14 +299,124 @@
       document.getElementById('hero').style.display = 'block';
       document.body.style.display = 'flex';
     }
-    function rolunk(){ deletecontent(); document.getElementById('etel-container').innerHTML = '<h2>Rólunk</h2><p>Itt a rólunk tartalom.</p>'; }
+
+    function rolunk() {
+        deletecontent();
+        document.getElementById('etel-container').innerHTML = `
+    <section id="about" class="about-section">
+              <div class="intro">
+                <h1>Rólunk</h1>
+                <p>Éttermünk 2005 óta várja vendégeit a legfrissebb alapanyagokból készült fogásokkal.
+                Célunk, hogy minden vendégünk otthon érezze magát és különleges élményben legyen része.</p>
+              </div>
+
+
+              <div class="chefs">
+                <h2>Ismerje meg szakácsainkat</h2>
+                <div class="chef-cards">
+                  <div class="chef-card">
+                    <img src="pictures/chef1.jpg" alt="Szakács 1">
+                    <h4>Kovács Péter</h4>
+                    <p>Főszakács</p>
+                  </div>
+                  <div class="chef-card">
+                    <img src="pictures/chef2.jpg" alt="Szakács 2">
+                    <h4>Nagy Anna</h4>
+                    <p>Cukrász</p>
+                  </div>
+                  <div class="chef-card">
+                    <img src="pictures/chef3.jpg" alt="Szakács 3">
+                    <h4>Tóth László</h4>
+                    <p>Grillmester</p>
+                  </div>
+                </div>
+              </div>
+              <div class="counters">
+                <div class="counter">
+                  <span class="count" data-target="20">0</span>
+                  <p>Éve működünk</p>
+                </div>
+                <div class="counter">
+                  <span class="count" data-target="5000">0</span>
+                  <p>Elégedett ügyfél</p>
+                </div>
+                <div class="counter">
+                  <span class="count" data-target="120">0</span>
+                  <p>Étel a menün</p>
+                </div>
+              </div>
+              <div class="services">
+                <h2>Szolgáltatásaink</h2>
+                <div class="service-cards">
+                  <div class="service-card">
+                    🎉 <h4>Születésnapi party</h4>
+                    <p>Hangulatos környezet és személyre szabott menü.</p>
+                  </div>
+                  <div class="service-card">
+                    💼 <h4>Üzleti találkozók</h4>
+                    <p>Csendes, elegáns helyszín üzleti megbeszélésekhez.</p>
+                  </div>
+                  <div class="service-card">
+                    💍 <h4>Esküvői party</h4>
+                    <p>Exkluzív terek és teljes körű szervezés.</p>
+                  </div>
+                </div>
+              </div>
+              <h2>Vendégeink véleménye</h2>
+          <div class="carousel">
+            <div class="review active">
+              <p>"Az étel fantasztikus volt, a kiszolgálás pedig kifogástalan. Csak ajánlani tudom!"</p>
+              <h4>– Kovács Anna</h4>
+            </div>
+            <div class="review">
+              <p>"Különleges hangulat, finom ételek és barátságos személyzet. Visszatérünk!"</p>
+              <h4>– Szabó Gábor</h4>
+            </div>
+            <div class="review">
+              <p>"Az esküvői vacsoránk itt volt – minden tökéletesen sikerült."</p>
+              <h4>– Tóth Eszter</h4>
+            </div>
+          </div>
+</section>
+
+  `;
+
+        const counters = document.querySelectorAll('.count');
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const speed = 100; // minél kisebb, annál gyorsabb
+
+                if (count < target) {
+                    counter.innerText = count + Math.ceil(target / speed);
+                    setTimeout(updateCount, 20);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            updateCount();
+        });
+
+        let currentReview = 0;
+        const reviews = document.querySelectorAll('.review');
+
+        function showNextReview() {
+            reviews[currentReview].classList.remove('active');
+            currentReview = (currentReview + 1) % reviews.length;
+            reviews[currentReview].classList.add('active');
+        }
+
+        setInterval(showNextReview, 5000); // 5 másodpercenként vált
+    }
+
     function kapcsolat()
     {
         document.body.style.display = 'flex';
         deletecontent();
         document.getElementById('etel-container').innerHTML = `
-    <div class="contact-container" style="margin-top: 100px;">
-    <h1>Kapcsolat</h1>
+     <div class="contact-container">
+    <h2>Kapcsolat</h2>
     <form id="contactForm">
       <label for="name">Név:</label><br>
       <input type="text" id="name" required><br><br>
@@ -318,6 +429,38 @@
 
       <button type="submit">Küldés</button>
     </form>
+    <h1>Nyitvatartás</h1>
+    <table>
+    <tr>
+         <th>Hétfő</th>
+         <th>Kedd</th>
+         <th>Szerda</th>
+         <th>Csütörtök</th>
+         <th>Péntek</th>
+         <th>Szombat</th>
+         <th>Vasárnap</th>
+    </tr>
+    <tr>
+        <td>08:00-02:00</td>
+        <td>08:00-02:00</td>
+        <td>08:00-02:00</td>
+        <td>08:00-02:00</td>
+        <td>08:00-02:00</td>
+        <td>08:00-02:00</td>
+        <td>08:00-02:00</td>
+    </tr>
+    </table>
+      <h2>Elérhetőség</h2>
+      <ul>
+        <li>📍 Debrecen, Fő utca 1.</li>
+        <li>📞 +36 30 123 4567</li>
+        <li>✉️ info@etterem.hu</li>
+      </ul>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1601.766789895003!2d21.624890112299912!3d47.53197980900017!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47470e0b16624e85%3A0x86950f7a0a6bcbfb!2sDebreceni%20Reform%C3%A1tus%20Nagytemplom!5e0!3m2!1shu!2shu!4v1759747825767!5m2!1shu!2shu"
+     width="100%" height="450" style="border:0;"
+      allowfullscreen="" loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">/iframe>
+
     <p id="contactResponse"></p>
 
     </div>
