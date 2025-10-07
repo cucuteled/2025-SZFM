@@ -51,6 +51,7 @@
         .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; }
         .vissza-btn { position: fixed; top: 20px; right: 20px; background-color: rgba(128,128,128,0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
         .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
+        .changebuttons {}
         
         .order-btn {
             position: relative;
@@ -114,50 +115,98 @@
     </div>
     <div id="orderbox" class="collapsible-body">
       <!-- Form mezők -->
-      <div class="form-row double">
-        <div>
-          <p>Vezetéknév</p>
-          <input id="userfirstname" type="text">
-        </div>
-        <div>
-          <p>Keresztnév</p>
-          <input id="usersecondname" type="text">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <p>Szállítási cím</p>
-        <input id="useraddress" onchange="billing()" type="text">
-      </div>
-
+    <div class="form-row double">
       <div>
-        <label style="display: inline-flex; align-items: center; gap: 5px;">
-          A szállítási és számlázási cím megegyezik
-          <input id="useraddressequals" type="checkbox" onchange="billing()" checked>
-        </label>
+        <label for="userfirstname">Vezetéknév</label>
+        <input id="userfirstname" name="firstname" type="text">
       </div>
-
-      <div class="form-row">
-        <p>Számlázási cím</p>
-        <input id="userbillingaddress" type="text">
+      <div>
+        <label for="usersecondname">Keresztnév</label>
+        <input id="usersecondname" name="secondname" type="text">
       </div>
+    </div>
 
-      <div class="form-row double">
-        <div>
-          <p>Telefonszám</p>
-          <input id="userphonenumber" type="tel">
-        </div>
-        <div>
-          <button id="orderbutton" class="order-btn" onclick="order()">Megrendelés</button>
-        </div>
+    <div class="form-row">
+      <label for="useraddress">Szállítási cím</label>
+      <input id="useraddress" name="address" onchange="billing()" type="text">
+    </div>
+
+    <div>
+      <label for="useraddressequals" style="display: inline-flex; align-items: center; gap: 5px;">
+        <input id="useraddressequals" name="addressequals" type="checkbox" onchange="billing()" checked>
+        A szállítási és számlázási cím megegyezik
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label for="userbillingaddress">Számlázási cím</label>
+      <input id="userbillingaddress" name="billingaddress" type="text">
+    </div>
+
+    <div class="form-row double">
+      <div>
+        <label for="userphonenumber">Telefonszám</label>
+        <input id="userphonenumber" name="phonenumber" type="tel" inputmode="numeric" pattern="\d*">
+      </div>
+      <div>
+        <button id="orderbutton" class="order-btn" onclick="order()">Megrendelés</button>
       </div>
     </div>
   </div>
+</div>
 
 </div>
 <!-- Középső elemek vége !-->
 
 <script>
+
+document.addEventListener("DOMContentLoaded", () => {
+  const firstname = document.getElementById("userfirstname");
+  const secondname = document.getElementById("usersecondname");
+  const address = document.getElementById("useraddress");
+  const addressEquals = document.getElementById("useraddressequals");
+  const billingAddress = document.getElementById("userbillingaddress");
+  const phone = document.getElementById("userphonenumber");
+  const orderButton = document.getElementById("orderbutton");
+
+  // kezdetben rejtve
+  orderButton.hidden = true;
+
+  const validate = () => {
+    const isNotEmpty = (val) => val.trim().length > 0;
+
+    const isPhoneValid = (val) => {
+      // csak számok, legalább 7 számjegy
+      return /^\d{7,}$/.test(val.trim());
+    };
+
+    const isFirstnameValid = isNotEmpty(firstname.value);
+    const isSecondnameValid = isNotEmpty(secondname.value);
+    const isAddressValid = isNotEmpty(address.value);
+    const isPhoneValidResult = isPhoneValid(phone.value);
+
+    let isBillingValid = true;
+    if (!addressEquals.checked) {
+      isBillingValid = isNotEmpty(billingAddress.value);
+    }
+
+    const isFormValid = isFirstnameValid &&
+                        isSecondnameValid &&
+                        isAddressValid &&
+                        isBillingValid &&
+                        isPhoneValidResult;
+
+    orderButton.hidden = !isFormValid;
+  };
+
+  // mezők figyelése
+  const inputsToWatch = [firstname, secondname, address, billingAddress, phone, addressEquals];
+  inputsToWatch.forEach(input => {
+    input.addEventListener("input", validate);
+    input.addEventListener("change", validate); // checkbox esetén is fontos
+  });
+});
+
 // ------------------- js
 async function load() {
     const vb = document.getElementById("vissza");
@@ -188,7 +237,7 @@ async function load() {
       itemDiv.style.alignItems = 'flex-start';
       //
       const orderbutton = document.getElementById("orderbutton")
-      orderbutton.hidden = false;
+      //orderbutton.hidden = false;
       // kép
     const pic = document.createElement('img');
     pic.src = `/pictures/${encodeURIComponent(item.name || 'default')}.jpg`;
@@ -216,6 +265,7 @@ async function load() {
 
       // gombok
       const buttons = document.createElement('div');
+      buttons.className = "changebuttons";
       buttons.style.display = 'flex';
       buttons.style.gap = '10px';
       buttons.style.margin = '10px 0';
@@ -358,7 +408,34 @@ minusBtn.onclick = async () => {
     }
     
 async function order() {
-  const res = await fetch('/api/v1/cart/order', { method: 'POST', credentials: 'same-origin' });
+    const orderfirstname = document.getElementById("userfirstname").value.trim();
+    const ordersecondname = document.getElementById("usersecondname").value.trim();
+    const address = document.getElementById("useraddress").value.trim();
+    const addressEquals = document.getElementById("useraddressequals").checked;
+    const billingAddress = document.getElementById("userbillingaddress").value.trim();
+    const phone = document.getElementById("userphonenumber").value.trim();
+    
+    // Ha a szállítási és számlázási cím megegyezik, akkor a billingAddress a cím lesz
+    const finalBillingAddress = addressEquals ? address : billingAddress;
+    
+    const dataToSend = {
+      orderfirstname,
+      ordersecondname,
+      address,
+      billingAddress: finalBillingAddress,
+      phone,
+    };
+    
+    const res = await fetch('/api/v1/cart/order', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dataToSend),
+    });
+
+    //const json = await res.json();
   const box = document.getElementById("orderbox");
   if (res.ok) {
     box.innerHTML = '<p style="color:green;"><br>Rendelés sikeres! :)</p>';
@@ -366,6 +443,8 @@ async function order() {
     const c2 = document.getElementById("itemcontent-collapsible");
     c1.remove();
     c2.remove();
+    //
+    document.querySelectorAll('.changebuttons').forEach(el => { el.style.display = "none"; });
   } else {
     box.innerHTML = '<p style="color:red;"><br>Rendelés sikertelen :(</p>';
   }

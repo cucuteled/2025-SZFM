@@ -1,13 +1,12 @@
 package com.project.sfm2025.controllers;
 
-import com.project.sfm2025.entities.CartItem;
-import com.project.sfm2025.entities.Food;
-import com.project.sfm2025.entities.Drink;
-import com.project.sfm2025.entities.OrderItem;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.project.sfm2025.entities.*;
 import com.project.sfm2025.repositories.CartItemRepository;
 import com.project.sfm2025.repositories.DrinkRepository;
 import com.project.sfm2025.repositories.OrderItemRepository;
 import com.project.sfm2025.repositories.FoodRepository;
+import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -126,7 +125,9 @@ public class CartController {
     }
 
     @PostMapping("/order")
-    public ResponseEntity<String> order(Authentication auth) {
+    public ResponseEntity<String> order(Authentication auth,
+                                        @RequestBody OrderData data
+    ) {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(401).body("Nem vagy bejelentkezve");
         }
@@ -155,7 +156,11 @@ public class CartController {
                         .ifPresent(drink -> oi.setEtelowner(drink.getOwner()));
             }
 
-            oi.setAddress("Alapértelmezett cím"); // később módosítható
+            oi.setOrder_ShipAddress(data.getAddress());
+            oi.setOrder_BillingAddress(data.getBillingAddress());
+            //
+            oi.setOrder_phonenumber(data.getPhone());
+            oi.setOrder_name(data.getName());
 
             orderItemRepository.save(oi);
         }

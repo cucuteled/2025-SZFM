@@ -16,6 +16,43 @@ public class OrderItem {
     private Integer price;
     private Integer quantity;
 
+    private String order_name; // (VEZETÉKNÉV + " " + KERESZTNÉV)
+    private String order_ShipAddress;
+    private String order_BillingAddress;
+    private String order_phonenumber;
+
+    public String getOrder_name() {
+        return order_name;
+    }
+
+    public void setOrder_name(String order_name) {
+        this.order_name = order_name;
+    }
+
+    public String getOrder_ShipAddress() {
+        return order_ShipAddress;
+    }
+
+    public void setOrder_ShipAddress(String order_ShipAddress) {
+        this.order_ShipAddress = order_ShipAddress;
+    }
+
+    public String getOrder_BillingAddress() {
+        return order_BillingAddress;
+    }
+
+    public void setOrder_BillingAddress(String order_BillingAddress) {
+        this.order_BillingAddress = order_BillingAddress;
+    }
+
+    public String getOrder_phonenumber() {
+        return order_phonenumber;
+    }
+
+    public void setOrder_phonenumber(String order_phonenumber) {
+        this.order_phonenumber = order_phonenumber;
+    }
+
     public Integer getQuantity() {
         return quantity;
     }
@@ -36,8 +73,6 @@ public class OrderItem {
 
     private String owner;  // felhasználó
     private LocalDateTime orderTime;
-
-    private String address;  // ha van címmező
 
     // getterek / setterek
     public Long getId() {
@@ -86,13 +121,5 @@ public class OrderItem {
 
     public void setOrderTime(LocalDateTime orderTime) {
         this.orderTime = orderTime;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 }

@@ -39,6 +39,9 @@ public class SecurityConfiguration {
                                 "/api/contact",
                                 "/favicon.ico"
                         ).permitAll()
+                        .requestMatchers( // tiltani!
+                                "/data/**"
+                        ).denyAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
