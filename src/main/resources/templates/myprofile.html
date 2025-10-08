@@ -36,7 +36,8 @@
     </style>
 </head>
 <body onload="load()">
-<!-- háttérdiv-ek -->
+
+<!-- Háttérképek -->
 <div id="bg1" class="bg" style="background-image: url('/pictures/background/profileback.png');"></div>
 <div id="bg2" class="bg"></div>
 
@@ -47,25 +48,60 @@
     <button onclick="">Támogatás és segítségkérés</button>
     <button onclick="">Adatvédelem és biztonság</button>
     <br>
-    <button onclick="">Kijelentkezés</button>
-    <button onclick="">Profil törlés</button>
+    <button onclick="logoutUser()">Kijelentkezés</button>
+    <button onclick="deleteProfile()">Profil törlés</button>
 </div>
 
 <div class="title">Profil Adatok</div>
 <button id="vissza" class="vissza-btn">Vissza a főoldalra</button>
 
-
-
-
-
 <script>
-// --------------- függvények
-function load() {
-    const vb = document.getElementById("vissza");
-    vb.onclick = () => window.location.href = '/';
-}
+    function load() {
+        const vb = document.getElementById("vissza");
+        vb.onclick = () => window.location.href = '/';
+    }
 
-// body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/background/profileback.jpg'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
+    // ---- kijelentkezés ----
+    async function logoutUser() {
+        try {
+            const resp = await fetch("/api/v1/user/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+            if (resp.ok) {
+                alert("Sikeres kijelentkezés!");
+                window.location.href = "/";
+            } else {
+                alert("Hiba történt kijelentkezéskor!");
+            }
+        } catch (err) {
+            alert("Hálózati hiba: " + err);
+        }
+    }
+
+    // ---- profil törlés ----
+    async function deleteProfile() {
+        if (!confirm("Biztosan törölni szeretnéd a fiókodat? Ez nem visszavonható!")) return;
+
+        try {
+            const response = await fetch("/api/v1/user/delete", {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                alert("A fiókod sikeresen törölve lett!");
+                window.location.href = "/";
+            } else {
+                const msg = await response.text();
+                alert("Hiba történt: " + msg);
+            }
+        } catch (err) {
+            alert("Hálózati hiba: " + err);
+        }
+    }
+
+    // ---- háttérkép váltakozás ----
     const images = [
       "/pictures/background/profileback.png",
       "/pictures/background/backcar.png",
@@ -92,10 +128,8 @@ function load() {
       }
       showingBg1 = !showingBg1;
       current = (current + 1) % images.length;
-    }, 6000); // 6 másodpercenként vált
-
-
-// --------------- vége
+    }, 6000);
 </script>
+
 </body>
 </html>
