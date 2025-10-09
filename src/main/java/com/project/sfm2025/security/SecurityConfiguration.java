@@ -39,6 +39,8 @@ public class SecurityConfiguration {
                                 "/api/contact",
                                 "/favicon.ico"
                         ).permitAll()
+                        .requestMatchers("/api/v1/coupons/**"
+                        ).authenticated()
                         .requestMatchers( // tiltani!
                                 "/data/**"
                         ).denyAll()

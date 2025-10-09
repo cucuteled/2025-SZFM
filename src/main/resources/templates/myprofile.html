@@ -6,152 +6,126 @@
     <link rel="stylesheet" href="/css/contactStyle.css">
     <title>Étterem</title>
     <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
-            min-height: 100vh; 
-            font-family: Arial, sans-serif; 
-            color: white; 
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: white;
             overflow: hidden;
         }
         .sidebar { position: fixed; top: 0; left: 0; width: 200px; height: 100%; background-color: rgba(128,128,128,0.5); border-top-right-radius: 15px; border-bottom-right-radius: 15px; padding: 20px; box-sizing: border-box; }
         .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(128,128,128,0.5); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
         .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
-        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; }
+        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px; }
         .vissza-btn { position: absolute; top: 20px; right: 20px; background-color: rgba(128,128,128,0.5); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
         .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
-        .bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            transition: opacity 2s ease-in-out;
-            z-index: -1;
-        }
+        .bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: opacity 2s ease-in-out; z-index: -1; }
         #bg1 { opacity: 1; }
         #bg2 { opacity: 0; }
 
-        /* --- Modal stílus --- */
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 20px;
-        }
-        .modal {
-            background: rgba(20,20,20,0.95);
-            border-radius: 12px;
-            padding: 20px;
-            width: 100%;
-            max-width: 460px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            color: #fff;
-        }
-        .modal h3 {
-            margin: 0 0 8px 0;
-            font-size: 20px;
-            letter-spacing: 1px;
-        }
-        .modal p {
-            margin: 0 0 16px 0;
-            color: #ddd;
-        }
-        .modal .controls {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-        .btn {
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .btn.cancel {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-        }
-        .btn.danger {
-            background: crimson;
-            color: #fff;
-        }
-        .btn.primary {
-            background: #4CAF50;
-            color: #fff;
-        }
-        .btn.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .modal { background: rgba(20,20,20,0.95); border-radius: 12px; padding: 20px; width: 100%; max-width: 460px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); color: #fff; }
+        .modal h3 { margin: 0 0 8px 0; font-size: 20px; letter-spacing: 1px; }
+        .modal p { margin: 0 0 16px 0; color: #ddd; }
+        .modal .controls { display: flex; gap: 10px; justify-content: flex-end; }
+        .btn { padding: 10px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+        .btn.cancel { background: rgba(255,255,255,0.08); color: #fff; }
+        .btn.danger { background: crimson; color: #fff; }
+        .btn.primary { background: #4CAF50; color: #fff; }
+        .btn.disabled { opacity: 0.6; cursor: not-allowed; }
+        .center-text { text-align: center; }
     </style>
 </head>
 <body onload="load()">
 
-<!-- háttérdiv-ek -->
 <div id="bg1" class="bg" style="background-image: url('/pictures/background/profileback.png');"></div>
 <div id="bg2" class="bg"></div>
 
 <div class="sidebar">
-    <button>Profil Adatok</button>
-    <button>Kredit & Kupon</button>
-    <button>Rendeléseim</button>
-    <button>Támogatás és segítségkérés</button>
-    <button>Adatvédelem és biztonság</button>
+    <button id="profileBtn">Profil Adatok</button>
+    <button id="couponBtn">Kredit & Kupon</button>
+    <button id="ordersBtn">Rendeléseim</button>
+    <button id="supportBtn">Támogatás és segítségkérés</button>
+    <button id="privacyBtn">Adatvédelem és biztonság</button>
     <br>
     <button id="logoutBtn">Kijelentkezés</button>
     <button id="deleteBtn">Profil törlés</button>
 </div>
 
-<div class="title">Profil Adatok</div>
-<!-- === PROFIL ADATOK MEGJELENÍTÉSE === -->
-<div id="profileContainer" class="screencontent" style="flex-direction: column; align-items: flex-start;">
-    <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
-        <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Profil adatok</h2>
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; margin-bottom:5px; font-weight:bold;">Vezetéknév:</label>
-            <div id="lastname" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; margin-bottom:5px; font-weight:bold;">Keresztnév:</label>
-            <div id="firstname" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
-        </div>
-        <div>
-            <label style="display:block; margin-bottom:5px; font-weight:bold;">E-mail cím:</label>
-            <div id="email" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
+<div class="title" id="pageTitle">Profil Adatok</div>
+
+<div class="screencontent" id="screenContent">
+
+    <!-- Profil adatok -->
+    <div id="profileContainer">
+        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
+            <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Profil adatok</h2>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">Vezetéknév:</label>
+                <div id="lastname" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">Keresztnév:</label>
+                <div id="firstname" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">E-mail cím:</label>
+                <div id="email" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
+            </div>
         </div>
     </div>
+
+    <!-- Kupon & Kredit -->
+    <div id="couponContainer" style="display:none;">
+        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
+            <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Kupon & Kredit</h2>
+            <div id="coupon-list">
+                <p class="center-text">Kuponok betöltése...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rendeléseim -->
+    <div id="ordersContainer" style="display:none;">
+        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
+            <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Rendeléseim</h2>
+            <p class="center-text">Itt jelennek meg a korábbi rendeléseid.</p>
+        </div>
+    </div>
+
+    <!-- Támogatás és segítségkérés -->
+    <div id="supportContainer" style="display:none;">
+        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 500px;">
+            <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Támogatás és segítségkérés</h2>
+            <p>
+                Ha bármilyen problémába ütközöl, vagy kérdésed van a webalkalmazás használatával kapcsolatban,
+                kérjük, lépj kapcsolatba ügyfélszolgálatunkkal. Támogatási csapatunk hétfőtől péntekig, 9:00–17:00 között elérhető,
+                és minden kérdésre igyekeznek gyorsan és részletesen válaszolni. Használhatod az alábbi űrlapot,
+                vagy küldhetsz e-mailt az <strong>support@etterem.hu</strong> címre.
+            </p>
+        </div>
+    </div>
+
+    <!-- Adatvédelem és biztonság -->
+    <div id="privacyContainer" style="display:none;">
+        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 500px;">
+            <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Adatvédelem és biztonság</h2>
+            <p>
+                Webalkalmazásunk kiemelten kezeli a felhasználók adatainak biztonságát.
+                Minden személyes adat titkosított kapcsolat (HTTPS) segítségével kerül továbbításra,
+                és soha nem kerül megosztásra harmadik féllel a hozzájárulásod nélkül.
+                Jelszavaidat biztonságosan, hash-elve tároljuk. Rendszeresen frissítjük a biztonsági protokollokat,
+                hogy adatvédelmi és biztonsági előírásainknak mindenben megfeleljünk.
+            </p>
+        </div>
+    </div>
+
 </div>
 
-<script>
-    async function loadProfileData() {
-        try {
-            const resp = await fetch("/api/v1/auth/me", { credentials: "include" });
-            if (!resp.ok) throw new Error("Nem sikerült lekérni a felhasználói adatokat.");
-
-            const user = await resp.json();
-            document.getElementById("lastname").textContent = user.lastname || "(nincs adat)";
-            document.getElementById("firstname").textContent = user.firstname || "(nincs adat)";
-            document.getElementById("email").textContent = user.email || "(nincs adat)";
-        } catch (err) {
-            console.error(err);
-            showSmallToast("Nem sikerült betölteni a profiladatokat.");
-        }
-    }
-
-    // betöltéskor automatikusan hívjuk
-    window.addEventListener("load", loadProfileData);
-</script>
 <button id="vissza" class="vissza-btn">Vissza a főoldalra</button>
 
-<!-- Confirm modal -->
 <div id="confirmBackdrop" class="modal-backdrop">
     <div class="modal">
         <h3 id="confirmTitle">Megerősítés</h3>
@@ -173,12 +147,82 @@
             showConfirm("Biztosan törölni szeretnéd a fiókodat? Ez végleges és nem visszavonható.", async () => await performDelete(), { countdown: 5 });
         });
         initBackgroundRotation();
+
+        document.getElementById('profileBtn').onclick = () => showSection('profileContainer', 'Profil Adatok');
+        document.getElementById('couponBtn').onclick = () => {
+            showSection('couponContainer', 'Kupon & Kredit');
+            loadCoupons();
+        };
+        document.getElementById('ordersBtn').onclick = () => showSection('ordersContainer', 'Rendeléseim');
+        document.getElementById('supportBtn').onclick = () => showSection('supportContainer', 'Támogatás és segítségkérés');
+        document.getElementById('privacyBtn').onclick = () => showSection('privacyContainer', 'Adatvédelem és biztonság');
     }
 
-    /**
-     * showConfirm(message, onConfirm, options)
-     * options.countdown -> ha meg van adva, X másodpercig nem lehet rányomni az OK gombra
-     */
+    async function loadProfileData() {
+        try {
+            const resp = await fetch("/api/v1/auth/me", { credentials: "include" });
+            if (!resp.ok) throw new Error("Nem sikerült lekérni a felhasználói adatokat.");
+            const user = await resp.json();
+            document.getElementById("lastname").textContent = user.lastname || "(nincs adat)";
+            document.getElementById("firstname").textContent = user.firstname || "(nincs adat)";
+            document.getElementById("email").textContent = user.email || "(nincs adat)";
+        } catch (err) {
+            console.error(err);
+            showSmallToast("Nem sikerült betölteni a profiladatokat.");
+        }
+    }
+
+    function showSection(sectionId, title) {
+        const sections = ['profileContainer','couponContainer','ordersContainer','supportContainer','privacyContainer'];
+        sections.forEach(id => document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none');
+        document.getElementById('pageTitle').textContent = title;
+    }
+
+    async function loadCoupons() {
+        const couponListDiv = document.getElementById('coupon-list');
+        try {
+            const response = await fetch('/api/v1/coupons/my', { method: 'GET', credentials: 'same-origin' });
+            if (response.status === 401) {
+                couponListDiv.innerHTML = '<p class="center-text" style="color:red;">A kuponok megtekintéséhez jelentkezz be.</p>';
+                return;
+            }
+            if (!response.ok) {
+                couponListDiv.innerHTML = '<p class="center-text" style="color:red;">Hiba a kuponok lekérésekor.</p>';
+                return;
+            }
+            const coupons = await response.json();
+            if (coupons.length === 0) {
+                couponListDiv.innerHTML = '<p class="center-text">Jelenleg nincsenek felhasználható kuponjaid.</p>';
+                return;
+            }
+            let html = '<ul>';
+            coupons.forEach(coupon => {
+                html += `<li style="border: 1px solid #777; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                    <strong>${coupon.discountPercent}% Kedvezmény</strong><br>
+                    Kód: <code>${coupon.code}</code><br>
+                    Státusz: <span style="color: #4CAF50;">Még nem használt</span>
+                </li>`;
+            });
+            html += '</ul>';
+            couponListDiv.innerHTML = html;
+        } catch (error) {
+            console.error('Kupon hiba:', error);
+            couponListDiv.innerHTML = '<p class="center-text" style="color:red;">Hálózati hiba a kuponok betöltésekor.</p>';
+        }
+    }
+
+    async function performLogout() {
+        const resp = await fetch("/api/v1/logout", { method: "POST", credentials: "include" });
+        if (resp.ok) { showSmallToast("Sikeres kijelentkezés."); setTimeout(() => window.location.href = "/", 1500); }
+        else { showSmallToast("Hiba történt kijelentkezés közben."); }
+    }
+
+    async function performDelete() {
+        const resp = await fetch("/api/v1/delete", { method: "DELETE", credentials: "include" });
+        if (resp.ok) { showSmallToast("A fiókod sikeresen törölve lett."); setTimeout(() => window.location.href = "/", 2000); }
+        else { showSmallToast("Hiba történt a fiók törlése közben."); }
+    }
+
     function showConfirm(message, onConfirm, options = {}) {
         const backdrop = document.getElementById('confirmBackdrop');
         const msg = document.getElementById('confirmMessage');
@@ -187,75 +231,28 @@
 
         msg.textContent = message;
         backdrop.style.display = 'flex';
-
         cancelBtn.focus();
         okBtn.disabled = false;
         okBtn.classList.remove("disabled");
         okBtn.textContent = "Igen, folytat";
 
         let countdownTimer = null;
-
-        // Ha van countdown (pl. 5 mp a törlésnél)
         if (options.countdown && options.countdown > 0) {
             let remaining = options.countdown;
             okBtn.disabled = true;
             okBtn.classList.add("disabled");
             okBtn.textContent = `Várj ${remaining} mp...`;
-
             countdownTimer = setInterval(() => {
                 remaining--;
-                if (remaining > 0) {
-                    okBtn.textContent = `Várj ${remaining} mp...`;
-                } else {
-                    clearInterval(countdownTimer);
-                    okBtn.disabled = false;
-                    okBtn.classList.remove("disabled");
-                    okBtn.textContent = "Igen, törlöm";
-                }
+                if (remaining > 0) okBtn.textContent = `Várj ${remaining} mp...`;
+                else { clearInterval(countdownTimer); okBtn.disabled = false; okBtn.classList.remove("disabled"); okBtn.textContent = "Igen, törlöm"; }
             }, 1000);
         }
-
-        const cleanup = () => {
-            backdrop.style.display = 'none';
-            okBtn.onclick = null;
-            cancelBtn.onclick = null;
-            if (countdownTimer) clearInterval(countdownTimer);
-        };
-
+        const cleanup = () => { backdrop.style.display = 'none'; okBtn.onclick = null; cancelBtn.onclick = null; if (countdownTimer) clearInterval(countdownTimer); };
         cancelBtn.onclick = cleanup;
-        okBtn.onclick = async () => {
-            okBtn.textContent = "Feldolgozás...";
-            okBtn.disabled = true;
-            try {
-                await onConfirm();
-            } finally {
-                cleanup();
-            }
-        };
+        okBtn.onclick = async () => { okBtn.textContent = "Feldolgozás..."; okBtn.disabled = true; try { await onConfirm(); } finally { cleanup(); } };
     }
 
-    /* ---------- Műveletek ---------- */
-    async function performLogout() {
-        const resp = await fetch("/api/v1/logout", { method: "POST", credentials: "include" });
-        if (resp.ok) {
-            showSmallToast("Sikeres kijelentkezés.");
-            setTimeout(() => window.location.href = "/", 1500);
-        } else {
-            showSmallToast("Hiba történt kijelentkezés közben.");
-        }
-    }
-
-    async function performDelete() {
-        const resp = await fetch("/api/v1/delete", { method: "DELETE", credentials: "include" });
-        if (resp.ok) {
-            showSmallToast("A fiókod sikeresen törölve lett.");
-            setTimeout(() => window.location.href = "/", 2000);
-        } else {
-            showSmallToast("Hiba történt a fiók törlése közben.");
-        }
-    }
-
-    /* ---------- Háttér váltó ---------- */
     function initBackgroundRotation() {
         const images = [
           "/pictures/background/profileback.png",
@@ -270,50 +267,42 @@
         let showingBg1 = true;
         setInterval(() => {
           const nextImage = images[(current + 1) % images.length];
-          if (showingBg1) {
-            bg2.style.backgroundImage = `url(${nextImage})`;
-            bg2.style.opacity = 1;
-            bg1.style.opacity = 0;
-          } else {
-            bg1.style.backgroundImage = `url(${nextImage})`;
-            bg1.style.opacity = 1;
-            bg2.style.opacity = 0;
-          }
+          if (showingBg1) { bg2.style.backgroundImage = `url(${nextImage})`; bg2.style.opacity = 1; bg1.style.opacity = 0; }
+          else { bg1.style.backgroundImage = `url(${nextImage})`; bg1.style.opacity = 1; bg2.style.opacity = 0; }
           showingBg1 = !showingBg1;
           current = (current + 1) % images.length;
         }, 6000);
     }
 
-    /* --- Egységes toast üzenet a kijelentkezéshez, törléshez stb. --- */
     function showSmallToast(msg, ms = 2000) {
-      let toast = document.getElementById('smallToast');
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'smallToast';
-        toast.style.position = 'fixed';
-        toast.style.right = '20px';
-        toast.style.bottom = '20px';
-        toast.style.background = 'rgba(0,0,0,0.7)';
-        toast.style.color = '#fff';
-        toast.style.padding = '10px 14px';
-        toast.style.borderRadius = '10px';
-        toast.style.boxShadow = '0 4px 14px rgba(0,0,0,0.4)';
-        toast.style.zIndex = '100000';
-        toast.style.fontWeight = '600';
-        toast.style.transition = 'opacity 300ms';
-        document.body.appendChild(toast);
-      }
-      toast.textContent = msg;
-      toast.style.opacity = '1';
-      clearTimeout(toast._timeout);
-      toast._timeout = setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => {
-          if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
-        }, 350);
-      }, ms);
+        let toast = document.getElementById('smallToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'smallToast';
+            toast.style.position = 'fixed';
+            toast.style.right = '20px';
+            toast.style.bottom = '20px';
+            toast.style.background = 'rgba(0,0,0,0.7)';
+            toast.style.color = '#fff';
+            toast.style.padding = '10px 14px';
+            toast.style.borderRadius = '10px';
+            toast.style.boxShadow = '0 4px 14px rgba(0,0,0,0.4)';
+            toast.style.zIndex = '100000';
+            toast.style.fontWeight = '600';
+            toast.style.transition = 'opacity 300ms';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => { if (toast && toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
+        }, ms);
     }
 
+    window.addEventListener("load", loadProfileData);
 </script>
+
 </body>
 </html>
