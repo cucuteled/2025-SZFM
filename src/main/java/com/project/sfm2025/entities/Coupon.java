@@ -14,18 +14,27 @@ public class Coupon {
     private Long id;
 
     private String code; // Kupon kód, pl. "WELCOME50"
-    private int discountPercent; // Kedvezmény %-ban (pl. 50)
+    private int Osszeg; // kupon forintban
     private String ownerEmail; // A kupon tulajdonosának email címe
-    private boolean used; // Felhasználták-e már
-    private LocalDateTime validUntil; // Meddig érvényes (opcionális, most nem használjuk)
+    private LocalDateTime validUntil; // Meddig érvényes
+    private boolean plannedToUse; // akarja e használni avagy tervezi e a felhasználó következő rendelésénél felhasználni
 
     public Coupon() {}
 
-    public Coupon(String code, int discountPercent, String ownerEmail, boolean used) {
+    public Coupon(String code, int Osszeg, String ownerEmail, LocalDateTime validUntil) {
         this.code = code;
-        this.discountPercent = discountPercent;
+        this.Osszeg = Osszeg;
         this.ownerEmail = ownerEmail;
-        this.used = used;
+        this.validUntil = validUntil;
+        this.plannedToUse = false;
+    }
+
+    public boolean isPlannedToUse() {
+        return plannedToUse;
+    }
+
+    public void setPlannedToUse(boolean plannedToUse) {
+        this.plannedToUse = plannedToUse;
     }
 
     public Long getId() {
@@ -44,12 +53,12 @@ public class Coupon {
         this.code = code;
     }
 
-    public int getDiscountPercent() {
-        return discountPercent;
+    public int getOsszeg() {
+        return Osszeg;
     }
 
-    public void setDiscountPercent(int discountPercent) {
-        this.discountPercent = discountPercent;
+    public void setOsszeg(int Osszeg) {
+        this.Osszeg = Osszeg;
     }
 
     public String getOwnerEmail() {
@@ -58,14 +67,6 @@ public class Coupon {
 
     public void setOwnerEmail(String ownerEmail) {
         this.ownerEmail = ownerEmail;
-    }
-
-    public boolean isUsed() {
-        return used;
-    }
-
-    public void setUsed(boolean used) {
-        this.used = used;
     }
 
     public LocalDateTime getValidUntil() {

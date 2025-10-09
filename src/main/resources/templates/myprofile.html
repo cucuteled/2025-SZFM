@@ -198,7 +198,7 @@
             let html = '<ul>';
             coupons.forEach(coupon => {
                 html += `<li style="border: 1px solid #777; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                    <strong>${coupon.discountPercent}% Kedvezmény</strong><br>
+                    <strong>${coupon.osszeg}</strong><br>
                     Kód: <code>${coupon.code}</code><br>
                     Státusz: <span style="color: #4CAF50;">Még nem használt</span>
                 </li>`;
@@ -212,7 +212,7 @@
     }
 
     async function performLogout() {
-        const resp = await fetch("/api/v1/logout", { method: "POST", credentials: "include" });
+        const resp = await fetch("/api/v1/auth/logout", { method: "POST", credentials: "include" });
         if (resp.ok) { showSmallToast("Sikeres kijelentkezés."); setTimeout(() => window.location.href = "/", 1500); }
         else { showSmallToast("Hiba történt kijelentkezés közben."); }
     }

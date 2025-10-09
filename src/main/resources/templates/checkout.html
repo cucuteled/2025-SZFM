@@ -104,7 +104,7 @@
       Tételek <span id="itembox-arrow">▼</span>
     </div>
     <div id="itembox" class="collapsible-body">
-      <!-- Ide jönnek a tételek -->
+    <!-- tételek !-->
     </div>
   </div>
 
@@ -114,6 +114,7 @@
       Megrendelés <span id="orderbox-arrow">▼</span>
     </div>
     <div id="orderbox" class="collapsible-body">
+    <br>
       <!-- Form mezők -->
     <div class="form-row double">
       <div>
@@ -149,8 +150,8 @@
         <input id="userphonenumber" name="phonenumber" type="tel" inputmode="numeric" pattern="\d*">
       </div>
 
-        <div>
-            <label for="couponcode">Kuponkód (opcionális):</label>
+<!--        <div>
+            <label for="couponcode">Kuponkód:</label>
             <div class="input-group">
                 <input type="text" id="couponcode" name="couponcode" placeholder="WELCOME50" style="flex: 3; margin-right: 10px;">
                 <button type="button" onclick="applyCoupon()" style="flex: 1; padding: 10px; border-radius: 8px; border: none; background: #3c548a; color: white; cursor: pointer;">
@@ -158,7 +159,7 @@
                 </button>
             </div>
             <p id="coupon-message" style="margin-top: 10px; font-weight: bold;"></p>
-        </div>
+        </div>-->
 
       <div>
         <button id="orderbutton" class="order-btn" onclick="order()">Megrendelés</button>
@@ -219,6 +220,37 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+async function getcupons(total) {
+    try {
+        const res = await fetch('/api/v1/cart/getcupons', // kupons lista első eleme a szállítási díj!
+        {
+            method: 'GET',
+            credentials: 'same-origin'
+        }
+        );
+        
+        if (!res.ok) throw new Error('Kuponok ellenőrzése sikertelen!');
+        const cupons = await res.json();
+        const feeLine = document.getElementById("feeslabel");
+        const final = document.getElementById("finalLabel");
+        let feeString = "";
+        // lekértük a kuponokat és megjelenítjük
+        for (const cupon of cupons) {
+            if (cupon.id == -1) { 
+                feeString = "Szállítási díj: " + cupon.osszeg.toString() + " Ft<i>"; 
+                total += cupon.osszeg; // TODO:::::: NE MUTASSA A KUPONOKAT HA A TOTAL 0FT ALÁ Ment
+            } else
+            {
+                feeString += "<br>" + cupon.code + ": -" + cupon.osszeg.toString() + " Ft";
+                total = total - cupon.osszeg;
+            }
+            final.innerHTML = `Végösszeg: ${total} Ft`;
+            feeLine.innerHTML = feeString + "</i>";
+        }
+        
+    } catch (err) {} // hibakezelés
+}
+
 // ------------------- js
 async function load() {
     const vb = document.getElementById("vissza");
@@ -226,7 +258,7 @@ async function load() {
     
     billing();
     
-    // teszt feltöltés
+    // feltöltés
   try {
     const res = await fetch('/api/v1/cart/getcart', {
       method: 'GET',
@@ -358,19 +390,23 @@ minusBtn.onclick = async () => {
     totalPrice.style.fontWeight = 'bold';
     box.appendChild(totalPrice);
 
-    // Szállítási díj
-    const shipping = 990;
-    const shippingLine = document.createElement('p');
-    shippingLine.textContent = `Szállítási díj: +${shipping} Ft`;
-    box.appendChild(shippingLine);
+    // Egyebek díjak & kuponok
+    const fee = "..."; // a díjak backend oldalon kerülnek rögzítésre, ez csak információ
+    const feeLine = document.createElement('p');
+    feeLine.id = 'feeslabel';
+    //feeLine.textContent = `Szállítási díj: +${fee} Ft`; // később irjuk
+    box.appendChild(feeLine);
 
     // Végösszeg
     const final = document.createElement('p');
-    final.textContent = `Végösszeg: ${total + shipping} Ft`;
+    final.id = "finalLabel";
+    final.textContent = `Végösszeg: ${total} Ft`;
     final.style.fontSize = '18px';
     final.style.fontWeight = 'bold';
     final.style.marginTop = '10px';
     box.appendChild(final);
+    
+    getcupons(total); // feltölti a feelinet
     
     } else { // ha üres
             const box = document.getElementById("itembox");

@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -20,6 +22,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    private final CouponRepository couponRepository;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -33,11 +37,12 @@ public class AuthenticationService {
 
         // --- Regisztrációkór kupon létrehozása ---
         Coupon welcomeCoupon = new Coupon(
-                "WELCOME50", //kupon kod
-                50, //kedvezmeny
-                user.getEmail(),
-                false //nincs felhasznalva
+                "WELCOME1000", //kupon kod
+                1000, //kedvezmeny
+                user.getUsername(),
+                LocalDateTime.now().plusDays(30) // 30 napig érvényes!
         );
+        couponRepository.save(welcomeCoupon); // mentjük az adatbázisba
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()

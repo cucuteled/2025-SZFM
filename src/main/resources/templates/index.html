@@ -211,9 +211,9 @@
     function update_cartdb(db) {
         const cb = document.getElementById("cartBtn");
         if (db == 0) {
-            cartBtn.value = "Kosár";
+            cartBtn.innerHTML = "Kosár";
         } else {
-            cartBtn.value = "Kosár (" + db.toString() + ")";
+            cartBtn.innerHTML = "Kosár (" + db.toString() + ")";
         }
     }
 
@@ -251,7 +251,7 @@
                         list.style.listStyle = 'none';
                         list.style.padding = '0';
                         //
-                        update_cartdb(items.length);
+                        let totaldb = 0;
             // itemek hozzáadása !!!!!!!!!!!!!!!!!!
                 items.forEach(item => {
                     const li = document.createElement('li');
@@ -261,6 +261,7 @@
 
                     const total = item.price * item.quantity;
                     li.textContent = `${item.name} - ${item.quantity} db = ${total} Ft`;
+                    totaldb += item.quantity;
 
                     // kártyalabel
                     const kartyalabel = document.getElementById(`label${item.name}`);
@@ -306,6 +307,7 @@
 					list.appendChild(br);
                 });
         // vége!!!!!!!!!!!!!
+                        update_cartdb(totaldb);
                         contentDiv.appendChild(list);
                     }
                 } else {

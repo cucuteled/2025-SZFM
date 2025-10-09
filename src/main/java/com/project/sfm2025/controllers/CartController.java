@@ -2,10 +2,7 @@ package com.project.sfm2025.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.project.sfm2025.entities.*;
-import com.project.sfm2025.repositories.CartItemRepository;
-import com.project.sfm2025.repositories.DrinkRepository;
-import com.project.sfm2025.repositories.OrderItemRepository;
-import com.project.sfm2025.repositories.FoodRepository;
+import com.project.sfm2025.repositories.*;
 import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +22,7 @@ public class CartController {
     private final OrderItemRepository orderItemRepository;
     private final FoodRepository foodRepository;
     private final DrinkRepository drinkRepository;
+    private final CouponRepository couponRepository;
 
     private String sanitize(String input) {
         return input.replaceAll("[^a-zA-Z0-9_]", "_");
@@ -124,6 +122,28 @@ public class CartController {
         return ResponseEntity.ok(cartItemRepository.findAllByOwner(username));
     }
 
+    @GetMapping("/getcupons")
+    public ResponseEntity<List<Coupon>> getCoupon(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String username = auth.getName();
+        List<Coupon> coupons = couponRepository.findAllByOwnerEmail(username);
+        System.out.println(username);
+
+        // Szállítási díj kupon hozzáadása (-1 ID-val)
+        Coupon shippingFee = new Coupon();
+        shippingFee.setId((long)-1L);
+        shippingFee.setCode("SHIPPING");
+        shippingFee.setOsszeg(990); // például 990 Ft szállítási díj
+        shippingFee.setOwnerEmail(username); // opcionális, ha szükséges
+
+        coupons.add(0, shippingFee); // első elemként hozzáadjuk
+
+        return ResponseEntity.ok(coupons);
+    }
+
     @PostMapping("/order")
     public ResponseEntity<String> order(Authentication auth,
                                         @RequestBody OrderData data
@@ -144,7 +164,7 @@ public class CartController {
             oi.setOwner(username);
             oi.setProductId(ci.getProductId());
             oi.setName(ci.getName());
-            oi.setPrice(ci.getPrice());
+            oi.setPrice(ci.getPrice()); // todo lekérni itt is a kuponokat és ha a total 0 álljon meg
             oi.setOrderTime(LocalDateTime.now());
             oi.setQuantity(ci.getQuantity());
 

@@ -19,20 +19,20 @@ public class UserController {
     /**
      * Kijelentkezés (JWT cookie törlése)
      */
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
-        ResponseCookie deleteCookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Lax")
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
-                .body("Logged out");
-    }
+//    @PostMapping("/logout")
+//    public ResponseEntity<?> logout() {
+//        ResponseCookie deleteCookie = ResponseCookie.from("jwt", "")
+//                .httpOnly(true)
+//                .secure(false)
+//                .path("/")
+//                .maxAge(0)
+//                .sameSite("Lax")
+//                .build();
+//
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
+//                .body("Logged out");
+//    }
 
     /**
      * Fiók törlése (csak bejelentkezett felhasználó)

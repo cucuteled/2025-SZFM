@@ -23,7 +23,7 @@ public class CouponController {
             return ResponseEntity.status(401).build();
         }
         String email = auth.getName(); // Email a username/principal
-        List<Coupon> coupons = couponRepository.findAllByOwnerEmailAndUsedFalse(email);
+        List<Coupon> coupons = couponRepository.findAllByOwnerEmail(email);
         return ResponseEntity.ok(coupons);
     }
 }
