@@ -33,103 +33,287 @@
         }
         #bg1 { opacity: 1; }
         #bg2 { opacity: 0; }
+
+        /* --- Modal stílus --- */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .modal {
+            background: rgba(20,20,20,0.95);
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            color: #fff;
+        }
+        .modal h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+        .modal p {
+            margin: 0 0 16px 0;
+            color: #ddd;
+        }
+        .modal .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .btn {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn.cancel {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+        .btn.danger {
+            background: crimson;
+            color: #fff;
+        }
+        .btn.primary {
+            background: #4CAF50;
+            color: #fff;
+        }
+        .btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body onload="load()">
 
-<!-- Háttérképek -->
+<!-- háttérdiv-ek -->
 <div id="bg1" class="bg" style="background-image: url('/pictures/background/profileback.png');"></div>
 <div id="bg2" class="bg"></div>
 
 <div class="sidebar">
-    <button onclick="">Profil Adatok</button>
-    <button onclick="">Kredit & Kupon</button>
-    <button onclick="">Rendeléseim</button>
-    <button onclick="">Támogatás és segítségkérés</button>
-    <button onclick="">Adatvédelem és biztonság</button>
+    <button>Profil Adatok</button>
+    <button>Kredit & Kupon</button>
+    <button>Rendeléseim</button>
+    <button>Támogatás és segítségkérés</button>
+    <button>Adatvédelem és biztonság</button>
     <br>
-    <button onclick="logoutUser()">Kijelentkezés</button>
-    <button onclick="deleteProfile()">Profil törlés</button>
+    <button id="logoutBtn">Kijelentkezés</button>
+    <button id="deleteBtn">Profil törlés</button>
 </div>
 
 <div class="title">Profil Adatok</div>
+<!-- === PROFIL ADATOK MEGJELENÍTÉSE === -->
+<div id="profileContainer" class="screencontent" style="flex-direction: column; align-items: flex-start;">
+    <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
+        <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Profil adatok</h2>
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; margin-bottom:5px; font-weight:bold;">Vezetéknév:</label>
+            <div id="lastname" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; margin-bottom:5px; font-weight:bold;">Keresztnév:</label>
+            <div id="firstname" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
+        </div>
+        <div>
+            <label style="display:block; margin-bottom:5px; font-weight:bold;">E-mail cím:</label>
+            <div id="email" style="background:rgba(255,255,255,0.15); padding:10px; border-radius:8px;">Betöltés...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadProfileData() {
+        try {
+            const resp = await fetch("/api/v1/auth/me", { credentials: "include" });
+            if (!resp.ok) throw new Error("Nem sikerült lekérni a felhasználói adatokat.");
+
+            const user = await resp.json();
+            document.getElementById("lastname").textContent = user.lastname || "(nincs adat)";
+            document.getElementById("firstname").textContent = user.firstname || "(nincs adat)";
+            document.getElementById("email").textContent = user.email || "(nincs adat)";
+        } catch (err) {
+            console.error(err);
+            showSmallToast("Nem sikerült betölteni a profiladatokat.");
+        }
+    }
+
+    // betöltéskor automatikusan hívjuk
+    window.addEventListener("load", loadProfileData);
+</script>
 <button id="vissza" class="vissza-btn">Vissza a főoldalra</button>
+
+<!-- Confirm modal -->
+<div id="confirmBackdrop" class="modal-backdrop">
+    <div class="modal">
+        <h3 id="confirmTitle">Megerősítés</h3>
+        <p id="confirmMessage">Biztosan folytatod?</p>
+        <div class="controls">
+            <button id="confirmCancel" class="btn cancel">Mégse</button>
+            <button id="confirmOk" class="btn danger">Igen, folytat</button>
+        </div>
+    </div>
+</div>
 
 <script>
     function load() {
-        const vb = document.getElementById("vissza");
-        vb.onclick = () => window.location.href = '/';
+        document.getElementById("vissza").onclick = () => window.location.href = '/';
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            showConfirm("Biztosan kijelentkezel?", async () => await performLogout());
+        });
+        document.getElementById('deleteBtn').addEventListener('click', () => {
+            showConfirm("Biztosan törölni szeretnéd a fiókodat? Ez végleges és nem visszavonható.", async () => await performDelete(), { countdown: 5 });
+        });
+        initBackgroundRotation();
     }
 
-    // ---- kijelentkezés ----
-    async function logoutUser() {
-        try {
-            const resp = await fetch("/api/v1/user/logout", {
-                method: "POST",
-                credentials: "include"
-            });
-            if (resp.ok) {
-                alert("Sikeres kijelentkezés!");
-                window.location.href = "/";
-            } else {
-                alert("Hiba történt kijelentkezéskor!");
+    /**
+     * showConfirm(message, onConfirm, options)
+     * options.countdown -> ha meg van adva, X másodpercig nem lehet rányomni az OK gombra
+     */
+    function showConfirm(message, onConfirm, options = {}) {
+        const backdrop = document.getElementById('confirmBackdrop');
+        const msg = document.getElementById('confirmMessage');
+        const okBtn = document.getElementById('confirmOk');
+        const cancelBtn = document.getElementById('confirmCancel');
+
+        msg.textContent = message;
+        backdrop.style.display = 'flex';
+
+        cancelBtn.focus();
+        okBtn.disabled = false;
+        okBtn.classList.remove("disabled");
+        okBtn.textContent = "Igen, folytat";
+
+        let countdownTimer = null;
+
+        // Ha van countdown (pl. 5 mp a törlésnél)
+        if (options.countdown && options.countdown > 0) {
+            let remaining = options.countdown;
+            okBtn.disabled = true;
+            okBtn.classList.add("disabled");
+            okBtn.textContent = `Várj ${remaining} mp...`;
+
+            countdownTimer = setInterval(() => {
+                remaining--;
+                if (remaining > 0) {
+                    okBtn.textContent = `Várj ${remaining} mp...`;
+                } else {
+                    clearInterval(countdownTimer);
+                    okBtn.disabled = false;
+                    okBtn.classList.remove("disabled");
+                    okBtn.textContent = "Igen, törlöm";
+                }
+            }, 1000);
+        }
+
+        const cleanup = () => {
+            backdrop.style.display = 'none';
+            okBtn.onclick = null;
+            cancelBtn.onclick = null;
+            if (countdownTimer) clearInterval(countdownTimer);
+        };
+
+        cancelBtn.onclick = cleanup;
+        okBtn.onclick = async () => {
+            okBtn.textContent = "Feldolgozás...";
+            okBtn.disabled = true;
+            try {
+                await onConfirm();
+            } finally {
+                cleanup();
             }
-        } catch (err) {
-            alert("Hálózati hiba: " + err);
+        };
+    }
+
+    /* ---------- Műveletek ---------- */
+    async function performLogout() {
+        const resp = await fetch("/api/v1/logout", { method: "POST", credentials: "include" });
+        if (resp.ok) {
+            showSmallToast("Sikeres kijelentkezés.");
+            setTimeout(() => window.location.href = "/", 1500);
+        } else {
+            showSmallToast("Hiba történt kijelentkezés közben.");
         }
     }
 
-    // ---- profil törlés ----
-    async function deleteProfile() {
-        if (!confirm("Biztosan törölni szeretnéd a fiókodat? Ez nem visszavonható!")) return;
-
-        try {
-            const response = await fetch("/api/v1/user/delete", {
-                method: "DELETE",
-                credentials: "include"
-            });
-
-            if (response.ok) {
-                alert("A fiókod sikeresen törölve lett!");
-                window.location.href = "/";
-            } else {
-                const msg = await response.text();
-                alert("Hiba történt: " + msg);
-            }
-        } catch (err) {
-            alert("Hálózati hiba: " + err);
+    async function performDelete() {
+        const resp = await fetch("/api/v1/delete", { method: "DELETE", credentials: "include" });
+        if (resp.ok) {
+            showSmallToast("A fiókod sikeresen törölve lett.");
+            setTimeout(() => window.location.href = "/", 2000);
+        } else {
+            showSmallToast("Hiba történt a fiók törlése közben.");
         }
     }
 
-    // ---- háttérkép váltakozás ----
-    const images = [
-      "/pictures/background/profileback.png",
-      "/pictures/background/backcar.png",
-      "/pictures/background/backhouse.png",
-      "/pictures/background/backuni.png",
-      "/pictures/background/backxp.png"
-    ];
+    /* ---------- Háttér váltó ---------- */
+    function initBackgroundRotation() {
+        const images = [
+          "/pictures/background/profileback.png",
+          "/pictures/background/backcar.png",
+          "/pictures/background/backhouse.png",
+          "/pictures/background/backuni.png",
+          "/pictures/background/backxp.png"
+        ];
+        let current = 0;
+        const bg1 = document.getElementById("bg1");
+        const bg2 = document.getElementById("bg2");
+        let showingBg1 = true;
+        setInterval(() => {
+          const nextImage = images[(current + 1) % images.length];
+          if (showingBg1) {
+            bg2.style.backgroundImage = `url(${nextImage})`;
+            bg2.style.opacity = 1;
+            bg1.style.opacity = 0;
+          } else {
+            bg1.style.backgroundImage = `url(${nextImage})`;
+            bg1.style.opacity = 1;
+            bg2.style.opacity = 0;
+          }
+          showingBg1 = !showingBg1;
+          current = (current + 1) % images.length;
+        }, 6000);
+    }
 
-    let current = 0;
-    const bg1 = document.getElementById("bg1");
-    const bg2 = document.getElementById("bg2");
-    let showingBg1 = true;
-
-    setInterval(() => {
-      const nextImage = images[(current + 1) % images.length];
-      if (showingBg1) {
-        bg2.style.backgroundImage = `url(${nextImage})`;
-        bg2.style.opacity = 1;
-        bg1.style.opacity = 0;
-      } else {
-        bg1.style.backgroundImage = `url(${nextImage})`;
-        bg1.style.opacity = 1;
-        bg2.style.opacity = 0;
+    /* --- Egységes toast üzenet a kijelentkezéshez, törléshez stb. --- */
+    function showSmallToast(msg, ms = 2000) {
+      let toast = document.getElementById('smallToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'smallToast';
+        toast.style.position = 'fixed';
+        toast.style.right = '20px';
+        toast.style.bottom = '20px';
+        toast.style.background = 'rgba(0,0,0,0.7)';
+        toast.style.color = '#fff';
+        toast.style.padding = '10px 14px';
+        toast.style.borderRadius = '10px';
+        toast.style.boxShadow = '0 4px 14px rgba(0,0,0,0.4)';
+        toast.style.zIndex = '100000';
+        toast.style.fontWeight = '600';
+        toast.style.transition = 'opacity 300ms';
+        document.body.appendChild(toast);
       }
-      showingBg1 = !showingBg1;
-      current = (current + 1) % images.length;
-    }, 6000);
-</script>
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+          if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 350);
+      }, ms);
+    }
 
+</script>
 </body>
 </html>

@@ -103,7 +103,7 @@
             color: white;
             cursor: pointer;
         }
-        
+
         @keyframes tilt-shaking {
           0% { transform: rotate(0deg); }
           25% { transform: rotate(5deg); }
@@ -111,11 +111,11 @@
           75% { transform: rotate(-5deg); }
           100% { transform: rotate(0deg); }
         }
-        
+
         .shake {
           animation: tilt-shaking 0.5s infinite;
         }
-        
+
         .label-kor {
           position: absolute;
           top: 2px;
@@ -128,13 +128,55 @@
           align-items: center;
           justify-content: center;
         }
-        
+
         .label-szoveg {
           color: rgb(200, 50, 50); /* piros */
           font-weight: bold;
           font-size: 16px;
         }
         .label-kor[hidden] { display: none; }
+
+        /* --- Kijelentkezés megerősítő popup --- */
+        #logoutConfirmOverlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 99999;
+        }
+        #logoutConfirmOverlay .confirm-box {
+          background: rgba(40,40,40,0.95);
+          padding: 22px 28px;
+          border-radius: 14px;
+          max-width: 420px;
+          width: 90%;
+          color: #fff;
+          text-align: center;
+          box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+        }
+        #logoutConfirmOverlay .confirm-box h3 {
+          margin: 0 0 12px;
+          font-size: 1.1rem;
+          letter-spacing: 0.3px;
+        }
+        #logoutConfirmOverlay .confirm-actions {
+          margin-top: 14px;
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+        }
+        #logoutConfirmOverlay .confirm-actions button {
+          padding: 8px 16px;
+          border-radius: 10px;
+          border: none;
+          cursor: pointer;
+          font-weight: 600;
+        }
+        #logoutConfirmOverlay .confirm-yes { background: #4CAF50; color: white; }
+        #logoutConfirmOverlay .confirm-no  { background: #b33; color: white; }
+
     </style>
 </head>
 <body>
@@ -165,7 +207,7 @@
 <script>
     // --- segédf-ök ---
     let updatecart = 0;
-    
+
     function update_cartdb(db) {
         const cb = document.getElementById("cartBtn");
         if (db == 0) {
@@ -174,7 +216,7 @@
             cartBtn.value = "Kosár (" + db.toString() + ")";
         }
     }
-    
+
         async function opencart() {
             // Ne nyisson többet, ha már van
             closecart();
@@ -186,7 +228,7 @@
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'cart-content';
-            
+
             const orderBtn = document.createElement('button');
             orderBtn.className = 'order-btn';
 
@@ -219,15 +261,15 @@
 
                     const total = item.price * item.quantity;
                     li.textContent = `${item.name} - ${item.quantity} db = ${total} Ft`;
-                    
+
                     // kártyalabel
                     const kartyalabel = document.getElementById(`label${item.name}`);
                     const kartyalabelkor = document.getElementById(`labelkor${item.name}`);
-                    
+
                     if (kartyalabel) {
                         kartyalabel.textContent = item.quantity.toString();
                     }
-                    
+
                     if (kartyalabelkor) {
                       kartyalabelkor.hidden = false;
                     }
@@ -507,7 +549,7 @@
           const user = await res.json();
           const display = (user && user.email) ? user.email : 'Profil';
           btn.textContent = 'Kijelentkezés (' + display + ')';
-          btn.onclick = () => { if (confirm('Biztos kijelentkezel?')) logout(); };
+          btn.onclick = showLogoutConfirm;
           const profilgomb = document.getElementById("myprofilebutton");
           profilgomb.style.visibility = 'visible';
           profilgomb.onclick = () => window.location.href = '/myprofile';
@@ -529,22 +571,6 @@
         profilgomb.style.visibility = 'hidden';
     }
 
-    async function logout(){
-      try {
-        const res = await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
-        if (res.ok) {
-          await loadAuthStatus();
-          alert('Sikeres kijelentkezés.');
-          fooldal();
-        } else {
-          const t = await res.text().catch(()=>res.statusText);
-          alert('Kijelentkezési hiba: ' + t);
-        }
-      } catch (e) {
-        alert('Hálózati hiba: ' + e.message);
-      }
-    }
-    
     // ételek listázása
     async function listetelek() {
         const mainContainer = document.getElementById('etel-container');
@@ -595,11 +621,11 @@
             etelContainer.innerHTML = '<p>Hiba történt az ételek betöltésekor.</p>';
         }
     }
-    
+
     // italok listázása
     async function listitalok() {
         const mainContainer = document.getElementById('etel-container');
-        
+
         // --- Italok szekció ---
         const italSection = document.createElement('section');
         italSection.innerHTML = '<h2>Italok</h2>';
@@ -669,26 +695,25 @@
           method: 'POST',
           credentials: 'same-origin'
         });
-    
+
         if (res.status === 403 || res.status === 401) {
-          const go = confirm('A kosár használatához be kell jelentkezned. Belépsz most?');
-          if (go) window.location.href = '/login';
+          showLoginPrompt();
           return;
         }
-    
+
         if (!res.ok) {
           const text = await res.text().catch(()=>res.statusText);
           alert('Hiba: ' + text);
           return;
         }
-    
+
         const body = await res.text();
         //alert(body || 'Sikeresen hozzáadva a kosárhoz!'); // alert of cartitemadded
         //
         updatecart = 0;
         opencart();
         shakecart();
-    
+
       } catch (err) {
         console.error('addToCart hiba:', err);
         alert('Hálózati hiba: ' + err.message);
@@ -700,13 +725,160 @@
       loadAuthStatus();
       fooldal(); // nyitáskor főoldal
     });
-    
+
     function shakecart() {
       const btn = document.getElementById("cartBtn");
       btn.classList.add("shake");
       setTimeout(function() {
         btn.classList.remove("shake");
       }, 600); // 1000 ms = 1 másodperc
+    }
+
+    /* --- showLogoutConfirm: megjelenít egy megerősítő ablakot --- */
+    function showLogoutConfirm() {
+      // ha már nyitva van, ne nyisson újat
+      if (document.getElementById('logoutConfirmOverlay')) return;
+
+      const overlay = document.createElement('div');
+      overlay.id = 'logoutConfirmOverlay';
+      overlay.innerHTML = `
+        <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title">
+          <h3 id="logout-confirm-title">Biztosan ki akarsz jelentkezni?</h3>
+          <div class="confirm-actions">
+            <button class="confirm-yes">Igen, kijelentkezem</button>
+            <button class="confirm-no">Mégse</button>
+          </div>
+        </div>
+      `;
+
+      // kattintással és ESC-sel is zárható legyen
+      function removeOverlay() {
+        if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        document.removeEventListener('keydown', onKeydown);
+      }
+      function onKeydown(e) {
+        if (e.key === 'Escape') removeOverlay();
+      }
+
+      document.body.appendChild(overlay);
+      document.addEventListener('keydown', onKeydown);
+
+      // buttonok
+      overlay.querySelector('.confirm-no').addEventListener('click', removeOverlay);
+      overlay.querySelector('.confirm-yes').addEventListener('click', async () => {
+        removeOverlay();
+        // hívjuk a kijelentkezés logikát, de legyen non-blocking (ne használjon újabb native alertet)
+        await logoutWithoutAlert();
+      });
+
+      // fókusz kezelése (accessibility)
+      const noBtn = overlay.querySelector('.confirm-no');
+      if (noBtn) noBtn.focus();
+    }
+
+    /* --- logoutWithoutAlert: módosított logout ami NEM használ native alert()-et --- */
+    async function logoutWithoutAlert() {
+      try {
+        const res = await fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' });
+        if (res.ok) {
+          // frissítjük az auth státuszt, visszatérítjük a főoldalra
+          await loadAuthStatus();
+          // opcionális: rövid vizuális visszajelzés (nem native alert)
+          showSmallToast('Sikeres kijelentkezés.');
+          // vissza a főoldalra
+          fooldal();
+        } else {
+          const t = await res.text().catch(()=>res.statusText);
+          showSmallToast('Kijelentkezési hiba: ' + t);
+        }
+      } catch (e) {
+        showSmallToast('Hálózati hiba: ' + e.message);
+      }
+    }
+
+    /* --- egyszerű, nem blokkoló toast a jobb UX-hez (látható 2s-ig) --- */
+    function showSmallToast(msg, ms = 2000) {
+      // ha már van toast, frissítjük
+      let toast = document.getElementById('smallToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'smallToast';
+        toast.style.position = 'fixed';
+        toast.style.right = '20px';
+        toast.style.bottom = '20px';
+        toast.style.background = 'rgba(0,0,0,0.7)';
+        toast.style.color = '#fff';
+        toast.style.padding = '10px 14px';
+        toast.style.borderRadius = '10px';
+        toast.style.boxShadow = '0 4px 14px rgba(0,0,0,0.4)';
+        toast.style.zIndex = '100000';
+        toast.style.fontWeight = '600';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.style.transition = 'opacity 300ms';
+        toast.style.opacity = '0';
+        setTimeout(()=>{ if (toast && toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
+      }, ms);
+    }
+
+    /* --- Bejelentkezés szükséges popup --- */
+    function showLoginPrompt() {
+      if (document.getElementById('loginPromptOverlay')) return;
+
+      const overlay = document.createElement('div');
+      overlay.id = 'loginPromptOverlay';
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.background = 'rgba(0,0,0,0.6)';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = '99999';
+
+      overlay.innerHTML = `
+        <div class="confirm-box" style="
+            background: rgba(40,40,40,0.95);
+            padding: 22px 28px;
+            border-radius: 14px;
+            max-width: 420px;
+            width: 90%;
+            color: #fff;
+            text-align: center;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+          ">
+          <h3 style="margin:0 0 12px;font-size:1.1rem;">A kosár használatához be kell jelentkezned.</h3>
+          <div class="confirm-actions" style="margin-top:14px;display:flex;gap:12px;justify-content:center;">
+            <button id="goLoginBtn" style="padding:8px 16px;border:none;border-radius:10px;background:#4CAF50;color:white;font-weight:600;cursor:pointer;">
+              Bejelentkezés
+            </button>
+            <button id="cancelLoginBtn" style="padding:8px 16px;border:none;border-radius:10px;background:#b33;color:white;font-weight:600;cursor:pointer;">
+              Mégse
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+
+      const removeOverlay = () => overlay.remove();
+
+      document.getElementById('cancelLoginBtn').addEventListener('click', removeOverlay);
+      document.getElementById('goLoginBtn').addEventListener('click', () => {
+        removeOverlay();
+        window.location.href = '/login';
+      });
+
+      // ESC gombbal is bezárható
+      document.addEventListener('keydown', function escListener(e) {
+        if (e.key === 'Escape') {
+          removeOverlay();
+          document.removeEventListener('keydown', escListener);
+        }
+      });
     }
 </script>
 </body>
