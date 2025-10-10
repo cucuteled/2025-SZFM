@@ -150,7 +150,7 @@ public class CartController {
         }
 
         String username = auth.getName();
-        List<Coupon> coupons = couponRepository.findAllByOwnerEmailAndIsUsedFalse(username);
+        List<Coupon> coupons = couponRepository.findAllByOwnerEmailAndIsUsedFalseAndPlannedToUseIsTrue(username);
         List<Coupon> sendBack = selectCoupons(coupons, total);
 
         // Szállítási díj kupon hozzáadása (-1 ID-val)
@@ -186,7 +186,7 @@ public class CartController {
         for (CartItem ci : cartItems) {
             total += ci.getPrice();
         }
-        List<Coupon> coupons = couponRepository.findAllByOwnerEmailAndIsUsedFalse(auth.getName());
+        List<Coupon> coupons = couponRepository.findAllByOwnerEmailAndIsUsedFalseAndPlannedToUseIsTrue(auth.getName());
         List<Coupon> usedcoupons = selectCoupons(coupons, total);
 
         Integer shippingFee = 990;

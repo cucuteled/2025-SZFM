@@ -6,6 +6,7 @@ import com.project.sfm2025.repositories.CodeCouponRepository;
 import com.project.sfm2025.repositories.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.apache.bcel.classfile.Code;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -83,7 +84,7 @@ public class CouponController {
         co.setOwnerEmail(email);
         co.setValidUntil(kupon.getValidUntil());
 
-        Optional<Coupon> voltemar = couponRepository.findByCodeAndOwnerEmailAndIsUsedTrue(code, email);
+        Optional<Coupon> voltemar = couponRepository.findByCodeAndOwnerEmail(code, email);
         if (voltemar.isEmpty()) {
             couponRepository.save(co);
         } else {
@@ -92,4 +93,28 @@ public class CouponController {
 
         return ResponseEntity.ok("Kupon aktiválva!");
     }
+
+    @GetMapping("/usecoupon")
+    public ResponseEntity<?> useCoupon(
+            @RequestParam(name = "use") boolean usestate,
+            @RequestParam(name = "code") String code,
+            Authentication auth) {
+
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        Optional<Coupon> cup = couponRepository.findByCodeAndOwnerEmail(code, auth.getName());
+        if (cup.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Kupon nem található vagy nem a tiéd.");
+        }
+
+        Coupon coupon = cup.get();
+        coupon.setPlannedToUse(usestate);
+
+        couponRepository.save(coupon);
+
+        return ResponseEntity.ok("Kupon állapot frissítve: " + usestate);
+    }
+
 }

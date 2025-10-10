@@ -15,6 +15,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
     List<Coupon> findAllByOwnerEmail(String ownerEmail);
 
     // Kupon keresése a kódja és a tulajdonos email címe alapján
+    List<Coupon> findAllByOwnerEmailAndIsUsedFalseAndPlannedToUseIsTrue(String ownerEmail);
     List<Coupon> findAllByOwnerEmailAndIsUsedFalse(String ownerEmail);
 
     // Kupon keresése kód alapján (használt/nem használt ellenőrzéshez)

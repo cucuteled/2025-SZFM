@@ -318,24 +318,65 @@ async function listmyorders() {
             // TODO: ADJUK HOZZÁ A KUPON AKTIVÁLÁS kártyát:
             
             //
-            let html = '<ul>';
-            coupons.forEach(coupon => 
-            {
-                const validUntilDate = new Date(coupon.validUntil); // ISO stringből Date objektum
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                const formattedDate = validUntilDate.toLocaleDateString('hu-HU', options);
-                html += `<li style="border: 1px solid #777; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                    <strong>${coupon.osszeg} Ft</strong><br>
-                    Kód: <code>${coupon.code}</code><br>
-                    Érvényes: <span style="color: #4CAF50;">${formattedDate}</span>
-                </li>`;
-            });
-            html += '</ul>';
-            couponListDiv.innerHTML = html;
-        } catch (error) {
-            console.error('Kupon hiba:', error);
-            couponListDiv.innerHTML = '<p class="center-text" style="color:red;">Hálózati hiba a kuponok betöltésekor.</p>';
-        }
+            try {
+                let html = '<ul>';
+            
+                coupons.forEach((coupon, index) => {
+                    const validUntilDate = new Date(coupon.validUntil);
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    const formattedDate = validUntilDate.toLocaleDateString('hu-HU', options);
+            
+                    html += `
+                        <li style="border: 1px solid #777; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <strong>${coupon.osszeg} Ft</strong><br>
+                            Kód: <code>${coupon.code}</code><br>
+                            Érvényes: <span style="color: #4CAF50;">${formattedDate}</span><br>
+                            <label>
+                                <input type="checkbox" id="coupon-${index}" ${coupon.plannedToUse ? 'checked' : ''}>
+                                Használ a következő rendeléskor
+                            </label>
+                        </li>
+                    `;
+                });
+            
+                html += '</ul>';
+                couponListDiv.innerHTML = html;
+            
+                coupons.forEach((coupon, index) => {
+                    const checkbox = document.getElementById(`coupon-${index}`);
+            
+                    checkbox.addEventListener('change', async () => {
+                        try {
+                            const useValue = checkbox.checked;
+                            const code = encodeURIComponent(coupon.code);
+            
+                            const response = await fetch(`/api/v1/coupons/usecoupon?use=${useValue}&code=${code}`, {
+                                method: 'GET',
+                                credentials: 'same-origin'
+                            });
+            
+                            if (!response.ok) {
+                                throw new Error('A szerver hibát adott vissza');
+                            }
+            
+                            const text = await response.text();
+                            console.log('Válasz:', text);
+                        } catch (err) {
+                            console.error('Hiba a kupon beállításakor:', err);
+                            alert('Nem sikerült beállítani a kupon használatát.');
+                        }
+                    });
+                });
+            
+            } catch (error) {
+                console.error('Kupon hiba:', error);
+                couponListDiv.innerHTML = `
+                    <p class="center-text" style="color:red;">
+                        Hálózati hiba a kuponok betöltésekor.
+                    </p>
+                `;
+            }
+        } catch (e) {}
     }
 
     async function performLogout() {
