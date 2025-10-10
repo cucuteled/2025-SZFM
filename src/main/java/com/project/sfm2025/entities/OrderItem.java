@@ -20,6 +20,15 @@ public class OrderItem {
     private String order_ShipAddress;
     private String order_BillingAddress;
     private String order_phonenumber;
+    private String usedcoupons;
+
+    public String getUsedcoupons() {
+        return usedcoupons;
+    }
+
+    public void setUsedcoupons(String usedcoupons) {
+        this.usedcoupons = usedcoupons;
+    }
 
     public String getOrder_name() {
         return order_name;

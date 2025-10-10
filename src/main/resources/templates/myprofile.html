@@ -79,8 +79,20 @@
 
     <!-- Kupon & Kredit -->
     <div id="couponContainer" style="display:none;">
-        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
+        <div style="background-color: rgba(20,20,20,0.95); padding: 25px 35px; border-radius: 15px; width: 420px;">
             <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Kupon & Kredit</h2>
+            
+            <div>
+            <label for="couponcode">Kuponkód:</label>
+            <div class="input-group">
+                <input type="text" id="couponCode" name="couponcode" placeholder="Kupon50" style="flex: 3; margin-right: 10px;padding: 5px; border-radius: 8px;">
+                <button type="button" onclick="applyCoupon()" style="flex: 1; padding: 10px; border-radius: 8px; border: none; background: #3c548a; color: white; cursor: pointer;">
+                    Alkalmaz
+                </button>
+            </div>
+            <p id="couponMessage" style="margin-top: 10px; font-weight: bold;"></p>
+        </div>
+        
             <div id="coupon-list">
                 <p class="center-text">Kuponok betöltése...</p>
             </div>
@@ -89,9 +101,8 @@
 
     <!-- Rendeléseim -->
     <div id="ordersContainer" style="display:none;">
-        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
+        <div id="orderslabel" style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
             <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Rendeléseim</h2>
-            <p class="center-text">Itt jelennek meg a korábbi rendeléseid.</p>
         </div>
     </div>
 
@@ -153,10 +164,119 @@
             showSection('couponContainer', 'Kupon & Kredit');
             loadCoupons();
         };
-        document.getElementById('ordersBtn').onclick = () => showSection('ordersContainer', 'Rendeléseim');
+        document.getElementById('ordersBtn').onclick = () => {
+            showSection('ordersContainer', 'Rendeléseim');
+            listmyorders();
+        }
         document.getElementById('supportBtn').onclick = () => showSection('supportContainer', 'Támogatás és segítségkérés');
         document.getElementById('privacyBtn').onclick = () => showSection('privacyContainer', 'Adatvédelem és biztonság');
     }
+    
+async function listmyorders() {
+    try {
+        const res = await fetch("/api/v1/cart/myorders", {
+            method: 'GET',
+            credentials: "same-origin"
+        });
+
+        if (!res.ok) throw new Error('Rendelések lekérése sikertelen!');
+        const allItems = await res.json();
+        const container = document.getElementById("ordersContainer");
+        container.innerHTML = "";
+
+        if (allItems.length === 0) {
+            const label = document.getElementById("orderslabel");
+            label.innerHTML = '<h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Rendeléseim</h2><br><p align="center">Még nincs rendelésed :(</p>';
+            return;
+        }
+
+        const grouped = {};
+
+        for (const item of allItems) {
+            const timeKey = item.orderTime.slice(0, 19);
+            if (!grouped[timeKey]) grouped[timeKey] = [];
+            grouped[timeKey].push(item);
+        }
+
+        const sortedKeys = Object.keys(grouped).sort(); // idő szerinti sorrend
+
+        for (const key of sortedKeys) {
+            const orderItems = grouped[key];
+            const firstItem = orderItems[0];
+            const card = document.createElement("div");
+
+            // Stílus
+            card.style.border = "1px solid rgb(255, 255, 255,0.5)";
+            card.style.borderRadius = "20px";
+            card.style.padding = "20px";
+            card.style.marginBottom = "5px";
+            card.style.backgroundColor = "rgb(20, 20, 20,0.95)";
+
+            // Idő kiírás
+            const orderDate = new Date(firstItem.orderTime);
+            const header = document.createElement("h4");
+            header.innerText = `🕒 ${orderDate.toLocaleString()}`;
+            card.appendChild(header);
+            card.appendChild(document.createElement("hr"));
+
+            let subtotal = 0;
+
+            for (const item of orderItems) {
+                const line = document.createElement("div");
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                line.innerText = `${item.name} \t ${item.quantity}× | ${itemTotal} Ft`;
+                card.appendChild(line);
+            }
+
+            card.appendChild(document.createElement("hr"));
+
+            // Díjak
+            let shipping = 0;
+            let coupons = [];
+            const usedcoupons = firstItem.usedcoupons || "";
+
+            if (usedcoupons.includes(";")) {
+                const [shippingStr, ...couponParts] = usedcoupons.split(";");
+                shipping = parseInt(shippingStr) || 0;
+
+                for (const part of couponParts) {
+                    const [name, value] = part.split(",");
+                    if (name && value) {
+                        coupons.push({ name, value: parseInt(value) });
+                    }
+                }
+            }
+
+            subtotal += shipping;
+
+            const shippingDiv = document.createElement("div");
+            shippingDiv.innerText = `📦 Szállítási díj: ${shipping} Ft`;
+            card.appendChild(shippingDiv);
+
+            for (const coupon of coupons) {
+                subtotal -= coupon.value;
+                const couponDiv = document.createElement("div");
+                couponDiv.innerText = `🎟️ Kupon: ${coupon.name} (-${coupon.value} Ft)`;
+                card.appendChild(couponDiv);
+            }
+
+            const totalDiv = document.createElement("div");
+            totalDiv.style.fontWeight = "bold";
+            totalDiv.style.marginTop = "10px";
+            if (subtotal < 0) subtotal = 0;
+            totalDiv.innerText = `💰 Végösszeg: ${subtotal} Ft`;
+            card.appendChild(totalDiv);
+
+            container.appendChild(card);
+        }
+
+    } catch (err) {
+        console.error("Hiba történt:", err);
+    }
+}
+
+
 
     async function loadProfileData() {
         try {
@@ -195,12 +315,19 @@
                 couponListDiv.innerHTML = '<p class="center-text">Jelenleg nincsenek felhasználható kuponjaid.</p>';
                 return;
             }
+            // TODO: ADJUK HOZZÁ A KUPON AKTIVÁLÁS kártyát:
+            
+            //
             let html = '<ul>';
-            coupons.forEach(coupon => {
+            coupons.forEach(coupon => 
+            {
+                const validUntilDate = new Date(coupon.validUntil); // ISO stringből Date objektum
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = validUntilDate.toLocaleDateString('hu-HU', options);
                 html += `<li style="border: 1px solid #777; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                    <strong>${coupon.osszeg}</strong><br>
+                    <strong>${coupon.osszeg} Ft</strong><br>
                     Kód: <code>${coupon.code}</code><br>
-                    Státusz: <span style="color: #4CAF50;">Még nem használt</span>
+                    Érvényes: <span style="color: #4CAF50;">${formattedDate}</span>
                 </li>`;
             });
             html += '</ul>';
@@ -302,6 +429,44 @@
     }
 
     window.addEventListener("load", loadProfileData);
+    
+    // --- ÚJ KUPOPON FÜGGVÉNY HOZZÁADÁSA ---
+async function applyCoupon() {
+    const couponCodeInput = document.getElementById('couponCode');
+    const couponMessage = document.getElementById('couponMessage');
+    const code = couponCodeInput.value.trim();
+    console.log(code);
+
+    if (!code) {
+        couponMessage.textContent = 'Kérlek adj meg egy kuponkódot.';
+        couponMessage.style.color = 'yellow';
+        return;
+    }
+
+    couponMessage.textContent = 'Kupon ellenőrzése...';
+    couponMessage.style.color = 'white';
+
+    try {
+        const res = await fetch(`/api/v1/coupons/addCoupon?code=${code}`, {
+            method: 'GET',
+            credentials: 'same-origin'
+        });
+
+        const data = await res.text();
+        
+            if (!res.ok) {
+        couponMessage.textContent = data;
+        couponMessage.style.color = 'red';
+        throw new Error(data);
+    }
+
+            showSection('couponContainer', 'Kupon & Kredit');
+            loadCoupons();
+            couponMessage.textContent = data;
+    } catch (error) {
+        console.error('Kupon hiba:', error);
+    }
+}
 </script>
 
 </body>

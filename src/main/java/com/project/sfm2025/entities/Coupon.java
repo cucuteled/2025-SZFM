@@ -18,6 +18,15 @@ public class Coupon {
     private String ownerEmail; // A kupon tulajdonosának email címe
     private LocalDateTime validUntil; // Meddig érvényes
     private boolean plannedToUse; // akarja e használni avagy tervezi e a felhasználó következő rendelésénél felhasználni
+    private boolean isUsed;
+
+    public boolean isUsed() {
+        return isUsed;
+    }
+
+    public void setUsed(boolean used) {
+        isUsed = used;
+    }
 
     public Coupon() {}
 
@@ -27,6 +36,7 @@ public class Coupon {
         this.ownerEmail = ownerEmail;
         this.validUntil = validUntil;
         this.plannedToUse = false;
+        this.isUsed = false;
     }
 
     public boolean isPlannedToUse() {

@@ -5,11 +5,16 @@ import com.project.sfm2025.entities.*;
 import com.project.sfm2025.repositories.*;
 import io.swagger.v3.core.util.Json;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
+import org.hibernate.query.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,15 +127,31 @@ public class CartController {
         return ResponseEntity.ok(cartItemRepository.findAllByOwner(username));
     }
 
+    private List<Coupon> selectCoupons(List<Coupon> coupons, Integer ordertotal) {
+        coupons.sort(Comparator.comparing(Coupon::getOsszeg));
+        List<Coupon> sendBack = new ArrayList<>();
+        for (Coupon cup : coupons) { // addig válogatjuk a kuponokat amíg az 0 alá nem esik
+            if (ordertotal - cup.getOsszeg() >= 0) {
+                ordertotal -= cup.getOsszeg();
+                sendBack.add(cup);
+            } else {
+                sendBack.add(cup); // hozzáadjuk az utolsót is így akár 0 alá is eshet DE a végösszeg sosem -, hanem 0!
+                break;
+            }
+        }
+        return sendBack;
+    }
+
     @GetMapping("/getcupons")
-    public ResponseEntity<List<Coupon>> getCoupon(Authentication auth) {
+    public ResponseEntity<List<Coupon>> getCoupon(@RequestParam Integer total,
+                                                  Authentication auth) {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
 
         String username = auth.getName();
-        List<Coupon> coupons = couponRepository.findAllByOwnerEmail(username);
-        System.out.println(username);
+        List<Coupon> coupons = couponRepository.findAllByOwnerEmailAndIsUsedFalse(username);
+        List<Coupon> sendBack = selectCoupons(coupons, total);
 
         // Szállítási díj kupon hozzáadása (-1 ID-val)
         Coupon shippingFee = new Coupon();
@@ -139,9 +160,9 @@ public class CartController {
         shippingFee.setOsszeg(990); // például 990 Ft szállítási díj
         shippingFee.setOwnerEmail(username); // opcionális, ha szükséges
 
-        coupons.add(0, shippingFee); // első elemként hozzáadjuk
+        sendBack.add(0, shippingFee); // első elemként hozzáadjuk
 
-        return ResponseEntity.ok(coupons);
+        return ResponseEntity.ok(sendBack);
     }
 
     @PostMapping("/order")
@@ -159,12 +180,32 @@ public class CartController {
             return ResponseEntity.ok("A kosarad üres.");
         }
 
+        // kuponok lekérése
+
+        Integer total = 0;
+        for (CartItem ci : cartItems) {
+            total += ci.getPrice();
+        }
+        List<Coupon> coupons = couponRepository.findAllByOwnerEmailAndIsUsedFalse(auth.getName());
+        List<Coupon> usedcoupons = selectCoupons(coupons, total);
+
+        Integer shippingFee = 990;
+        String usedcouponsString = shippingFee.toString() + ";";
+        for (Coupon cup : usedcoupons) {
+            usedcouponsString += cup.getCode() + "," + cup.getOsszeg() + ";";
+        } // az összes felhasznált kupont mentjük így -> "kupon1;kupon2..." kódja alapján
+
+        for (Coupon coupon : usedcoupons) {
+            coupon.setUsed(true);
+        }
+        couponRepository.saveAll(usedcoupons);
+
         for (CartItem ci : cartItems) {
             OrderItem oi = new OrderItem();
             oi.setOwner(username);
             oi.setProductId(ci.getProductId());
             oi.setName(ci.getName());
-            oi.setPrice(ci.getPrice()); // todo lekérni itt is a kuponokat és ha a total 0 álljon meg
+            oi.setPrice(ci.getPrice());
             oi.setOrderTime(LocalDateTime.now());
             oi.setQuantity(ci.getQuantity());
 
@@ -181,6 +222,8 @@ public class CartController {
             //
             oi.setOrder_phonenumber(data.getPhone());
             oi.setOrder_name(data.getName());
+            //
+            oi.setUsedcoupons(usedcouponsString); // itt mentjük a felhasznált kuponokat
 
             orderItemRepository.save(oi);
         }
@@ -188,5 +231,18 @@ public class CartController {
         cartItemRepository.deleteAll(cartItems);
 
         return ResponseEntity.ok("Rendelés sikeresen leadva.");
+    }
+
+    @GetMapping("/myorders")
+    public ResponseEntity<List<OrderItem>> getMyOrderItems(Authentication auth)
+    {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        String username = sanitize(auth.getName());
+        List<OrderItem> orderek = orderItemRepository.findAllByOwner(username);
+        orderek.sort(Comparator.comparing(OrderItem::getOrderTime));
+
+        return ResponseEntity.ok(orderek);
     }
 }

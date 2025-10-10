@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function getcupons(total) {
     try {
-        const res = await fetch('/api/v1/cart/getcupons', // kupons lista első eleme a szállítási díj!
+        const res = await fetch(`/api/v1/cart/getcupons?total=${total}`, // kupons lista első eleme a szállítási díj!
         {
             method: 'GET',
             credentials: 'same-origin'
@@ -238,11 +238,17 @@ async function getcupons(total) {
         for (const cupon of cupons) {
             if (cupon.id == -1) { 
                 feeString = "Szállítási díj: " + cupon.osszeg.toString() + " Ft<i>"; 
-                total += cupon.osszeg; // TODO:::::: NE MUTASSA A KUPONOKAT HA A TOTAL 0FT ALÁ Ment
+                total += cupon.osszeg;
             } else
             {
-                feeString += "<br>" + cupon.code + ": -" + cupon.osszeg.toString() + " Ft";
-                total = total - cupon.osszeg;
+                if ((total - cupon.osszeg) >= 0) {
+                    feeString += "<i><br>" + cupon.code + ":</i> -" + cupon.osszeg.toString() + " Ft";
+                    total = total - cupon.osszeg;
+                } else {
+                    var remaning = total + (total - cupon.osszeg) // az utolsó kuponból hány Forintot használunk fel!
+                    feeString += "<i><br>" + cupon.code + ":</i> " + cupon.osszeg.toString() + "(-" + remaning.toString() + ") Ft";
+                    total = 0;
+                }
             }
             final.innerHTML = `Végösszeg: ${total} Ft`;
             feeLine.innerHTML = feeString + "</i>";
@@ -533,51 +539,7 @@ function billing() {
     }
 } 
 
-    // --- ÚJ KUPOPON FÜGGVÉNY HOZZÁADÁSA ---
-async function applyCoupon() {
-    const couponCodeInput = document.getElementById('couponCode');
-    const couponMessage = document.getElementById('couponMessage');
-    const code = couponCodeInput.value.trim();
 
-    if (!code) {
-        couponMessage.textContent = 'Kérlek adj meg egy kuponkódot.';
-        couponMessage.style.color = 'yellow';
-        return;
-    }
-
-    couponMessage.textContent = 'Kupon ellenőrzése...';
-    couponMessage.style.color = 'white';
-
-    try {
-        // !!! Ezt az endpointot kell megvalósítanod a CartController-ben !!!
-        const res = await fetch(`/api/v1/cart/apply-coupon?code=${encodeURIComponent(code)}`, {
-            method: 'POST',
-            credentials: 'same-origin', // Fontos, hogy a JWT cookie elküldésre kerüljön
-            // Ha a kupon logikát a kosár tartalmának lekérése előtt akarod alkalmazni:
-            // nem kell body, a kód a query paraméterben van
-        });
-
-        const data = await res.json(); // Feltételezve, hogy a backend JSON-t ad vissza
-
-        if (res.ok) {
-            // A backend-nek vissza kellene adnia az új, kedvezményes végösszeget is
-            couponMessage.textContent = `Kupon (${code}) sikeresen alkalmazva! Új végösszeg: ${data.newTotal} Ft.`;
-            couponMessage.style.color = '#4CAF50'; // Zöld
-
-            // Frissítsd a felületet a kosár tartalmával, ha van ilyen funkció:
-            await fetchCartItems();
-
-        } else {
-            // Hibaüzenet a backend-ről
-            couponMessage.textContent = `Hiba: ${data.message || 'Érvénytelen kód vagy feltétel!'}`;
-            couponMessage.style.color = 'red';
-        }
-    } catch (error) {
-        console.error('Kupon hiba:', error);
-        couponMessage.textContent = 'Hiba történt a kupon alkalmazása közben.';
-        couponMessage.style.color = 'red';
-    }
-}
 </script>
 </body>
 </html>
