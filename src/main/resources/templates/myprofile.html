@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <!-- Rendeléseim -->
+    <!-- Rendeléseim TODO: AZ ELEMEK TÚLCSORDULNAK ÉS NEM LEHET AZ OLDALON LAPOZNI JAVÍTANI példa admin@admin.hu admin123 fiókba -->
     <div id="ordersContainer" style="display:none;">
         <div id="orderslabel" style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
             <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Rendeléseim</h2>
@@ -115,6 +115,8 @@
                 kérjük, lépj kapcsolatba ügyfélszolgálatunkkal. Támogatási csapatunk hétfőtől péntekig, 9:00–17:00 között elérhető,
                 és minden kérdésre igyekeznek gyorsan és részletesen válaszolni. Használhatod az alábbi űrlapot,
                 vagy küldhetsz e-mailt az <strong>support@etterem.hu</strong> címre.
+                
+                TODO: ITT JELENJEN MEG A KORÁBBI AZONOS EMAIL CÍMMEL KÜLDÖTT TÁMOGATÁSOK IS ÉS FEJLEMÉNYEI (AZ EGYENLŐRE NINCS DE UI SZEMPONTBÓL LEGYEN KIALAKÍTVA)
             </p>
         </div>
     </div>
@@ -129,6 +131,9 @@
                 és soha nem kerül megosztásra harmadik féllel a hozzájárulásod nélkül.
                 Jelszavaidat biztonságosan, hash-elve tároljuk. Rendszeresen frissítjük a biztonsági protokollokat,
                 hogy adatvédelmi és biztonsági előírásainknak mindenben megfeleljünk.
+                
+                TODO: itt jelszó módosítás lehetősége legyen korábbi jelszó új jelszó stb.. mentés gomb
+                illetve a -a- adatvédelem pdf -/a-
             </p>
         </div>
     </div>
@@ -182,11 +187,18 @@ async function listmyorders() {
         if (!res.ok) throw new Error('Rendelések lekérése sikertelen!');
         const allItems = await res.json();
         const container = document.getElementById("ordersContainer");
-        container.innerHTML = "";
+        container.innerHTML = `
+            <div id="ordersContainer" style="display:none;">
+                <div id="orderslabel" style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
+                    <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Rendeléseim</h2>
+                </div>
+            </div>
+        `;
+
 
         if (allItems.length === 0) {
             const label = document.getElementById("orderslabel");
-            label.innerHTML = '<h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Rendeléseim</h2><br><p align="center">Még nincs rendelésed :(</p>';
+            label.innerHTML = '<p align="center">Még nincsenek rendeléseid</p>';
             return;
         }
 
@@ -286,6 +298,8 @@ async function listmyorders() {
             document.getElementById("lastname").textContent = user.lastname || "(nincs adat)";
             document.getElementById("firstname").textContent = user.firstname || "(nincs adat)";
             document.getElementById("email").textContent = user.email || "(nincs adat)";
+            // TODO: EZ ITT NEM JÓ, document.creatElement()-el hozzuk létre ne beégetve
+            // jelenjen meg a user többi adatja szerkesztési lehetőséggel, mint szállítási cím, telefonszám stb..
         } catch (err) {
             console.error(err);
             showSmallToast("Nem sikerült betölteni a profiladatokat.");
@@ -315,9 +329,6 @@ async function listmyorders() {
                 couponListDiv.innerHTML = '<p class="center-text">Jelenleg nincsenek felhasználható kuponjaid.</p>';
                 return;
             }
-            // TODO: ADJUK HOZZÁ A KUPON AKTIVÁLÁS kártyát:
-            
-            //
             try {
                 let html = '<ul>';
             
@@ -471,7 +482,7 @@ async function listmyorders() {
 
     window.addEventListener("load", loadProfileData);
     
-    // --- ÚJ KUPOPON FÜGGVÉNY HOZZÁADÁSA ---
+    // --- ÚJ KUPOPON HOZZÁADÁSA ---
 async function applyCoupon() {
     const couponCodeInput = document.getElementById('couponCode');
     const couponMessage = document.getElementById('couponMessage');

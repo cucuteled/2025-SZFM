@@ -235,6 +235,11 @@ public class CartController {
             orderItemRepository.save(oi);
         }
 
+        // TODO: mentjük a felhasználó adatati a felhasználó kérésére
+        // if (data.getUpdateUserInfo) ...
+
+        // ez nincs benne a data objektumba hozzá kell adni frotned backend oldalon is!
+
         cartItemRepository.deleteAll(cartItems);
 
         return ResponseEntity.ok("Rendelés sikeresen leadva.");

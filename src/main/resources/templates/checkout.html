@@ -55,8 +55,8 @@
         
         .order-btn {
             position: relative;
-            top: 50px;
-            right: -20px;
+            top: 20px;
+            right: -80px;
             background-color: rgba(50,140,50,0.5);
             color: white;
             border: none;
@@ -150,21 +150,21 @@
         <input id="userphonenumber" name="phonenumber" type="tel" inputmode="numeric" pattern="\d*">
       </div>
 
-<!--        <div>
-            <label for="couponcode">Kuponkód:</label>
-            <div class="input-group">
-                <input type="text" id="couponcode" name="couponcode" placeholder="WELCOME50" style="flex: 3; margin-right: 10px;">
-                <button type="button" onclick="applyCoupon()" style="flex: 1; padding: 10px; border-radius: 8px; border: none; background: #3c548a; color: white; cursor: pointer;">
-                    Alkalmaz
-                </button>
-            </div>
-            <p id="coupon-message" style="margin-top: 10px; font-weight: bold;"></p>
-        </div>-->
-
       <div>
         <button id="orderbutton" class="order-btn" onclick="order()">Megrendelés</button>
       </div>
     </div>
+    
+    <div><br>
+      <label for="updateuserinfo" style="display: inline-flex; align-items: center; gap: 5px;">
+        <input id="updateuserinfo" name="updateuserdata" type="checkbox">
+        Adatok mentése a következő rendeléshez
+      </label>
+    </div> <!-- TODO: BACKEND OLDALON IS! ezt belekell rakni a data objektumba az order()-nél !
+    illetve a megrendelés gomb előtt implamentáljunk egy válassz fizetési lehetőséget kártyát. a mostani megrendelés gomb
+    legyen tovább -> és összecsukja a kártyát megjelenik a harmadik válasz fizetési ... megrendelés
+    -->
+    
   </div>
 </div>
 
