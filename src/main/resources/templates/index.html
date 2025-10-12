@@ -13,6 +13,7 @@
         .auth-btn { position: absolute; top: 20px; right: 20px; background-color: rgba(128,128,128,0.5); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
         .auth-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
         .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
+        .sub button { display: block; width: 70%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;}
         .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
         .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: block; flex-wrap: wrap; gap: 20px; }
         .etel-kartya { background-color: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; width: 200px; color: white; display: flex; flex-direction: column; align-items: center; backdrop-filter: blur(3px); transition: transform 0.3s ease; }
@@ -91,6 +92,10 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+        }
+
+        .hidden {
+            display: none;
         }
 
         .cart button.order-btn {
@@ -181,10 +186,15 @@
 </head>
 <body>
 <div class="sidebar">
-    <button onclick="fooldal()">Főoldal</button>
-    <button onclick="listfoods()">Menü</button>
-    <button onclick="rolunk()">Rólunk</button>
-    <button onclick="kapcsolat()">Kapcsolat</button>
+    <button id="btn1" onclick="fooldal()">Főoldal</button>
+    <button id="btn2" onclick="listfoods()">Menü</button>
+    <div id="subBtns" class="sub button">
+        <button id="btnEtelek" class="hidden">Ételek</button>
+        <button id="btnItalok" class="hidden">Italok</button>
+        <button class="hidden">Menük</button>
+    </div>
+    <button id="btn3" onclick="rolunk()">Rólunk</button>
+    <button id="btn4" onclick="kapcsolat()">Kapcsolat</button>
     <a id="myprofilebutton" style="text-decoration:none; visibility: hidden;"><button style="align:top; background-color: rgba(100,100,100,0.1);">Profilom</button></a>
 </div>
 
@@ -197,7 +207,7 @@
 <div id="hero" class="hero" style="display:none;">
     <h1 class="wmsg">Üdvözlünk az Étteremben</h1>
     <p class="wmsg">Kínálatunk friss, finom és helyi alapanyagokból készül. Nézd meg a menüt, és ha tetszik valami, tedd a kosárba — a rendeléshez be kell jelentkezni.</p>
-    <button onclick="listfoods()" style="padding:10px 16px;border-radius:12px;border:none;background:rgba(255,255,255,0.15);color:white;cursor:pointer">Megnézem a menüt</button>
+    <button id="btn5" onclick="listfoods()" style="padding:10px 16px;border-radius:12px;border:none;background:rgba(255,255,255,0.15);color:white;cursor:pointer">Megnézem a menüt</button>
 </div>
 
 <div id="etel-container" class="screencontent"></div>
@@ -207,6 +217,45 @@
 <script>
     // --- segédf-ök ---
     let updatecart = 0;
+
+    // algombos cuccok
+    const btn2 = document.getElementById('btn2');
+    const subBtns = document.getElementById('subBtns');
+    const otherButtons = ['btn1', 'btn3', 'btn4'].map(id => document.getElementById(id));
+    subBtns.classList.toggle('hidden');
+
+    [btn2, document.getElementById('btn5')].forEach(btn => {
+        btn.addEventListener('click', () => {
+            subBtns.classList.toggle('hidden');
+        });
+    });
+
+    otherButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            subBtns.classList.add('hidden');
+        });
+    });
+
+    document.getElementById('btnEtelek').addEventListener('click', async () => {
+        if (!document.getElementById('etelek-section')) {
+            await listfoods();
+        }
+        document.getElementById('etelek-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('btnItalok').addEventListener('click', async () => {
+        if (!document.getElementById('italok-section')) {
+            await listfoods();
+        }
+        document.getElementById('italok-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    ['btn1', 'btn2', 'btn3', 'btn4'].forEach(id => {
+        const btn = document.getElementById(id);
+        btn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
 
     function update_cartdb(db) {
         const cb = document.getElementById("cartBtn");
@@ -579,6 +628,7 @@
 
         // --- Ételek szekció ---
         const etelSection = document.createElement('section');
+        etelSection.id = 'etelek-section';
         etelSection.innerHTML = '<h2>Ételek</h2>';
         mainContainer.appendChild(etelSection);
 
@@ -630,6 +680,7 @@
 
         // --- Italok szekció ---
         const italSection = document.createElement('section');
+        italSection.id = 'italok-section';
         italSection.innerHTML = '<h2>Italok</h2>';
         mainContainer.appendChild(italSection);
 
