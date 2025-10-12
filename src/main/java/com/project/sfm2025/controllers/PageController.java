@@ -16,4 +16,16 @@ public class PageController {
     public String OrderCheckOut() {
         return "checkout";
     }
+
+    // Admin oldal
+    @GetMapping("/admin")
+    public String adminPage() {
+        return "admin";
+    }
+
+    // eladói oldal
+    @GetMapping("/elado")
+    public String eladoPage() {
+        return "elado";
+    }
 }

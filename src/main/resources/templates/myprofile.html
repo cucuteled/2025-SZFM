@@ -49,6 +49,13 @@
     <button id="ordersBtn">Rendeléseim</button>
     <button id="supportBtn">Támogatás és segítségkérés</button>
     <button id="privacyBtn">Adatvédelem és biztonság</button>
+    
+    <div id="superpanel">
+    <br>
+    <button id="adminBtn" style="background: rgba(150,50,255,0.08); display: none;" onclick="window.location.href='/admin'">Admin felület</button>
+    <button id="eladoBtn" style="background: rgba(150,100,40,0.08); display: none;" onclick="window.location.href='/elado'">Éttermem kezelése</button>
+    </div>
+    
     <br>
     <button id="logoutBtn">Kijelentkezés</button>
     <button id="deleteBtn">Profil törlés</button>
@@ -300,6 +307,12 @@ async function listmyorders() {
             document.getElementById("email").textContent = user.email || "(nincs adat)";
             // TODO: EZ ITT NEM JÓ, document.creatElement()-el hozzuk létre ne beégetve
             // jelenjen meg a user többi adatja szerkesztési lehetőséggel, mint szállítási cím, telefonszám stb..
+            const adminBtn = document.getElementById("adminBtn");
+            const eladoBtn = document.getElementById("eladoBtn");
+            const spanel = document.getElementById("superpanel");
+            adminBtn.style.display = user.role === "ADMIN" ? "block" : "none";
+            eladoBtn.style.display = user.role === "ELADO" ? "block" : "none";
+            spanel.style.display = user.role === "USER" ? "none" : "block";
         } catch (err) {
             console.error(err);
             showSmallToast("Nem sikerült betölteni a profiladatokat.");

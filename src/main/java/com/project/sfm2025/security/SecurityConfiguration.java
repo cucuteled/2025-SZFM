@@ -21,7 +21,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // jelenleg fetch/JSON használatával dolgozunk; ha form POST-okat akarsz használni, érdemes CSRF-t engedélyezni és Thymeleaf token-t kezelni
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
@@ -39,8 +39,10 @@ public class SecurityConfiguration {
                                 "/api/contact",
                                 "/favicon.ico"
                         ).permitAll()
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/elado/**").hasRole("ELADO")
 //                        .requestMatchers("/api/v1/coupons/**"
-//                        ).authenticated()
+//                        ).authenticated() // ez nem kell mert denyAll ami nincs a kivételben
                         .requestMatchers( // tiltani!
                                 "/data/**"
                         ).denyAll()

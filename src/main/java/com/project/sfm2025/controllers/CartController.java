@@ -222,6 +222,9 @@ public class CartController {
             } else if ("ital".equalsIgnoreCase(ci.getType())) {
                 drinkRepository.findByName(ci.getName())
                         .ifPresent(drink -> oi.setEtelowner(drink.getOwner()));
+            } else if ("menu".equalsIgnoreCase(ci.getType())) {
+                menuRepository.findByName(ci.getName())
+                        .ifPresent(menu -> oi.setEtelowner(menu.getOwner()));
             }
 
             oi.setOrder_ShipAddress(data.getAddress());

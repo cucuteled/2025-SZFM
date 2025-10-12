@@ -12,7 +12,7 @@ public class Menu {
 
     private String name;
     private int price;
-    private String owner;
+    private String owner; // menük az egyszerűség kedvéért egy étteremtől származnak
 
     @ManyToMany
     private List<Food> foods;

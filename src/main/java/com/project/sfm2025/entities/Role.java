@@ -4,5 +4,7 @@ public enum Role {
 
     USER,
 
-    ADMIN
+    ADMIN,
+
+    ELADO
 }

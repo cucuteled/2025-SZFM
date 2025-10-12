@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="/css/contactStyle.css">
+    <title>Étterem # Eladói oldal</title>
+    <style>
+        body { margin: 0; padding: 0; min-height: 100vh; align-items: inherit; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
+        .sidebar { position: fixed; top: 0; left: 0; width: 200px; height: 100%; background-color: rgba(20,20,20,0.5); border-top-right-radius: 15px; border-bottom-right-radius: 15px; padding: 20px; box-sizing: border-box; }
+        .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(128,128,128,0.5); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+        .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
+        .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
+        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px; }
+        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; }
+        .vissza-btn { position: fixed; top: 20px; right: 20px; background-color: rgba(128,128,128,0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
+        .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+<div class="title">Adminisztrációs felület</div>
+<button id="vissza" class="vissza-btn" onclick="window.location.href='/myprofile'" >Vissza</button>
+
+<div class="sidebar">
+    <button id="profileBtn">Felhasználók menedzsment</button>
+    <button id="profileBtn">Statisztika</button>
+</div>
+
+<script>
+// SCRIPTEK
+
+
+//
+</script>
+</body>    
+</html>
