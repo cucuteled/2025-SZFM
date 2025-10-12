@@ -27,6 +27,7 @@ public class CartController {
     private final OrderItemRepository orderItemRepository;
     private final FoodRepository foodRepository;
     private final DrinkRepository drinkRepository;
+    private final MenuRepository menuRepository;
     private final CouponRepository couponRepository;
 
     private String sanitize(String input) {
@@ -62,6 +63,12 @@ public class CartController {
             productName = drink.getName();
             price = drink.getPrice();
 
+        } else if ("menu".equalsIgnoreCase(type)) {
+            Optional<Menu> menuOpt = menuRepository.findById(Integer.parseInt(productId));
+            if (menuOpt.isEmpty()) return ResponseEntity.status(404).body("A megadott menü nem található");
+            Menu menu = menuOpt.get();
+            productName = menu.getName();
+            price = menu.getPrice();
         } else {
             return ResponseEntity.badRequest().body("Ismeretlen terméktípus: " + type);
         }

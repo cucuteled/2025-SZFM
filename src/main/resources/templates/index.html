@@ -191,7 +191,7 @@
     <div id="subBtns" class="sub button">
         <button id="btnEtelek" class="hidden">Ételek</button>
         <button id="btnItalok" class="hidden">Italok</button>
-        <button class="hidden">Menük</button>
+        <button id="btnMenuk" class="hidden">Menük</button>
     </div>
     <button id="btn3" onclick="rolunk()">Rólunk</button>
     <button id="btn4" onclick="kapcsolat()">Kapcsolat</button>
@@ -248,6 +248,13 @@
             await listfoods();
         }
         document.getElementById('italok-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('btnMenuk').addEventListener('click', async () => {
+        if (!document.getElementById('menu-section')) {
+            await listfoods();
+        }
+        document.getElementById('menu-section').scrollIntoView({ behavior: 'smooth' });
     });
 
     ['btn1', 'btn2', 'btn3', 'btn4'].forEach(id => {
@@ -727,12 +734,66 @@
         }
     }
 
+    // menük listázása
+    async function listmenuk() {
+        const mainContainer = document.getElementById('etel-container');
+
+        // --- Menük szekció ---
+        const menuSection = document.createElement('section');
+        menuSection.id = 'menu-section';
+        menuSection.innerHTML = '<h2>Menük</h2>';
+        mainContainer.appendChild(menuSection);
+
+        const menuContainer = document.createElement('div');
+        menuContainer.className = 'etel-lista';
+        menuSection.appendChild(menuContainer);
+
+        const menuLoading = document.createElement('div');
+        menuLoading.textContent = 'Menük betöltése...';
+        menuContainer.appendChild(menuLoading);
+
+        try {
+            const resMenuk = await fetch('/menuk', { method: 'GET', credentials: 'same-origin' });
+            if (!resMenuk.ok) throw new Error(await resMenuk.text());
+            const menuk = await resMenuk.json();
+
+            menuContainer.innerHTML = menuk.length
+                ? ''
+                : '<p>Nincs elérhető menü.</p>';
+
+            menuk.forEach(menu => {
+                const kartya = document.createElement('div');
+                kartya.className = 'etel-kartya';
+                const kepNev = (menu.name || 'default').toLowerCase();
+                const kepEleres = `/pictures/${encodeURIComponent(kepNev)}.jpg`;
+                const idVal = menu.id ?? menu.name;
+
+                kartya.innerHTML = `
+        <div class="label-kor" id="labelkor${menu.name}" hidden>
+        <span class="label-szoveg" id="label${menu.name}">0</span>
+        </div>
+        <img src="${kepEleres}" alt="${escapeHtml(menu.name)}" onerror="this.src='/pictures/default.jpg'">
+        <div class="nev">${escapeHtml(menu.name)}</div>
+        <div class="ar">${escapeHtml(String(menu.price))} Ft</div>
+        <button type="button">Hozzáadás</button>
+      `;
+
+                kartya.querySelector('button').addEventListener('click', () => addToCart(idVal, "menu"));
+                menuContainer.appendChild(kartya);
+            });
+        } catch (err) {
+            console.error('Hiba a menük lekérésekor:', err);
+            menuContainer.innerHTML = '<p>Hiba történt a menük betöltésekor.</p>';
+        }
+    }
+
     // -- ételek betöltése --
     async function listfoods() {
         document.body.style.display = 'block';
         deletecontent();
         listetelek();
         listitalok(); // DRY!!!
+        listmenuk(); // WET
         setTimeout(function() {
             updatecart = 0;
             opencart();
