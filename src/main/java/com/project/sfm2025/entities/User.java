@@ -1,5 +1,6 @@
 package com.project.sfm2025.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,16 +21,15 @@ import java.util.List;
 @Table(name = "user")
 public class User implements UserDetails {
 
+    @JsonIgnore
     @Id
     @GeneratedValue
     private Integer id;
-
     private String firstname;
-
     private String lastname;
-
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -70,4 +70,21 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public Role getRole() {
+        return role;
+    }
 }
+

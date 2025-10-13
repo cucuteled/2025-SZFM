@@ -4,17 +4,103 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="/css/contactStyle.css">
-    <title>Étterem # Eladói oldal</title>
+    <title>Étterem # Adminisztrációs felület</title>
     <style>
-        body { margin: 0; padding: 0; min-height: 100vh; align-items: inherit; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
+        body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; display: block; }
         .sidebar { position: fixed; top: 0; left: 0; width: 200px; height: 100%; background-color: rgba(20,20,20,0.5); border-top-right-radius: 15px; border-bottom-right-radius: 15px; padding: 20px; box-sizing: border-box; }
         .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(128,128,128,0.5); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
         .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
-        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px; }
-        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; }
+        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px; box-sizing: border-box; }
         .vissza-btn { position: fixed; top: 20px; right: 20px; background-color: rgba(128,128,128,0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
         .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
+        
+        /* Alapstílus */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Fejléc */
+thead {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+thead th {
+    padding: 16px;
+    text-align: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Adatok */
+tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+}
+
+/* Sor kiemelés hoverre */
+tbody tr:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transition: background 0.2s ease-in-out;
+}
+
+/* Szélső cellák lekerekítése */
+thead th:first-child {
+    border-top-left-radius: 12px;
+}
+thead th:last-child {
+    border-top-right-radius: 12px;
+}
+tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+/* Responsiveness (mobilra) */
+@media (max-width: 768px) {
+    table {
+        font-size: 14px;
+    }
+    thead {
+        display: none;
+    }
+    tbody td {
+        display: block;
+        width: 100%;
+        text-align: right;
+        position: relative;
+        padding-left: 50%;
+    }
+    tbody td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 16px;
+        width: 45%;
+        white-space: nowrap;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-align: left;
+    }
+    tbody tr {
+        margin-bottom: 10px;
+        display: block;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
     </style>
 </head>
 <body>
@@ -24,12 +110,75 @@
 
 <div class="sidebar">
     <button id="profileBtn">Felhasználók menedzsment</button>
-    <button id="profileBtn">Statisztika</button>
+    <button id="statBtn">Statisztika</button>
 </div>
+
+<div id="contents" class="screencontent"></div>
 
 <script>
 // SCRIPTEK
+document.getElementById("profileBtn").addEventListener("click", () => { loadUsers(); });
 
+//document.getElementById("statBtn").addEventListener("click", () => { loadStats(); });
+
+async function loadUsers() {
+    try {
+        const res = await fetch("/admin/getUsers",
+        {
+            method: "GET",
+            credentials: "same-origin"
+        });
+        
+
+        if (!res.ok) throw new Error("Hiba a lekérésnél");
+        const data = await res.json();
+        
+        renderTable(data); // mivel több tábla is van nem irjuk újra a kódot
+        
+    } catch (err) {}
+}
+
+function renderTable(data) {
+        // Dinamikus tábla készítés
+        const table = document.createElement("table");
+        table.border = "1";
+    
+        // Felsősor
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        const headers = Object.keys(data[0]);
+    
+        headers.forEach(key => 
+        {
+            const th = document.createElement("th");
+            th.textContent = key;
+            headerRow.appendChild(th);
+        });
+    
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+    
+        const tbody = document.createElement("tbody");
+        
+        // rekordok
+        data.forEach((row, index) => 
+        {
+            const tr = document.createElement("tr");
+            headers.forEach((key) => {
+                const td = document.createElement("td");
+                td.textContent = row[key];                   
+                td.textContent = row[key];                   
+                td.id = `${index + 1}${key}`;                 
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    
+        table.appendChild(tbody);
+        //
+        const contentDiv = document.getElementById("contents");
+        contentDiv.appendChild(table);
+}
 
 //
 </script>
