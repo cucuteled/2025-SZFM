@@ -59,10 +59,11 @@ public class DrinkController
     public ResponseEntity<Drink> updateDrink(@PathVariable String name, @RequestBody Drink newDrink)
     {
         return drinkRepository.findByName(name)
-                .map(food -> {
-                    food.setName(newDrink.getName());
-                    food.setPrice(newDrink.getPrice());
-                    return ResponseEntity.ok(drinkRepository.save(food));
+                .map(drink -> {
+                    drink.setName(newDrink.getName());
+                    drink.setPrice(newDrink.getPrice());
+                    drink.setOwner(newDrink.getOwner());
+                    return ResponseEntity.ok(drinkRepository.save(drink));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

@@ -60,6 +60,7 @@ public class FoodController
                 .map(food -> {
                     food.setName(newFood.getName());
                     food.setPrice(newFood.getPrice());
+                    food.setOwner(newFood.getOwner());
                     return ResponseEntity.ok(foodRepository.save(food));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
