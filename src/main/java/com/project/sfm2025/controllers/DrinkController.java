@@ -63,6 +63,7 @@ public class DrinkController
                     drink.setName(newDrink.getName());
                     drink.setPrice(newDrink.getPrice());
                     drink.setOwner(newDrink.getOwner());
+                    drink.setDescription(newDrink.getDescription());
                     return ResponseEntity.ok(drinkRepository.save(drink));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

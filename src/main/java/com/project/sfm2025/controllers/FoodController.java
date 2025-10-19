@@ -61,6 +61,7 @@ public class FoodController
                     food.setName(newFood.getName());
                     food.setPrice(newFood.getPrice());
                     food.setOwner(newFood.getOwner());
+                    food.setDescription(newFood.getDescription());
                     return ResponseEntity.ok(foodRepository.save(food));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

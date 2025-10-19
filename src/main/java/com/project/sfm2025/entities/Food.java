@@ -12,6 +12,7 @@ public class Food
     private String name;
     private int price;
     private String owner;
+    private String description;
 
     public String getOwner() {
         return owner;
@@ -26,10 +27,12 @@ public class Food
 
     }
 
-    Food(String name, int price) {
+    Food(String name, int price,  String owner, String description) {
 
         this.name = name;
         this.price = price;
+        this.owner = owner;
+        this.description = description;
     }
 
     public int getId()
@@ -59,5 +62,13 @@ public class Food
     public void setPrice(int price)
     {
         this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

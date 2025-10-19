@@ -12,18 +12,20 @@ public class Drink
     private String name;
     private int price;
     private String owner;
+    private String description;
 
     public Drink()
     {
 
     }
 
-    public Drink(int id, String name, int price, String owner)
+    public Drink(int id, String name, int price, String owner, String  description)
     {
         this.id = id;
         this.name = name;
         this.price = price;
         this.owner = owner;
+        this.description = description;
     }
 
     public int getId() {
@@ -56,5 +58,13 @@ public class Drink
 
     public void setOwner(String owner) {
         this.owner = owner;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
