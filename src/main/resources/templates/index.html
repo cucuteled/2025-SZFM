@@ -30,6 +30,7 @@
         .ital-kartya button { background-color: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; }
         .etel-kartya button:hover { background-color: rgba(255,255,255,0.4); }
         .ital-kartya button:hover { background-color: rgba(255,255,255,0.4); }
+        .search-container { display: none; }
         .hero { margin-left: 220px; padding: 60px 40px 20px 40px; color: white; }
         .hero h1 { font-size: 36px; margin: 0 0 10px 0; letter-spacing: 2px; }
         .hero p { margin: 0 0 16px 0; max-width: 800px; color: #fffdd0; }
@@ -279,8 +280,11 @@
     <button id="btn5" onclick="listfoods()" style="padding:10px 16px;border-radius:12px;border:none;background:rgba(255,255,255,0.15);color:white;cursor:pointer">Megnézem a menüt</button>
 </div>
 
+<div id="searchBarContainer" style="margin-left: 220px; padding: 20px; display: none; gap: 10px; align-items: center;">
+    <input type="text" id="searchInput" placeholder="Keresés"
+           style="width: 300px; padding: 10px; border-radius: 10px; border: none; font-size: 16px;">
+</div>
 <div id="etel-container" class="screencontent"></div>
-
 
 
 <script>
@@ -332,6 +336,20 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     });
+
+    function filterProducts() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const cards = document.querySelectorAll('.etel-kartya, .ital-kartya');
+
+        cards.forEach(card => {
+            const name = card.querySelector('.nev')?.textContent.toLowerCase() || '';
+            card.style.display = name.includes(searchTerm) ? 'flex' : 'none';
+        });
+    }
+
+
+
+
 
     function openProductModal(termek) {
         closeProductModal();
@@ -496,12 +514,14 @@
     function deletecontent(){ document.getElementById('etel-container').innerHTML = ''; document.getElementById('hero').style.display = 'none'; }
     function fooldal(){
       deletecontent();
+      toggleSearchBar(false);
       document.getElementById('hero').style.display = 'block';
       document.body.style.display = 'flex';
     }
 
     function rolunk() {
         deletecontent();
+        toggleSearchBar(false);
         document.getElementById('etel-container').innerHTML = `
     <section id="about" class="about-section">
               <div class="intro">
@@ -614,6 +634,7 @@
     {
         document.body.style.display = 'flex';
         deletecontent();
+        toggleSearchBar(false);
         document.getElementById('etel-container').innerHTML = `
      <div class="contact-container">
     <h2>Kapcsolat</h2>
@@ -904,13 +925,29 @@
     async function listfoods() {
         document.body.style.display = 'block';
         deletecontent();
-        listetelek();
-        listitalok(); // DRY!!!
-        listmenuk(); // WET
+        await listetelek();
+        await listitalok(); // DRY!!!
+        await listmenuk(); // WET
+        toggleSearchBar(true);
         setTimeout(function() {
             updatecart = 0;
             opencart();
         }, 100);
+    }
+
+    function toggleSearchBar(show) {
+        const searchContainer = document.getElementById('searchBarContainer');
+        const searchInput = document.getElementById('searchInput');
+
+        if (searchContainer && searchInput) {
+            searchContainer.style.display = show ? 'flex' : 'none';
+            if (show) {
+                searchInput.addEventListener('input', filterProducts);
+            } else {
+                searchInput.removeEventListener('input', filterProducts);
+                searchInput.value = '';
+            }
+        }
     }
 
     function escapeHtml(str){ if (str == null) return ''; return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
@@ -938,7 +975,7 @@
         //alert(body || 'Sikeresen hozzáadva a kosárhoz!'); // alert of cartitemadded
         //
         updatecart = 0;
-        opencart();
+        await opencart();
         shakecart();
 
       } catch (err) {
