@@ -21,6 +21,7 @@ public class OrderItem {
     private String order_BillingAddress;
     private String order_phonenumber;
     private String usedcoupons;
+    private String Status = ""; // "" = ongoing "shipped" = teljesítve "canceled" = visszautisitott
 
     public String getUsedcoupons() {
         return usedcoupons;

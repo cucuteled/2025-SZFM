@@ -6,15 +6,88 @@
     <link rel="stylesheet" href="/css/contactStyle.css">
     <title>Étterem # Eladói oldal</title>
     <style>
-        body { margin: 0; padding: 0; min-height: 100vh; align-items: inherit; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
+        body { margin: 0; padding: 0; min-height: 100vh; align-items: inherit; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; font-family: Arial, sans-serif; color: white; }
         .sidebar { position: fixed; top: 0; left: 0; width: 200px; height: 100%; background-color: rgba(20,20,20,0.5); border-top-right-radius: 15px; border-bottom-right-radius: 15px; padding: 20px; box-sizing: border-box; }
         .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(128,128,128,0.5); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
         .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
-        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px; }
-        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; }
+        .screencontent { padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px; }
         .vissza-btn { position: fixed; top: 20px; right: 20px; background-color: rgba(128,128,128,0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
         .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
+        
+.screencontent {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+}
+
+@media (max-width: 768px) {
+    .screencontent {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+        
+        .order-card {
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 12px;
+            background-color: rgba(20,20,20,0.95);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .order-details {
+            margin-top: 15px;
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .card-button {
+          background-color: green;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          padding: 10px 20px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin: 2px 0;
+        }
+        
+        .card-button:hover {
+          background-color: darkgreen;
+          transform: scale(1.05);
+        }
+        
+        .card-button.cancel {
+          background-color: darkred;
+        }
+        
+        .card-button.cancel:hover {
+          background-color: maroon;
+          transform: scale(1.05);
+        }
+        
+        .card-button.modify {
+          background-color: green;
+        }
+        
+        .card-button.modify:hover {
+          background-color: darkgreen;
+          transform: scale(1.05);
+        }
+
     </style>
 </head>
 <body>
@@ -23,15 +96,263 @@
 <button id="vissza" class="vissza-btn" onclick="window.location.href='/myprofile'" >Vissza</button>
 
 <div class="sidebar">
-    <button id="itemsBtn">Termékeim</button>
-    <button id="ordersBtn">Bejövő rendelések</button>
+    <button onclick="myitems()" id="itemsBtn">Termékeim</button>
+    <button onclick="getOrders()" id="ordersBtn">Bejövő rendelések</button>
 </div>
 
+<div id="contents" class="screencontent"></div>
+
 <script>
-// SCRIPTEK
+async function myitems() {
+    const contents = document.getElementById("contents");
+    contents.innerHTML = ""; // előző tartalom törlése
+
+    try {
+        const response = await fetch("/elado/myitems");
+        if (!response.ok) {
+            contents.innerHTML = "<p>Nem sikerült lekérni az elemeket.</p>";
+            return;
+        }
+
+        const data = await response.json();
+
+        // Végigmegyünk az összes elemeken
+        data.forEach(item => {
+            const card = document.createElement("div");
+            card.style.border = "1px solid rgba(255,255,255,0.5)";
+            card.style.borderRadius = "20px";
+            card.style.padding = "20px";
+            card.style.marginBottom = "5px";
+            card.style.backgroundColor = "rgba(20,20,20,0.95)";
+            card.style.display = "flex";
+            card.style.alignItems = "flex-start";
+            card.style.justifyContent = "space-between";
+            card.style.width = "100%";
+            card.style.boxSizing = "border-box";
+
+            // kép
+            const pic = document.createElement("img");
+            pic.src = `/pictures/${encodeURIComponent(item.name || 'default')}.jpg`;
+            pic.style.width = "100px";
+            pic.style.height = "100px";
+            pic.style.objectFit = "cover";
+            pic.style.marginRight = "20px";
+
+            // szöveges rész
+            const textDiv = document.createElement("div");
+            textDiv.style.flex = "1";
+
+            const title = document.createElement("h3");
+            title.textContent = item.name;
+
+            const type = document.createElement("p");
+            type.textContent = `Típus: ${item.foods ? "Menu" : item.description ? "Food/Drink" : "Ismeretlen"}`;
+            type.style.color = "gray";
+
+            const price = document.createElement("p");
+            price.textContent = `Ár: ${item.price} Ft`;
+
+            const desc = document.createElement("p");
+            desc.textContent = item.description || "";
+
+            textDiv.appendChild(title);
+            textDiv.appendChild(type);
+            textDiv.appendChild(price);
+            textDiv.appendChild(desc);
+
+            // gomb
+            const modifyBtn = document.createElement("button");
+            modifyBtn.textContent = "Módosítás";
+            modifyBtn.className = "card-button modify";
+            modifyBtn.onclick = () => {
+                console.log("Módosítás kattintva:", item.id);
+                // ide jön a fetch
+                //TODO
+            };
+
+            card.appendChild(pic);
+            card.appendChild(textDiv);
+            card.appendChild(modifyBtn);
+
+            contents.appendChild(card);
+        });
+    } catch (err) {
+        contents.innerHTML = "<p>Hiba történt a lekérés közben.</p>";
+        console.error(err);
+    }
+}
+
+async function getOrders() {
+    const contents = document.getElementById("contents");
+    contents.innerHTML = "";
+
+    try {
+        const res = await fetch("/elado/getOrders", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        if (!res.ok) throw new Error("Rendelések lekérése sikertelen!");
+
+        const allItems = await res.json();
+        if (allItems.length === 0) {
+            contents.innerHTML = "<p>Nincsenek rendeléseid.</p>";
+            return;
+        }
+
+        // Csoportosítás idő + user alapján
+        const grouped = {};
+        for (const item of allItems) {
+            const timeKey = item.orderTime.slice(0, 19);
+            const userKey = item.order_name;
+            const groupKey = `${timeKey}_${userKey}`;
+            if (!grouped[groupKey]) grouped[groupKey] = [];
+            grouped[groupKey].push(item);
+        }
+
+        const sortedKeys = Object.keys(grouped).sort();
+
+        for (const key of sortedKeys) {
+            const orderItems = grouped[key];
+            const first = orderItems[0];
+            const orderDate = new Date(first.orderTime);
+
+            // Kártya
+            const card = document.createElement("div");
+            card.className = "order-card";
+
+            const header = document.createElement("div");
+            header.className = "order-card-header";
+
+            const left = document.createElement("div");
+            left.innerHTML = `
+                <h3>🕒 ${orderDate.toLocaleString()}</h3>
+                <p>Vevő: <strong>${first.order_name}</strong></p>
+            `;
+
+            const right = document.createElement("div");
+            right.style.display = "flex";
+            right.style.flexDirection = "column";
+            right.style.alignItems = "flex-end";
+
+            if (!first.Status || first.Status === "") {
+                const done = document.createElement("button");
+                done.textContent = "Teljesítve";
+                done.className = "card-button";
+                done.onclick = () => console.log("Teljesítve:", first.id);
+
+                const cancel = document.createElement("button");
+                cancel.textContent = "Elutasít";
+                cancel.className = "card-button cancel";
+                cancel.onclick = () => console.log("Elutasítva:", first.id);
+
+                right.appendChild(done);
+                right.appendChild(cancel);
+            } else {
+                const s = document.createElement("p");
+                s.textContent = `Állapot: ${first.Status}`;
+                right.appendChild(s);
+            }
+
+            header.appendChild(left);
+            header.appendChild(right);
+            card.appendChild(header);
+
+            // Lenyitható rész
+            const toggle = document.createElement("button");
+            toggle.className = "card-button";
+            toggle.style.marginTop = "10px";
+            toggle.textContent = "▼ Rendelés részletei";
+
+            const details = document.createElement("div");
+            details.className = "order-details hidden";
+
+            // Tételek kiírása
+            let subtotal = 0;
+
+            orderItems.forEach(item => {
+                const total = item.price * item.quantity;
+                subtotal += total;
+
+                const row = document.createElement("div");
+                row.style.marginBottom = "5px";
+                row.textContent = `${item.name} ×${item.quantity} — ${total} Ft`;
+                details.appendChild(row);
+            });
+
+            details.appendChild(document.createElement("hr"));
+
+            // Szállítás + kuponok
+            let shipping = 0;
+            let coupons = [];
+            const uc = first.usedcoupons || "";
+
+            if (uc.includes(";")) {
+                const [shippingStr, ...rest] = uc.split(";");
+                shipping = parseInt(shippingStr) || 0;
+
+                rest.forEach(part => {
+                    const [name, value] = part.split(",");
+                    if (name && value) coupons.push({ name, value: parseInt(value) });
+                });
+            }
+
+            subtotal += shipping;
+
+            details.appendChild(document.createElement("hr"));
+
+            const shippingDiv = document.createElement("div");
+            shippingDiv.textContent = `📦 Szállítási díj: ${shipping} Ft`;
+            details.appendChild(shippingDiv);
+
+            coupons.forEach(c => {
+                subtotal -= c.value;
+                const div = document.createElement("div");
+                div.textContent = `🎟️ Kupon: ${c.name} (-${c.value} Ft)`;
+                details.appendChild(div);
+            });
+
+            if (subtotal < 0) subtotal = 0;
+
+            const totalDiv = document.createElement("div");
+            totalDiv.style.marginTop = "8px";
+            totalDiv.style.fontWeight = "bold";
+            totalDiv.textContent = `💰 Végösszeg: ${subtotal} Ft`;
+            details.appendChild(totalDiv);
+
+            details.appendChild(document.createElement("hr"));
+
+            // Vevő adatok (CSAK MEGJELENÍTÉS)
+            details.innerHTML += `
+                <p><strong>Szállítási cím:</strong> ${first.order_ShipAddress}</p>
+                <p><strong>Számlázási cím:</strong> ${first.order_BillingAddress}</p>
+                <p><strong>Telefon:</strong> ${first.order_phonenumber}</p>
+            `;
+
+            toggle.onclick = () => {
+                if (details.classList.contains("hidden")) {
+                    details.classList.remove("hidden");
+                    toggle.textContent = "▲ Rendelés részletei";
+                } else {
+                    details.classList.add("hidden");
+                    toggle.textContent = "▼ Rendelés részletei";
+                }
+            };
+
+            card.appendChild(toggle);
+            card.appendChild(details);
+            contents.appendChild(card);
+        }
+
+    } catch (err) {
+        console.error(err);
+        contents.innerHTML = "<p>Hiba történt a rendelés lekérésekor.</p>";
+    }
+}
 
 
-//
+
 </script>
+
 </body>    
 </html>

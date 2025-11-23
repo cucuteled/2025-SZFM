@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/css/contactStyle.css">
     <title>Étterem</title>
     <style>
-        body { margin: 0; padding: 0; min-height: 100vh; align-items: inherit; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; }
+        body { margin: 0; padding: 0; min-height: 100vh; align-items: inherit; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; center; font-family: Arial, sans-serif; color: white; }
         .wrapper {
           margin-top: 100px; /* állítsd be a title + padding alapján */
           display: flex;
@@ -172,6 +172,7 @@
 <!-- Középső elemek vége !-->
 
 <script>
+let validate;
 loadInfos();
 async function loadInfos() {
     const firstname = document.getElementById("userfirstname");
@@ -205,7 +206,7 @@ async function loadInfos() {
     
     phone.value = data.phoneNumber;
 
-
+    if (typeof validate === "function") validate();
   } catch (e) {
     console.log(e);
   }
@@ -223,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // kezdetben rejtve
   orderButton.hidden = true;
 
-  const validate = () => {
+  validate = () => {
     const isNotEmpty = (val) => val.trim().length > 0;
 
     const isPhoneValid = (val) => {
