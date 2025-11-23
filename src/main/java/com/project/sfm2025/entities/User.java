@@ -35,10 +35,22 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserSettings settings;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Spring Security hasRole(...) szabályához ROLE_ prefix használata
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    public UserSettings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(UserSettings settings) {
+        this.settings = settings;
     }
 
     @Override
@@ -86,5 +98,6 @@ public class User implements UserDetails {
     public Role getRole() {
         return role;
     }
+
 }
 

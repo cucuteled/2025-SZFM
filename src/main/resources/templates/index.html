@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/css/aboutStyle.css">
     <title>Étterem</title>
     <style>
-        body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/homepage.jpg'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; display: block;}
+        body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/homepage.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; font-family: Arial, sans-serif; color: white; display: block;}
         .sidebar { position: fixed; top: 0; left: 0; width: 200px; height: 100%; background-color: rgba(128,128,128,0.5); border-top-right-radius: 15px; border-bottom-right-radius: 15px; padding: 20px; box-sizing: border-box; }
         .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(128,128,128,0.5); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
         .auth-btn { position: absolute; top: 20px; right: 20px; background-color: rgba(128,128,128,0.5); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
@@ -30,7 +30,29 @@
         .ital-kartya button { background-color: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; }
         .etel-kartya button:hover { background-color: rgba(255,255,255,0.4); }
         .ital-kartya button:hover { background-color: rgba(255,255,255,0.4); }
-        .search-container { display: none; }
+        .search-container {
+          margin-left: -5px;
+          margin-top: 5px;
+          padding: 0px;
+          display: none;            
+          gap: 0px;
+          align-items: center;
+        }
+        
+        .searchBarInput {
+          width: 300px;
+          padding: 10px;
+          border-radius: 10px;
+          border: none;
+          font-size: 16px;
+          background: rgba(255, 255, 255, 0.3);
+          color: white;
+          transition: background 0.3s ease;
+        }
+        
+        .searchBarInput:hover {
+          background: rgba(0, 0, 0, 0.1);
+        }
         .hero { margin-left: 220px; padding: 60px 40px 20px 40px; color: white; }
         .hero h1 { font-size: 36px; margin: 0 0 10px 0; letter-spacing: 2px; }
         .hero p { margin: 0 0 16px 0; max-width: 800px; color: #fffdd0; }
@@ -280,10 +302,7 @@
     <button id="btn5" onclick="listfoods()" style="padding:10px 16px;border-radius:12px;border:none;background:rgba(255,255,255,0.15);color:white;cursor:pointer">Megnézem a menüt</button>
 </div>
 
-<div id="searchBarContainer" style="margin-left: 220px; padding: 20px; display: none; gap: 10px; align-items: center;">
-    <input type="text" id="searchInput" placeholder="Keresés"
-           style="width: 300px; padding: 10px; border-radius: 10px; border: none; font-size: 16px;">
-</div>
+<!--searchbar!-->
 <div id="etel-container" class="screencontent"></div>
 
 
@@ -757,7 +776,9 @@
         // --- Ételek szekció ---
         const etelSection = document.createElement('section');
         etelSection.id = 'etelek-section';
-        etelSection.innerHTML = '<h2>Ételek</h2>';
+        etelSection.innerHTML = `<h2>Ételek<div id="searchBarContainer" class="search-container">
+    <input type="text" id="searchInput" class="searchBarInput" placeholder="Keresés">
+</div></h2>`;
         mainContainer.appendChild(etelSection);
 
         const etelContainer = document.createElement('div');

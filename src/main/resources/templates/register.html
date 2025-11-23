@@ -219,7 +219,7 @@
           return;
         }
 
-        // Siker → a backend beállítja a jwt cookie-t; átirányítjuk a főoldalra
+        // a backend beállítja a jwt cookie-t; átirányítjuk a főoldalra
         message.textContent = 'Sikeres regisztráció, átirányítás...';
         message.classList.add('success');
         setTimeout(() => window.location.href = '/', 700);

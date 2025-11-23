@@ -6,12 +6,17 @@ public class OrderData {
     private String address;
     private String billingAddress;
     private String phone;
+    private Boolean updateUserInfo;
 
     public String getName() {
         return orderfirstname + " " + ordersecondname;
     }
 
     // egyebek:
+
+    public Boolean getUpdateUserInfo() { return updateUserInfo; }
+
+    public void setUpdateUserInfo(Boolean updateUserInfo) { this.updateUserInfo = updateUserInfo; }
 
     public String getOrderfirstname() {
         return orderfirstname;

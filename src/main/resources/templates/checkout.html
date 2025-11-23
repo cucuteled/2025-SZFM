@@ -172,6 +172,44 @@
 <!-- Középső elemek vége !-->
 
 <script>
+loadInfos();
+async function loadInfos() {
+    const firstname = document.getElementById("userfirstname");
+  const secondname = document.getElementById("usersecondname");
+  const address = document.getElementById("useraddress");
+  const addressEquals = document.getElementById("useraddressequals");
+  const billingAddress = document.getElementById("userbillingaddress");
+  const phone = document.getElementById("userphonenumber");
+  const orderButton = document.getElementById("orderbutton");
+  
+  try {
+    const res = await fetch(`/api/v1/cart/myUserCartInfo`, {
+      method: 'GET',
+      credentials: 'same-origin'
+    });
+
+    if (!res.ok) throw new Error('Adatok lekérése sikertelen!');
+    const data = await res.json();
+    
+    firstname.value = data.firstName;
+    secondname.value = data.lastName;
+    
+    if (data.shippingAddress !== data.billingAddress) {
+      addressEquals.checked = false;
+      address.value = data.shippingAddress;
+      billingAddress.value = data.billingAddress;
+    } else {
+      address.value = data.shippingAddress;
+      billingAddress.value = data.shippingAddress;
+    }
+    
+    phone.value = data.phoneNumber;
+
+
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const firstname = document.getElementById("userfirstname");
@@ -469,6 +507,10 @@ async function order() {
     const billingAddress = document.getElementById("userbillingaddress").value.trim();
     const phone = document.getElementById("userphonenumber").value.trim();
     
+    const updateUserInfo = document.getElementById("updateuserinfo").checked;
+    
+    // updateUserInfo on ask
+    
     // Ha a szállítási és számlázási cím megegyezik, akkor a billingAddress a cím lesz
     const finalBillingAddress = addressEquals ? address : billingAddress;
     
@@ -478,6 +520,7 @@ async function order() {
       address,
       billingAddress: finalBillingAddress,
       phone,
+      updateUserInfo,
     };
     
     const res = await fetch('/api/v1/cart/order', {

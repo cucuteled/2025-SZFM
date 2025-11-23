@@ -3,6 +3,7 @@ package com.project.sfm2025.auth;
 import com.project.sfm2025.entities.Coupon;
 import com.project.sfm2025.entities.Role;
 import com.project.sfm2025.entities.User;
+import com.project.sfm2025.entities.UserSettings;
 import com.project.sfm2025.repositories.UserRepository;
 import com.project.sfm2025.security.JwtService;
 import com.project.sfm2025.repositories.CouponRepository;
@@ -33,6 +34,11 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
+
+        UserSettings settings = new UserSettings();
+        settings.setUser(user);
+        user.setSettings(settings);
+
         repository.save(user);
 
         // --- Regisztrációkór kupon létrehozása ---

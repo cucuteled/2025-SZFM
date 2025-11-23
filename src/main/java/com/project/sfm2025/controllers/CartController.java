@@ -29,6 +29,8 @@ public class CartController {
     private final DrinkRepository drinkRepository;
     private final MenuRepository menuRepository;
     private final CouponRepository couponRepository;
+    private final UserRepository userRepository;
+    private final UserSettingsRepository userSettingsRepository;
 
     private String sanitize(String input) {
         return input.replaceAll("[^a-zA-Z0-9_]", "_");
@@ -238,14 +240,51 @@ public class CartController {
             orderItemRepository.save(oi);
         }
 
-        // TODO: mentjük a felhasználó adatati a felhasználó kérésére
-        // if (data.getUpdateUserInfo) ...
-
-        // ez nincs benne a data objektumba hozzá kell adni frotned backend oldalon is!
+        // mentjük a felhasználó adatati a felhasználó kérésére
+        if (data.getUpdateUserInfo()) {
+            User u = userRepository.findByEmail(auth.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            UserSettings sets = u.getSettings();
+            if (sets == null) {
+                sets = new UserSettings();
+                sets.setUser(u);
+                u.setSettings(sets);
+            }
+            sets.setBillingAddress(data.getBillingAddress());
+            sets.setShippingAddress(data.getAddress());
+            sets.setPhoneNumber(data.getPhone());
+            userRepository.save(u);
+        }
 
         cartItemRepository.deleteAll(cartItems);
 
         return ResponseEntity.ok("Rendelés sikeresen leadva.");
+    }
+
+    @GetMapping("/myUserCartInfo")
+    public ResponseEntity<UserCartInfoJson> myUserCartInfo(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("user not found"));
+        UserSettings us = user.getSettings();
+        if (us == null) {
+            us = new UserSettings();
+            us.setUser(user);
+            user.setSettings(us);
+            userRepository.save(user);
+        }
+
+        return ResponseEntity.ok(
+                new UserCartInfoJson(
+                        us.getBillingAddress(),
+                        us.getShippingAddress(),
+                        us.getPhoneNumber(),
+                        user.getFirstname(),
+                        user.getLastname()
+                )
+        );
     }
 
     @GetMapping("/myorders")
