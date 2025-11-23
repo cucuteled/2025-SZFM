@@ -12,13 +12,14 @@
             min-height: 100vh;
             font-family: Arial, sans-serif;
             color: white;
-            overflow: hidden;
+            overflow: auto;
+            background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;
         }
         .sidebar { position: fixed; top: 0; left: 0; width: 200px; height: 100%; background-color: rgba(128,128,128,0.5); border-top-right-radius: 15px; border-bottom-right-radius: 15px; padding: 20px; box-sizing: border-box; }
         .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(128,128,128,0.5); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
         .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
         .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
-        .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px; }
+        .screencontent { padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px;}
         .vissza-btn { position: absolute; top: 20px; right: 20px; background-color: rgba(128,128,128,0.5); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
         .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
         .bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: opacity 2s ease-in-out; z-index: -1; }
@@ -230,6 +231,7 @@ async function listmyorders() {
             card.style.padding = "20px";
             card.style.marginBottom = "5px";
             card.style.backgroundColor = "rgb(20, 20, 20,0.95)";
+            card.style.width = "400px";
 
             // Idő kiírás
             const orderDate = new Date(firstItem.orderTime);
