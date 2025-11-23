@@ -28,4 +28,7 @@ public class PageController {
     public String eladoPage() {
         return "elado";
     }
+
+    @GetMapping("/elado/itempanel")
+    public String itemPanel() {return "itempanel";}
 }

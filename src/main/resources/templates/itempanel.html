@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Étterem # Tétel rögzítés</title>
+    <style>
+        body { margin: 0; padding: 0; min-height: 100vh; align-items: inherit; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; font-family: Arial, sans-serif; color: white; }
+        .sidebar { position: fixed; top: 0; left: 0; width: 200px; height: 100%; background-color: rgba(20,20,20,0.5); border-top-right-radius: 15px; border-bottom-right-radius: 15px; padding: 20px; box-sizing: border-box; }
+        .title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(128,128,128,0.5); padding: 10px 30px; border-radius: 20px; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+        .sidebar button { display: block; width: 100%; margin: 10px 0; padding: 10px; background-color: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
+        .sidebar button:hover { background-color: rgba(255,255,255,0.3); transform: translateX(5px); }
+        .screencontent { padding: 30px; padding-top: 180px; display: flex; flex-direction: column; gap: 20px; }
+        .vissza-btn { position: fixed; top: 20px; right: 20px; background-color: rgba(128,128,128,0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
+        .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
+        .screencontent { padding: 30px; padding-top: 100px; display: flex; flex-wrap: wrap; gap: 20px; align: center;    align-items: center; justify-content: flex-start;}
+        .itemcontent {
+  margin: 5px 0;
+  background-color: rgba(5,5,5,0.8);
+  border-radius: 20px;
+  color: white;
+  padding: 30px;
+  width: 600px;
+  box-sizing: border-box;
+}
+
+.form-row {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.itemcontent input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255,255,255,0.85);
+  color: black;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+</style>
+<body>
+<div id="focim" class="title">Tétel</div>
+<!--<button id="vissza" class="vissza-btn" onclick="window.location.href='/elado/myitems'" >Vissza</button>!-->
+
+<div class="screencontent" id="contents">
+<div class="itemcontent">
+    
+    <!-- KÉP -->
+<div style="display:flex; justify-content:center; margin-bottom:20px;">
+    <div style="width:150px; height:150px; overflow:hidden; border-radius:15px; border:2px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center;">
+        <img id="itempic" src="/pictures/upload.png" style="min-width:100%; min-height:100%; object-fit:cover;">
+    </div>
+</div>
+
+
+
+    <!-- NÉV -->
+    <div class="form-row">
+        <label for="itemname">Tétel neve</label>
+        <input id="itemname" type="text">
+    </div>
+
+    <!-- ÁR -->
+    <div class="form-row">
+        <label for="itemprice">Ár (Ft)</label>
+        <input id="itemprice" type="number">
+    </div>
+
+    <!-- LEÍRÁS -->
+    <div class="form-row">
+        <label for="itemdesc">Leírás</label>
+        <input id="itemdesc" type="text">
+    </div>
+    
+    <!-- Típus -->
+    <div class="form-row">
+        <label for="itemtype">Típus</label>
+        <select id="itemtype" name="itemtype">
+            <option value="Étel">Étel</option>
+            <option value="Ital">Ital</option>
+            <option value="Menü">Menü</option>
+        </select>
+    </div>
+
+
+    <!-- MENTÉS -->
+    <button id="savebtn" style="
+        margin-top:20px;
+        width:100%;
+        padding:12px;
+        border:none;
+        border-radius:10px;
+        background:green;
+        color:white;
+        cursor:pointer;
+        font-size:16px;">
+        Mentés
+    </button>
+
+</div>
+</div>
+
+<script>
+/// -------------------------- SCRIPTEK
+const params = new URLSearchParams(window.location.search);
+const itemId = params.get("itemId");
+const content = document.getElementById("contents");
+let globalid;
+
+loadItem();
+async function loadItem() {
+    const focim = document.getElementById("focim");
+    if (!itemId) {
+        // új tétel, ne töltsön semmit
+        focim.textContent = "Új tétel rögzítése"
+        return;
+    }
+    focim.textContent = "Tétel módosítása"
+
+    try {
+        const res = await fetch(`/elado/${itemId}`);
+        if (!res.ok) throw new Error("Tétel nem található");
+        
+        const item = await res.json();
+        console.log(item);
+        document.getElementById("itemname").value = item.name;
+        document.getElementById("itemprice").value = item.price;
+        if (item.type === "Menü") {
+            document.getElementById("itemdesc").style.display = "none";
+        } else {
+            document.getElementById("itemdesc").value = item.description || "";
+        }
+        document.getElementById("itemtype").value = item.type;
+        globalid = item.id;
+        
+        
+        const pic = document.getElementById("itempic");
+        pic.src = `/pictures/${item.name ? encodeURIComponent(item.name + ".jpg") : 'upload.png'}`;
+
+    } catch (err) {
+        content.innerHTML = err;
+    }
+}
+
+function validate() {
+    const name = document.getElementById("itemname").value.trim();
+    const price = Number(document.getElementById("itemprice").value);
+    const description = document.getElementById("itemdesc").value.trim();
+    const type = document.getElementById("itemtype").value;
+    const img = document.getElementById("itempic").getAttribute("src");
+    
+    if (type === "Menü") {
+        document.getElementById("itemdesc").style.display = "none";
+    } else {
+        document.getElementById("itemdesc").style.display = "block";
+    }
+
+    // ellenőrzés
+    const isValid = name && !isNaN(price) && price > 0 && type && img && !img.includes("upload.png");
+
+    // Mentés gomb megjelenítése
+    const saveBtn = document.getElementById("savebtn");
+    saveBtn.style.display = isValid ? "inline-block" : "none";
+}
+
+// Eseménykezelők hozzáadása minden mezőhöz
+document.getElementById("itemname").addEventListener("input", validate);
+document.getElementById("itemprice").addEventListener("input", validate);
+document.getElementById("itemdesc").addEventListener("input", validate);
+document.getElementById("itemtype").addEventListener("change", validate);
+// kép
+document.getElementById("itempic").addEventListener("load", validate);
+
+// Kezdeti ellenőrzés
+validate();
+
+
+document.getElementById("savebtn").onclick = async () => {
+    const thisID = globalid ? globalid : -1;
+    const payload = {
+        name: document.getElementById("itemname").value,
+        price: Number(document.getElementById("itemprice").value),
+        description: document.getElementById("itemdesc").value,
+        type: document.getElementById("itemtype").value,
+        id: thisID
+    };
+    
+    console.log(payload);
+
+    const res = await fetch(`/elado/saveItem`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+        content.innerHTML = `<div class="itemcontent"><p style="color: green;">Sikeres mentés</p></div>`;
+    } else {
+        console.log("Hiba");
+    }
+};
+
+
+/// ------------------------------------ VÉGE
+</script>
+</body>
+</html>

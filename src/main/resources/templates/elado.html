@@ -98,11 +98,16 @@
 <div class="sidebar">
     <button onclick="myitems()" id="itemsBtn">Termékeim</button>
     <button onclick="getOrders()" id="ordersBtn">Bejövő rendelések</button>
+    <button onclick="newItem()"> Új tétel rögzítése </button>
 </div>
 
 <div id="contents" class="screencontent"></div>
 
 <script>
+function newItem() {
+    window.open(`/elado/itempanel`, '_blank');
+}
+
 async function myitems() {
     const contents = document.getElementById("contents");
     contents.innerHTML = ""; // előző tartalom törlése
@@ -165,9 +170,7 @@ async function myitems() {
             modifyBtn.textContent = "Módosítás";
             modifyBtn.className = "card-button modify";
             modifyBtn.onclick = () => {
-                console.log("Módosítás kattintva:", item.id);
-                // ide jön a fetch
-                //TODO
+                window.open(`/elado/itempanel?itemId=${encodeURIComponent(item.name)}`, '_blank');
             };
 
             card.appendChild(pic);
