@@ -107,7 +107,6 @@
         </div>
     </div>
 
-    <!-- Rendeléseim TODO: AZ ELEMEK TÚLCSORDULNAK ÉS NEM LEHET AZ OLDALON LAPOZNI JAVÍTANI példa admin@admin.hu admin123 fiókba -->
     <div id="ordersContainer" style="display:none;">
         <div id="orderslabel" style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
             <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Rendeléseim</h2>
@@ -236,7 +235,16 @@ async function listmyorders() {
             // Idő kiírás
             const orderDate = new Date(firstItem.orderTime);
             const header = document.createElement("h4");
-            header.innerText = `🕒 ${orderDate.toLocaleString()}`;
+            header.innerHTML = `🕒 ${orderDate.toLocaleString()}`;
+            
+            //console.log(firstItem);
+            const plannedDate = new Date(firstItem.plannedDelivery);
+            if (plannedDate - orderDate > 60000) {
+                header.innerHTML += `<br><p style="color: rgb(110,110,110); size: 15px;">Tervezett szállítás: ${plannedDate.toLocaleString()}</p>`;
+            }
+            
+            header.innerHTML += `<p style="color: rgb(200,200,200); size: 10px;">Fizetési mód: ${firstItem.paymentmethod}</p>`;
+            
             card.appendChild(header);
             card.appendChild(document.createElement("hr"));
 

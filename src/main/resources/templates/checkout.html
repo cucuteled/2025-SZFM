@@ -55,8 +55,8 @@
         
         .order-btn {
             position: relative;
-            top: 20px;
-            right: -80px;
+            top: 18px;
+            right: -68%;
             background-color: rgba(50,140,50,0.5);
             color: white;
             border: none;
@@ -88,6 +88,135 @@
         .collapsible-body.hidden {
           display: none;
         }
+        
+        .paymentbox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(5,5,5,0.5);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    box-sizing: border-box;
+    color: white;
+    gap: 0px;
+    display: none;
+}
+
+.paymentbox fieldset {
+    border: none;
+    width: 100%;
+    padding: 0;
+}
+
+.paymentbox legend {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.paymentbox div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.paymentbox input[type="radio"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.paymentbox label {
+    flex: 100;
+}
+
+#orderbutton {
+    transition: background 0.3s;
+}
+
+#orderbutton:hover {
+    background-color: rgb(0,120,0);
+}
+
+
+#scheduleBox {
+    padding: 0px;
+    border-radius: 15px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+  display: flex;                    /* flexbox a középre igazításhoz */
+  flex-direction: column;
+  justify-content: center;         /* függőleges középre igazítás */
+  align-items: center;             /* vízszintes középre igazítás */
+  min-height: 100px;               
+}
+
+/* A checkbox sor */
+#scheduleBox > legend div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#scheduleOptions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;       /* egy sorban */
+    align-items: flex-start;
+}
+
+
+#scheduleOptions .field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-content: flex-start;
+        align-items: stretch; 
+}
+
+#scheduleOptions .field label {
+    text-align: left;
+    padding-left: 2px;
+    font-size: 0.9em;
+}
+
+#scheduleOptions select {
+    padding: 2px;
+    background: rgba(40,40,40,1);   
+    color: #ffffff;                 
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    outline: none;
+    font-size: 1em;
+    cursor: pointer;
+    transition: 0.2s;
+    min-width: 10px;
+}
+
+#scheduleOptions select:hover,
+#scheduleOptions select:focus {
+    background: rgba(70,70,70,1);
+    border-color: rgba(255,255,255,0.4);
+}
+
+#scheduleOptions select option {
+    background: rgba(40,40,40,1);   
+    color: white;                
+}
+
+#scheduleOptions .rowDROP {
+    display: flex;
+    gap: 5px;              
+    flex-wrap: nowrap;        
+    align-items: flex-start;
+    align-content: center;
+    justify-content: center;
+    flex-direction: row;
+}
+
     </style>
 </head>
 <body onload="load()">
@@ -150,9 +279,7 @@
         <input id="userphonenumber" name="phonenumber" type="tel" inputmode="numeric" pattern="\d*">
       </div>
 
-      <div>
-        <button id="orderbutton" class="order-btn" onclick="order()">Megrendelés</button>
-      </div>
+
     </div>
     
     <div><br>
@@ -160,18 +287,216 @@
         <input id="updateuserinfo" name="updateuserdata" type="checkbox">
         Adatok mentése a következő rendeléshez
       </label>
-    </div> <!-- TODO: BACKEND OLDALON IS! ezt belekell rakni a data objektumba az order()-nél !
-    illetve a megrendelés gomb előtt implamentáljunk egy válassz fizetési lehetőséget kártyát. a mostani megrendelés gomb
-    legyen tovább -> és összecsukja a kártyát megjelenik a harmadik válasz fizetési ... megrendelés
-    -->
+    </div>
+    
+    <br>
+    
+    <div id="paymentmethod" class="paymentbox">
+        <fieldset>
+          <legend>Válasszon fizetési módot:</legend>
+        
+          <div>
+            <input type="radio" id="cashoption" name="drone" value="cash" checked />
+            <label for="cashoption">Készpénz (Utánvét)</label>
+          </div>
+        
+          <div>
+            <input type="radio" id="cardoption" name="drone" value="card" />
+            <label for="cardoption">Bankártya</label>
+          </div>
+        
+        </fieldset>
+        
+        <!-- Tervezett szállítás!-->
+        <div>
+            <fieldset id="scheduleBox">
+              <legend>
+            
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" id="scheduleCheck">
+                <label for="scheduleCheck">Rendelés ütemezése</label>
+              </div>
+              
+            </legend>
+              <!-- Ez a rész csak akkor látszik, ha be van pipálva -->
+              <div id="scheduleOptions" style="display:none; margin-top:15px;">
+
+              <!-- Hónap + Nap -->
+              <div class="rowDROP">
+                <div class="field">
+                  <label>Hónap:</label>
+                  <select id="monthSelect"></select>
+                </div>
+                
+                <div class="field">
+                  <label>Nap:</label>
+                  <select id="daySelect"></select>
+                </div>
+            
+              <!-- Óra + Perc -->
+                <div class="field">
+                  <label>Óra:</label>
+                  <select id="hourSelect"></select>
+                </div>
+                
+                <div class="field">
+                  <label>Perc:</label>
+                  <select id="minuteSelect"></select>
+                </div>
+              </div>
+            
+            </div>
+
+            
+              </div>
+            </fieldset>
+            
+                  <div>
+                    <button id="orderbutton" class="order-btn" onclick="order()">Megrendelés</button>
+                </div>
+      
+        </div>
+        
+
+      
+    </div>
     
   </div>
+  
 </div>
 
 </div>
 <!-- Középső elemek vége !-->
 
 <script>
+// DROPDOWN ---------------------------------------------------------------------
+
+const scheduleCheck = document.getElementById("scheduleCheck");
+const scheduleOptions = document.getElementById("scheduleOptions");
+
+const monthSelect = document.getElementById("monthSelect");
+const daySelect = document.getElementById("daySelect");
+const hourSelect = document.getElementById("hourSelect");
+const minuteSelect = document.getElementById("minuteSelect");
+
+// Megjelenítés / elrejtés
+scheduleCheck.addEventListener("change", () => {
+  scheduleOptions.style.display = scheduleCheck.checked ? "block" : "none";
+  if (scheduleCheck.checked) {
+    fillAllDropdowns();
+  }
+});
+
+function fillAllDropdowns() {
+  const now = new Date();
+
+  fillMonthDropdown(now);
+  fillDayDropdown(now);
+  fillHourDropdown(now);
+  fillMinuteDropdown(now);
+}
+
+function fillMonthDropdown(now) {
+  monthSelect.innerHTML = "";
+  const thisMonth = now.getMonth(); // 0-11
+  const nextMonth = (thisMonth + 1) % 12;
+
+  // csak 2 hónap: aktuális + következő
+  addOption(monthSelect, thisMonth, getMonthName(thisMonth));
+  addOption(monthSelect, nextMonth, getMonthName(nextMonth));
+}
+
+function fillDayDropdown(now) {
+  daySelect.innerHTML = "";
+
+  const selectedMonth = Number(monthSelect.value);
+  const todayMonth = now.getMonth();
+
+  let startDay;
+  let lastDay = new Date(now.getFullYear(), selectedMonth + 1, 0).getDate();
+
+  if (selectedMonth === todayMonth) {
+    startDay = now.getDate(); // pl. 20-a után csak 20–31
+  } else {
+    startDay = 1; // következő hónap: 1-től 20 nap múlva
+  }
+
+  // max 20 nap előre
+  const maxDay = Math.min(startDay + 20, lastDay);
+
+  for (let d = startDay; d <= maxDay; d++) {
+    addOption(daySelect, d, d);
+  }
+}
+
+function fillHourDropdown(now) {
+  hourSelect.innerHTML = "";
+
+  const selectedDay = Number(daySelect.value);
+  const todayDay = now.getDate();
+
+  let startHour = 0;
+
+  if (selectedDay === todayDay) {
+    startHour = now.getHours();
+  }
+
+  for (let h = startHour; h < 24; h++) {
+    addOption(hourSelect, h, h.toString().padStart(2, "0"));
+  }
+}
+
+function fillMinuteDropdown(now) {
+  minuteSelect.innerHTML = "";
+
+  const selectedDay = Number(daySelect.value);
+  const selectedHour = Number(hourSelect.value);
+  const todayDay = now.getDate();
+  const currentHour = now.getHours();
+
+  let startMin = 0;
+
+  if (selectedDay === todayDay && selectedHour === currentHour) {
+    startMin = now.getMinutes();
+  }
+
+  for (let m = startMin; m < 60; m += 1) {
+    addOption(minuteSelect, m, m.toString().padStart(2, "0"));
+  }
+}
+
+function addOption(select, value, text) {
+  const o = document.createElement("option");
+  o.value = value;
+  o.textContent = text;
+  select.appendChild(o);
+}
+
+function getMonthName(m) {
+  const hu = [
+    "Január","Február","Március","Április","Május","Június",
+    "Július","Augusztus","Szeptember","Október","November","December"
+  ];
+  return hu[m];
+}
+
+// ha a hónap vagy nap változik, töltsd újra a következő dropdownokat
+monthSelect?.addEventListener("change", () => {
+  fillDayDropdown(new Date());
+  fillHourDropdown(new Date());
+  fillMinuteDropdown(new Date());
+});
+
+daySelect?.addEventListener("change", () => {
+  fillHourDropdown(new Date());
+  fillMinuteDropdown(new Date());
+});
+
+hourSelect?.addEventListener("change", () => {
+  fillMinuteDropdown(new Date());
+});
+
+// DROPDOWN VÉGE----------------------------------------------------
 let validate;
 loadInfos();
 async function loadInfos() {
@@ -181,7 +506,7 @@ async function loadInfos() {
   const addressEquals = document.getElementById("useraddressequals");
   const billingAddress = document.getElementById("userbillingaddress");
   const phone = document.getElementById("userphonenumber");
-  const orderButton = document.getElementById("orderbutton");
+  const orderButton = document.getElementById("paymentmethod"); // orderbutton originally
   
   try {
     const res = await fetch(`/api/v1/cart/myUserCartInfo`, {
@@ -219,10 +544,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const addressEquals = document.getElementById("useraddressequals");
   const billingAddress = document.getElementById("userbillingaddress");
   const phone = document.getElementById("userphonenumber");
-  const orderButton = document.getElementById("orderbutton");
+  const paybox = document.getElementById("paymentmethod"); // originally orderbutton
 
   // kezdetben rejtve
-  orderButton.hidden = true;
+  paybox.style.display = "none";
 
   validate = () => {
     const isNotEmpty = (val) => val.trim().length > 0;
@@ -248,7 +573,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         isBillingValid &&
                         isPhoneValidResult;
 
-    orderButton.hidden = !isFormValid;
+    paybox.style.display = isFormValid ? "block" : "none";
   };
 
   // mezők figyelése
@@ -325,7 +650,7 @@ async function load() {
       itemDiv.style.marginBottom = '20px';
       itemDiv.style.alignItems = 'flex-start';
       //
-      const orderbutton = document.getElementById("orderbutton")
+      const orderbutton = document.getElementById("paymentmethod")
       //orderbutton.hidden = false;
       // kép
     const pic = document.createElement('img');
@@ -456,8 +781,8 @@ minusBtn.onclick = async () => {
     } else { // ha üres
             const box = document.getElementById("itembox");
             box.innerHTML = "<br>A kosarad üres."; // előző tartalom törlése
-            const orderbutton = document.getElementById("orderbutton")
-            orderbutton.hidden = true;
+            const orderbutton = document.getElementById("paymentmethod")
+            orderbutton.style.display = "block";
     }
 
   } catch (err) {
@@ -501,6 +826,34 @@ minusBtn.onclick = async () => {
     }
     
 async function order() {
+    let scheduledDate;
+    // tervezet idő
+    if (document.getElementById("scheduleCheck").checked) {
+        const month = document.getElementById("monthSelect").value;
+        const day = document.getElementById("daySelect").value;
+        const hour = document.getElementById("hourSelect").value;
+        const minute = document.getElementById("minuteSelect").value;
+        
+        const year = new Date().getFullYear();
+        scheduledDate = new Date(
+            year,
+            month,  // mivel JS-ben 0-alapú a hónap
+            day,
+            hour,
+            minute,
+            0,          // másodperc
+            0           // milliszekundum
+        );
+
+    } else {
+        scheduledDate = new Date();
+    }
+    
+    //console.log("Ütemezett dátum:", scheduledDate.toString());
+
+    const paymentOptions = document.querySelectorAll('input[name="drone"]');
+    const selectedPayment = Array.from(paymentOptions).find(r => r.checked)?.value;
+
     const orderfirstname = document.getElementById("userfirstname").value.trim();
     const ordersecondname = document.getElementById("usersecondname").value.trim();
     const address = document.getElementById("useraddress").value.trim();
@@ -522,6 +875,8 @@ async function order() {
       billingAddress: finalBillingAddress,
       phone,
       updateUserInfo,
+      selectedPayment,
+      scheduledDate,
     };
     
     const res = await fetch('/api/v1/cart/order', {

@@ -23,6 +23,33 @@ public class OrderItem {
     private String usedcoupons;
     private String Status = ""; // "" = ongoing "shipped" = teljesítve "canceled" = visszautisitott
 
+    private String paymentmethod = "";
+    private LocalDateTime plannedDelivery = LocalDateTime.now();
+
+    public String getStatus() {
+        return Status;
+    }
+
+    public void setStatus(String status) {
+        Status = status;
+    }
+
+    public String getPaymentmethod() {
+        return paymentmethod;
+    }
+
+    public void setPaymentmethod(String paymentmethod) {
+        this.paymentmethod = paymentmethod;
+    }
+
+    public LocalDateTime getPlannedDelivery() {
+        return plannedDelivery;
+    }
+
+    public void setPlannedDelivery(LocalDateTime plannedDelivery) {
+        this.plannedDelivery = plannedDelivery;
+    }
+
     public String getUsedcoupons() {
         return usedcoupons;
     }

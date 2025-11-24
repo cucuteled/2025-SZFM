@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -236,6 +237,10 @@ public class CartController {
             oi.setOrder_name(data.getName());
             //
             oi.setUsedcoupons(usedcouponsString); // itt mentjük a felhasznált kuponokat
+
+            oi.setPaymentmethod(data.getSelectedPayment());
+
+            oi.setPlannedDelivery(data.getScheduledDate());
 
             orderItemRepository.save(oi);
         }

@@ -238,9 +238,15 @@ async function getOrders() {
 
             const left = document.createElement("div");
             left.innerHTML = `
-                <h3>🕒 ${orderDate.toLocaleString()}</h3>
-                <p>Vevő: <strong>${first.order_name}</strong></p>
+                <h3>🕒 ${orderDate.toLocaleString()}
             `;
+            
+            const plannedDate = new Date(first.plannedDelivery);
+            if (plannedDate - orderDate > 60000) {
+                left.innerHTML += `<p style="color: rgb(110,110,110);">  Tervezett kiszállítás: ${plannedDate.toLocaleString()}</p>`;
+            }
+            
+            left.innerHTML += `</h3><p>Vevő: <strong>${first.order_name}</strong></p>`
 
             const right = document.createElement("div");
             right.style.display = "flex";
@@ -335,10 +341,12 @@ async function getOrders() {
             details.appendChild(document.createElement("hr"));
 
             // Vevő adatok (CSAK MEGJELENÍTÉS)
+            
             details.innerHTML += `
                 <p><strong>Szállítási cím:</strong> ${first.order_ShipAddress}</p>
                 <p><strong>Számlázási cím:</strong> ${first.order_BillingAddress}</p>
                 <p><strong>Telefon:</strong> ${first.order_phonenumber}</p>
+                <p><strong>Fizetési mód:</strong> ${first.paymentmethod}</p>
             `;
 
             toggle.onclick = () => {
