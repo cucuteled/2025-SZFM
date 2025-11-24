@@ -52,7 +52,7 @@
     <!-- KÉP -->
 <div style="display:flex; justify-content:center; margin-bottom:20px;">
     <div style="width:150px; height:150px; overflow:hidden; border-radius:15px; border:2px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center;">
-        <img id="itempic" src="/pictures/upload.png" style="min-width:100%; min-height:100%; object-fit:cover;">
+        <img onerror="this.onerror=null; this.src='/pictures/upload.png';" id="itempic" src="/pictures/upload.png" style="min-width:100%; min-height:100%; object-fit:cover;">
     </div>
 </div>
 
@@ -139,7 +139,12 @@ async function loadItem() {
         
         
         const pic = document.getElementById("itempic");
-        pic.src = `/pictures/${item.name ? encodeURIComponent(item.name + ".jpg") : 'upload.png'}`;
+        pic.src = `/uploads/${encodeURIComponent(item.name)}.jpg`;
+        
+        pic.onerror = () => {
+            pic.onerror = null;
+            pic.src = `/pictures/upload.png`;
+        };
 
     } catch (err) {
         content.innerHTML = err;
@@ -187,7 +192,7 @@ document.getElementById("savebtn").onclick = async () => {
         description: document.getElementById("itemdesc").value,
         type: document.getElementById("itemtype").value,
         id: thisID
-    };
+    }; // todo: VISSZA KÜLDENI A KÉPET IS mentésre
     
     console.log(payload);
 

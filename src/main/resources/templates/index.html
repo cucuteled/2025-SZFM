@@ -374,11 +374,11 @@
         closeProductModal();
 
         const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay';
+        overlay.className = 'modal-overlay'; // <img src="/pictures/${encodeURIComponent(termek.name.toLowerCase())}.jpg"
         overlay.innerHTML = `
     <div class="modal-box">
       <button class="modal-close">&times;</button>
-      <img src="/pictures/${encodeURIComponent(termek.name.toLowerCase())}.jpg"
+      <img src="/uploads/${encodeURIComponent(termek.name)}.jpg" 
            alt="${escapeHtml(termek.name)}"
            onerror="this.src='/pictures/default.jpg'">
       <h2>${escapeHtml(termek.name)}</h2>
@@ -801,8 +801,8 @@
             etelek.forEach(etel => {
                 const kartya = document.createElement('div');
                 kartya.className = 'etel-kartya';
-                const kepNev = (etel.name || 'default').toLowerCase();
-                const kepEleres = `/pictures/${encodeURIComponent(kepNev)}.jpg`;
+                const kepNev = (etel.name || 'default');
+                const kepEleres = `/uploads/${encodeURIComponent(kepNev)}.jpg`; //`/pictures/${encodeURIComponent(kepNev)}.jpg`
                 const idVal = etel.id ?? etel.name;
                 kartya.innerHTML = `
         <div class="label-kor" id="labelkor${etel.name}" hidden>
@@ -859,7 +859,7 @@
                 const kartya = document.createElement('div');
                 kartya.className = 'ital-kartya';
                 const kepNev = (ital.name || 'default').toLowerCase();
-                const kepEleres = `/pictures/${encodeURIComponent(kepNev)}.jpg`;
+                const kepEleres = `/uploads/${encodeURIComponent(kepNev)}.jpg`;
                 const idVal = ital.id ?? ital.name;
 
                 kartya.innerHTML = `
@@ -916,7 +916,7 @@
                 const kartya = document.createElement('div');
                 kartya.className = 'etel-kartya';
                 const kepNev = (menu.name || 'default').toLowerCase();
-                const kepEleres = `/pictures/${encodeURIComponent(kepNev)}.jpg`;
+                const kepEleres = `/uploads/${encodeURIComponent(kepNev)}.jpg`;
                 const idVal = menu.id ?? menu.name;
 
                 kartya.innerHTML = `

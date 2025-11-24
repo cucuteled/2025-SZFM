@@ -329,7 +329,7 @@ async function load() {
       //orderbutton.hidden = false;
       // kép
     const pic = document.createElement('img');
-    pic.src = `/pictures/${encodeURIComponent(item.name || 'default')}.jpg`;
+    pic.src = `/uploads/${encodeURIComponent(item.name)}.jpg`;
     pic.alt = escapeHtml(item.name);
     pic.onerror = function () {
       this.src = '/pictures/default.jpg';

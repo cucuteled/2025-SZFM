@@ -11,6 +11,8 @@ public class FileService {
 
     private final Path uploadDir;
 
+    // MIVEL A JAVA NEM ÍRHATJA FUTÁS KÖZBEN A JAR-T ezért azon kivülre mellé egy uploads/ mappába kell szerzveni a képeket
+
     public FileService(@Value("${file.upload-dir}") String uploadDir) {
         this.uploadDir = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {

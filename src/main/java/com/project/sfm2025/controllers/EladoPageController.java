@@ -90,6 +90,8 @@ public class EladoPageController {
         return ResponseEntity.notFound().build();
     }
 
+    private final FileService fileService;
+
     @PostMapping("/saveItem")
     public ResponseEntity<?> saveItem(Authentication auth,
                                       @RequestBody itemData item) {
@@ -161,14 +163,10 @@ public class EladoPageController {
             obj.setPrice(item.getPrice());
             menuRepository.save(obj);
         }
-// todo_: class path resolver képek áthelyezése resources/uploads/ mappába
-        // csak úgy képen a spring átnevezni FILE SERVICE + FILE CONTROLLER
-//        if (DoesItExist) {
-//
-////            File file = new File("/static/pictures/" + itemNameOld + ".jpg");
-////            file.renameTo(new File("/static/pictures/"+ itemNewName + ".jpg"));
-////            System.out.println(file.getAbsolutePath());
-//        }
+
+        if (DoesItExist && !itemNameOld.equals(itemNewName)) {
+            fileService.renameFile(itemNameOld, itemNewName);
+        }
 
         return ResponseEntity.ok("Sikeresen mentve!");
     }

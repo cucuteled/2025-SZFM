@@ -137,7 +137,16 @@ async function myitems() {
 
             // kép
             const pic = document.createElement("img");
-            pic.src = `/pictures/${encodeURIComponent(item.name || 'default')}.jpg`;
+            if (item.name) {
+                pic.src = `/uploads/${encodeURIComponent(item.name)}.jpg`;
+            } else {
+                pic.src = `/pictures/default.jpg`;
+            }
+            
+            pic.onerror = () => {
+                pic.onerror = null;
+                pic.src = `/pictures/default.jpg`;
+            };
             pic.style.width = "100px";
             pic.style.height = "100px";
             pic.style.objectFit = "cover";
