@@ -37,7 +37,8 @@ public class SecurityConfiguration {
                                 "/css/**",
                                 "/?continue",
                                 "/api/contact",
-                                "/favicon.ico"
+                                "/favicon.ico",
+                                "/uploads/**"
                         ).permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/elado/**").hasRole("ELADO")
