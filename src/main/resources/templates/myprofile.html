@@ -58,6 +58,7 @@
     </div>
     
     <br>
+    <button id="passwordBtn">Jelszó módosítás</button>
     <button id="logoutBtn">Kijelentkezés</button>
     <button id="deleteBtn">Profil törlés</button>
 </div>
@@ -142,6 +143,25 @@
                 TODO: itt jelszó módosítás lehetősége legyen korábbi jelszó új jelszó stb.. mentés gomb
                 illetve a -a- adatvédelem pdf -/a-
             </p>
+        </div>
+    </div>
+
+    <div id="passwordContainer" style="display:none;">
+        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 420px;">
+            <h2 style="text-align:center;">Jelszó módosítás</h2>
+
+            <label>Régi jelszó:</label>
+            <input type="password" id="oldPassword" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;">
+
+            <label>Új jelszó:</label>
+            <input type="password" id="newPassword" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;">
+
+            <label>Új jelszó újra:</label>
+            <input type="password" id="newPassword2" style="width:100%;margin-bottom:15px;padding:8px;border-radius:8px;">
+
+            <button onclick="changePassword()" style="width:100%;padding:10px;border:none;border-radius:10px;background:#4CAF50;color:white;font-weight:bold;">
+                Mentés
+            </button>
         </div>
     </div>
 
@@ -315,6 +335,7 @@ async function listmyorders() {
             document.getElementById("lastname").textContent = user.lastname || "(nincs adat)";
             document.getElementById("firstname").textContent = user.firstname || "(nincs adat)";
             document.getElementById("email").textContent = user.email || "(nincs adat)";
+            makeProfileEditable();
             // TODO: EZ ITT NEM JÓ, document.creatElement()-el hozzuk létre ne beégetve
             // jelenjen meg a user többi adatja szerkesztési lehetőséggel, mint szállítási cím, telefonszám stb..
             const adminBtn = document.getElementById("adminBtn");
@@ -330,7 +351,7 @@ async function listmyorders() {
     }
 
     function showSection(sectionId, title) {
-        const sections = ['profileContainer','couponContainer','ordersContainer','supportContainer','privacyContainer'];
+        const sections = ['profileContainer','couponContainer','ordersContainer','supportContainer','privacyContainer','passwordContainer'];
         sections.forEach(id => document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none');
         document.getElementById('pageTitle').textContent = title;
     }
@@ -542,6 +563,130 @@ async function applyCoupon() {
         console.error('Kupon hiba:', error);
     }
 }
+    // ---- PROFIL SZERKESZTÉS KIEGÉSZÍTÉS ----
+
+function makeProfileEditable() {
+    const lastnameDiv = document.getElementById("lastname");
+    const firstnameDiv = document.getElementById("firstname");
+    const emailDiv = document.getElementById("email");
+
+    const lastVal = lastnameDiv.textContent;
+    const firstVal = firstnameDiv.textContent;
+    const emailVal = emailDiv.textContent;
+
+    lastnameDiv.innerHTML = `<input id="edit-lastname" value="${lastVal}" style="width:100%;padding:8px;border-radius:6px;">`;
+    firstnameDiv.innerHTML = `<input id="edit-firstname" value="${firstVal}" style="width:100%;padding:8px;border-radius:6px;">`;
+    emailDiv.innerHTML = `<input value="${emailVal}" disabled style="width:100%;padding:8px;border-radius:6px;background:#444;color:#bbb;">`;
+
+    const container = document.getElementById("profileContainer").querySelector("div");
+
+    const passBlock = document.createElement("div");
+    passBlock.style.marginTop = "15px";
+    passBlock.innerHTML = `
+        <label style="display:block;margin-bottom:5px;font-weight:bold;">Új jelszó:</label>
+        <input type="password" id="edit-password" placeholder="Új jelszó" style="width:100%;padding:8px;border-radius:6px;">
+    `;
+
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "Mentés";
+    saveBtn.style.marginTop = "15px";
+    saveBtn.style.padding = "10px";
+    saveBtn.style.width = "100%";
+    saveBtn.style.borderRadius = "10px";
+    saveBtn.style.border = "none";
+    saveBtn.style.background = "#4CAF50";
+    saveBtn.style.color = "white";
+    saveBtn.style.fontWeight = "bold";
+
+    saveBtn.onclick = updateProfile;
+
+    container.appendChild(passBlock);
+    container.appendChild(saveBtn);
+}
+
+async function updateProfile() {
+    const data = {
+        lastname: document.getElementById("edit-lastname").value.trim(),
+        firstname: document.getElementById("edit-firstname").value.trim(),
+        password: document.getElementById("edit-password").value.trim()
+    };
+
+    if (!data.lastname || !data.firstname) {
+        showSmallToast("A név nem lehet üres!");
+        return;
+    }
+
+    if (data.password && data.password.length < 4) {
+        showSmallToast("A jelszó legalább 4 karakter!");
+        return;
+    }
+
+    try {
+        const resp = await fetch("/api/v1/profile/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(data)
+        });
+
+        if (!resp.ok) throw new Error(await resp.text());
+
+        showSmallToast("Profil frissítve");
+
+        document.getElementById("edit-password").value = "";
+
+    } catch (e) {
+        showSmallToast("Mentési hiba: " + e.message);
+    }
+    await loadProfileData();
+}
+    document.getElementById("passwordBtn").onclick = () =>
+    showSection('passwordContainer', 'Jelszó módosítás');
+
+    async function changePassword() {
+    const oldPass = document.getElementById("oldPassword").value;
+    const newPass = document.getElementById("newPassword").value;
+    const newPass2 = document.getElementById("newPassword2").value;
+
+    if (!oldPass || !newPass || !newPass2) {
+        showSmallToast("Minden mezőt ki kell tölteni!");
+        return;
+    }
+
+    if (newPass !== newPass2) {
+        showSmallToast("Az új jelszavak nem egyeznek!");
+        return;
+    }
+
+    if (newPass.length < 4) {
+        showSmallToast("Az új jelszó legalább 4 karakter!");
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/v1/profile/changepassword", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            credentials: "include",
+            body: JSON.stringify({
+                oldPassword: oldPass,
+                newPassword: newPass
+            })
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        showSmallToast("Jelszó sikeresen módosítva");
+
+        document.getElementById("oldPassword").value = "";
+        document.getElementById("newPassword").value = "";
+        document.getElementById("newPassword2").value = "";
+
+    } catch (err) {
+        showSmallToast(err.message);
+    }
+}
+
 </script>
 
 </body>
