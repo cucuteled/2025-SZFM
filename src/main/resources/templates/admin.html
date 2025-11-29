@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="/css/contactStyle.css">
+    <link rel="stylesheet" href="/css/adminStyle.css">
     <title>Étterem # Adminisztrációs felület</title>
     <style>
         body { margin: 0; padding: 0; min-height: 100vh; background-image: url('/pictures/background/profileback.png'); background-size: cover; background-position: center; font-family: Arial, sans-serif; color: white; display: block; }
@@ -14,93 +14,52 @@
         .screencontent { margin-left: 220px; padding: 30px; padding-top: 100px; display: flex; flex-direction: column; gap: 20px; box-sizing: border-box; }
         .vissza-btn { position: fixed; top: 20px; right: 20px; background-color: rgba(128,128,128,0.8); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; text-decoration: none; }
         .vissza-btn:hover{ background-color: rgba(180,180,180,0.7); transform: scale(1.05); }
-        
-        /* Alapstílus */
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
 
-/* Fejléc */
-thead {
-    background: rgba(255, 255, 255, 0.1);
-}
+        /* Alap táblázat stílus */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; background: rgba(255, 255, 255, 0.05); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        thead { background: rgba(255, 255, 255, 0.1); }
+        thead th { padding: 16px; text-align: left; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+        tbody td { padding: 14px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(4px); }
+        tbody tr:hover { background: rgba(255, 255, 255, 0.08); transition: background 0.2s ease-in-out; }
+        thead th:first-child { border-top-left-radius: 12px; }
+        thead th:last-child { border-top-right-radius: 12px; }
+        tbody tr:last-child td:first-child { border-bottom-left-radius: 12px; }
+        tbody tr:last-child td:last-child { border-bottom-right-radius: 12px; }
 
-thead th {
-    padding: 16px;
-    text-align: left;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
+        /* Mobil nézet */
+        @media (max-width: 768px) {
+            table thead { display: none; }
+            tbody td { display: block; width: 100%; text-align: right; position: relative; padding-left: 50%; }
+            tbody td::before { content: attr(data-label); position: absolute; left: 16px; width: 45%; white-space: nowrap; font-weight: bold; text-transform: uppercase; text-align: left; }
+            tbody tr { display: block; margin-bottom: 10px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); }
+        }
 
-/* Adatok */
-tbody td {
-    padding: 14px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(4px);
-}
+        /* Scrollos konténer */
+        .list-container { max-height: 420px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; }
 
-/* Sor kiemelés hoverre */
-tbody tr:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transition: background 0.2s ease-in-out;
-}
+        /* Szerkesztés / törlés gombok */
+        .actions { display: flex; gap: 8px; }
+        .edit-btn, .delete-btn { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .edit-btn { background: #1e90ff; color: white; }
+        .edit-btn:hover { background: #3aa0ff; }
+        .delete-btn { background: #d03030; color: white; }
+        .delete-btn:hover { background: #ff4444; }
 
-/* Szélső cellák lekerekítése */
-thead th:first-child {
-    border-top-left-radius: 12px;
-}
-thead th:last-child {
-    border-top-right-radius: 12px;
-}
-tbody tr:last-child td:first-child {
-    border-bottom-left-radius: 12px;
-}
-tbody tr:last-child td:last-child {
-    border-bottom-right-radius: 12px;
-}
+        /* Hozzáadás gomb */
+        .add-btn { display: inline-block; max-width: 200px; padding: 10px 20px; border-radius: 15px; background-color: rgba(0,128,255,0.3); color: white; border: none; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+        .add-btn:hover { background-color: rgba(0,128,255,0.6); transform: scale(1.05); }
 
-/* Responsiveness (mobilra) */
-@media (max-width: 768px) {
-    table {
-        font-size: 14px;
-    }
-    thead {
-        display: none;
-    }
-    tbody td {
-        display: block;
-        width: 100%;
-        text-align: right;
-        position: relative;
-        padding-left: 50%;
-    }
-    tbody td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 16px;
-        width: 45%;
-        white-space: nowrap;
-        font-weight: bold;
-        text-transform: uppercase;
-        text-align: left;
-    }
-    tbody tr {
-        margin-bottom: 10px;
-        display: block;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-    }
-}
-
+        /* Modalok */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 999; }
+        .modal-content { background: #222; padding: 20px; border-radius: 12px; width: 350px; color: white; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px; }
+        .modal-content.small { width: 300px; }
+        .modal-content input, .modal-content select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #444; background: #333; color: white; }
+        .modal-buttons { margin-top: 20px; display: flex; justify-content: space-between; }
+        .save-btn { background: #1e90ff; padding: 8px 16px; border-radius: 6px; border: none; color: white; cursor: pointer; }
+        .save-btn:hover { background: #3aa0ff; }
+        .cancel-btn { background: gray; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; color: white; }
+        .delete-btn-modal { background: #d03030; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; color: white; }
+        .delete-btn-modal:hover { background: #ff4444; }
     </style>
 </head>
 <body>
@@ -116,71 +75,370 @@ tbody tr:last-child td:last-child {
 <div id="contents" class="screencontent"></div>
 
 <script>
-// SCRIPTEK
-document.getElementById("profileBtn").addEventListener("click", () => { loadUsers(); });
+    let USERS_CACHE = [];
+    let selectedUserId = null;
 
-//document.getElementById("statBtn").addEventListener("click", () => { loadStats(); });
+    document.getElementById("profileBtn").addEventListener("click", () => { showUserManagement(); });
 
-async function loadUsers() {
-    try {
-        const res = await fetch("/admin/getUsers",
-        {
+    // Általános tartalom render
+    function renderContent(html) {
+        document.getElementById("contents").innerHTML = html;
+    }
+
+    // Felhasználók menedzsment
+    async function showUserManagement() {
+        const response = await fetch("/admin/getUsers", {
             method: "GET",
-            credentials: "same-origin"
+            headers: { "Authorization": localStorage.getItem("token") ? `Bearer ${localStorage.getItem("token")}` : "" }
         });
-        
+        if (!response.ok) { alert("Nem sikerült betölteni a felhasználókat!"); return; }
 
-        if (!res.ok) throw new Error("Hiba a lekérésnél");
-        const data = await res.json();
-        
-        renderTable(data); // mivel több tábla is van nem irjuk újra a kódot
-        
-    } catch (err) {}
-}
+        const users = await response.json();
+        USERS_CACHE = users;
 
-function renderTable(data) {
-        // Dinamikus tábla készítés
-        const table = document.createElement("table");
-        table.border = "1";
-    
-        // Felsősor
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        const headers = Object.keys(data[0]);
-    
-        headers.forEach(key => 
-        {
-            const th = document.createElement("th");
-            th.textContent = key;
-            headerRow.appendChild(th);
+        let html = `
+        <div class="list-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vezetéknév</th>
+                        <th>Keresztnév</th>
+                        <th>Email</th>
+                        <th>Tiltott</th>
+                        <th>Jogosultság</th>
+                        <th>Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(u => `
+                        <tr>
+                            <td data-label="ID">${u.id}</td>
+                            <td data-label="Vezetéknév">${u.Vezetéknév}</td>
+                            <td data-label="Keresztnév">${u.Keresztnév}</td>
+                            <td data-label="Email">${u.Email}</td>
+                            <td data-label="Tiltott">${u.Tiltott}</td>
+                            <td data-label="Jogosultság">${u.Jogosultság}</td>
+                            <td class="actions">
+                                <button class="edit-btn" onclick="openEditModal('${u.id}')">✏️</button>
+                                <button class="delete-btn" onclick="openDeleteModal('${u.id}')">🗑️</button>
+                            </td>
+                        </tr>`).join("")}
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Felhasználók kezelése</h2>
+        <button id="addUserBtn" class="add-btn">Felhasználó hozzáadása</button>
+        <button id="searchUserBtn" class="add-btn">Felhasználó keresése</button>
+        <button id="deleteUserBtn" class="add-btn">Felhasználó törlése</button>
+
+        <div id="searchResultsContainer"></div>
+
+        <!-- EDIT MODAL -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <h3>Felhasználó szerkesztése</h3>
+                <label>ID</label><input type="text" id="editId" readonly>
+                <label>Vezetéknév</label><input type="text" id="editVname">
+                <label>Keresztnév</label><input type="text" id="editKname">
+                <label>Email</label><input type="text" id="editEmail">
+                <label>Szerep</label>
+                <select id="editRole">
+                    <option value="USER">USER</option>
+                    <option value="ADMIN">ADMIN</option>
+                </select>
+                <div class="modal-buttons">
+                    <button class="save-btn" onclick="saveUserChanges()">Mentés</button>
+                    <button class="cancel-btn" onclick="closeEditModal()">Mégse</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DELETE MODAL -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content small">
+                <h3>Biztosan törölni szeretnéd?</h3>
+                <p id="deleteInfo"></p>
+                <div class="modal-buttons">
+                    <button class="delete-btn-modal" onclick="confirmDelete()">Törlés</button>
+                    <button class="cancel-btn" onclick="closeDeleteModal()">Mégse</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="userModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle"></h3>
+
+        <div id="modalFields">
+            <label>Vezetéknév</label><input id="vezeteknev" placeholder="Vezetéknév">
+            <label>Keresztnév</label><input id="keresztnev" placeholder="Keresztnév">
+            <label>Email</label><input id="email" placeholder="E-mail">
+            <label>Szerep</label>
+            <select id="jogosultsag">
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="ADMIN">ELADO</option>
+            </select>
+        </div>
+
+        <div class="modal-buttons">
+            <button id="modalSaveBtn" class="save-btn">OK</button>
+            <button class="cancel-btn" onclick="document.getElementById('userModal').style.display='none'">Mégse</button>
+        </div>
+    </div>
+</div>
+
+    `;
+
+        renderContent(html);
+
+        document.getElementById("addUserBtn").addEventListener("click", () => {
+            showUserModal("add");
         });
-    
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-    
-        const tbody = document.createElement("tbody");
-        
-        // rekordok
-        data.forEach((row, index) => 
-        {
-            const tr = document.createElement("tr");
-            headers.forEach((key) => {
-                const td = document.createElement("td");
-                td.textContent = row[key];                   
-                td.textContent = row[key];                   
-                td.id = `${index + 1}${key}`;                 
-                tr.appendChild(td);
+
+        document.getElementById("searchUserBtn").addEventListener("click", () => {
+            showUserModal("search");
+        });
+
+        document.getElementById("deleteUserBtn").addEventListener("click", () => {
+            showUserModal("delete");
+        });
+
+        document.getElementById("cancelAddUser").addEventListener("click", () => {
+            document.getElementById("addModal").style.display = "none";
+        });
+
+        document.getElementById("saveAddUser").addEventListener("click", async () => {
+            const newUser = {
+                firstname: document.getElementById("addVname").value,
+                lastname: document.getElementById("addKname").value,
+                email: document.getElementById("addEmail").value,
+                role: document.getElementById("addRole").value,
+                enabled: true
+            };
+
+            const res = await fetch("/admin/createUser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newUser)
             });
-            tbody.appendChild(tr);
-        });
-    
-        table.appendChild(tbody);
-        //
-        const contentDiv = document.getElementById("contents");
-        contentDiv.appendChild(table);
-}
 
-//
+            if (!res.ok) return alert("Hiba a felhasználó létrehozásakor!");
+            alert("Felhasználó sikeresen létrehozva!");
+            document.getElementById("addModal").style.display = "none";
+            await showUserManagement();
+        });
+    }
+
+    function showUserModal(mode) {
+        const modal = document.getElementById("userModal");
+        const title = document.getElementById("modalTitle");
+        const saveBtn = document.getElementById("modalSaveBtn");
+
+        modal.style.display = "flex";
+
+        // Minden inputot alaphelyzetbe állítunk
+        document.getElementById("vezeteknev").value = "";
+        document.getElementById("keresztnev").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("jogosultsag").value = "USER";
+
+        // Mezők láthatóság kezelése
+        const fields = document.getElementById("modalFields");
+
+        if (mode === "add") {
+            title.textContent = "Felhasználó hozzáadása";
+            saveBtn.textContent = "Hozzáadás";
+            saveBtn.onclick = addUser;
+            fields.style.display = "block";
+        }
+
+        if (mode === "search") {
+            title.textContent = "Felhasználó keresése";
+            saveBtn.textContent = "Keresés";
+            saveBtn.onclick = searchUser;
+            fields.style.display = "block";
+        }
+
+        if (mode === "delete") {
+            title.textContent = "Felhasználó törlése";
+            saveBtn.textContent = "Törlés";
+            saveBtn.onclick = deleteUser;
+            fields.style.display = "block";
+        }
+    }
+
+    // Hozzáadás
+    async function addUser() {
+        const body = {
+            firstname: document.getElementById("vezeteknev").value,
+            lastname: document.getElementById("keresztnev").value,
+            email: document.getElementById("email").value,
+            role: document.getElementById("jogosultsag").value,
+            enabled: true
+        };
+
+        const response = await fetch("/admin/createUser", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body)
+        });
+
+        if (response.ok) {
+            alert("Felhasználó sikeresen létrehozva!");
+            document.getElementById("userModal").style.display = "none";
+            await showUserManagement();
+        } else {
+            alert("Hiba történt a felhasználó létrehozásakor!");
+        }
+    }
+
+    // Keresés
+    async function searchUser() {
+        const body = {
+            firstname: document.getElementById("vezeteknev").value.trim() || null,
+            lastname: document.getElementById("keresztnev").value.trim() || null,
+            email: document.getElementById("email").value.trim() || null
+        };
+
+        const response = await fetch('/admin/search', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            alert("Hiba történt a keresés során!");
+            return;
+        }
+
+        const results = await response.json();
+        renderSearchResults(results);
+        document.getElementById("userModal").style.display = "none";
+    }
+
+    async function deleteUser() {
+
+        const body = {
+            firstname: document.getElementById("vezeteknev").value.trim(),
+            lastname: document.getElementById("keresztnev").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            role: document.getElementById("jogosultsag").value.trim().toUpperCase()
+
+        };
+
+        const response = await fetch("/admin/deleteUserSearch", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            alert("Hiba: " + text);
+            return;
+        }
+
+        alert("Felhasználó törölve!");
+        closeDeleteModal();
+        await showUserManagement(); // frissítjük a táblázatot
+    }
+
+
+    // Keresési eredmények megjelenítése
+    function renderSearchResults(list) {
+        let html = `
+    <h2>Keresési eredmények</h2>
+    <div class="list-container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vezetéknév</th>
+                <th>Keresztnév</th>
+                <th>Email</th>
+                <th>Jogosultság</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+        list.forEach(u => {
+            html += `
+        <tr>
+            <td>${u.id}</td>
+            <td>${u.Vezetéknév}</td>
+            <td>${u.Keresztnév}</td>
+            <td>${u.Email}</td>
+            <td>${u.Jogosultság}</td>
+        </tr>`;
+        });
+
+        html += `</tbody></table></div>`;
+
+        document.getElementById("searchResultsContainer").innerHTML = html;
+    }
+
+    // EDIT modal
+    function openEditModal(id) {
+        const user = USERS_CACHE.find(u => u.id == id);
+        if (!user) return;
+
+        selectedUserId = id;
+        document.getElementById("editId").value = user.id;
+        document.getElementById("editVname").value = user.Vezetéknév;
+        document.getElementById("editKname").value = user.Keresztnév;
+        document.getElementById("editEmail").value = user.Email;
+        document.getElementById("editRole").value = user.Jogosultság;
+        document.getElementById("editModal").style.display = "flex";
+    }
+    function closeEditModal() { document.getElementById("editModal").style.display = "none"; }
+    async function saveUserChanges() {
+        const updatedUser = {
+            id: document.getElementById("editId").value,
+            firstname: document.getElementById("editVname").value,
+            lastname: document.getElementById("editKname").value,
+            email: document.getElementById("editEmail").value,
+            role: document.getElementById("editRole").value,
+            enabled: true
+        };
+
+        const response = await fetch("/admin/updateUser", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "Authorization": localStorage.getItem("token") ? `Bearer ${localStorage.getItem("token")}` : "" },
+            body: JSON.stringify(updatedUser)
+        });
+
+        if (!response.ok) { alert("Hiba történt a mentés során!"); return; }
+        alert("Sikeres mentés!");
+        closeEditModal();
+        await showUserManagement();
+    }
+
+    // DELETE modal
+    function openDeleteModal(id) {
+        const user = USERS_CACHE.find(u => u.id == id);
+        if (!user) return;
+
+        selectedUserId = id;
+        document.getElementById("deleteInfo").textContent = `ID: ${user.id} • ${user.Vezetéknév} (${user.Keresztnév})`;
+        document.getElementById("deleteModal").style.display = "flex";
+    }
+    function closeDeleteModal() { document.getElementById("deleteModal").style.display = "none"; }
+    async function confirmDelete() {
+        if (!selectedUserId) return;
+        const res = await fetch(`/admin/deleteUser/${selectedUserId}`, { method: "DELETE", headers: { "Authorization": localStorage.getItem("token") ? `Bearer ${localStorage.getItem("token")}` : "" }});
+        if (!res.ok) return alert("Hiba történt a törlés során!");
+        alert("Felhasználó sikeresen törölve!");
+        closeDeleteModal();
+        await showUserManagement();
+    }
+
+
+
 </script>
-</body>    
+</body>
 </html>
