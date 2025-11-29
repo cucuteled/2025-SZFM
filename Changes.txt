@@ -4,6 +4,27 @@ admin@admin.hu admin123
 teszt@teszt.hu teszt123
 
 ---------------------------
+2025.11.29.
+
+Három gomb:
+
+ - Felhasználó hozzáadása
+ - Felhasználó keresése
+ - Felhasználó törlése
+
+ A) Felhasználó hozzáadása
+
+Ezen gomb esetén minden beviteli mező kitöltése kötelező és utána frissül az összesített táblázat,
+illetve csak egyszer lehetséges hozzáadni az e-mailt
+
+B) Felhasználó keresése
+
+Itt elég csak egy mezőt megadni és az alapján már keres is.
+
+C) Felhasználó törlése
+
+Itt is minden mező kitöltése kötelező és, ha minden megegyezik lehetséges a törlés.
+---------------------------
 
 2025.10.03 16:03
 ContactSupport mentés az adatbázisba
