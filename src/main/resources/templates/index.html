@@ -384,6 +384,7 @@
       <h2>${escapeHtml(termek.name)}</h2>
       <p style="color:#ccc;">${escapeHtml(termek.description || "Ehhez a termékhez jelenleg nincs leírás.")}</p>
       <p style="font-size:18px;margin-top:10px;"><strong>${escapeHtml(String(termek.price))} Ft</strong></p>
+      <p style="color:#ccc;">A termék tulajdonosa: <strong style="color: white">${escapeHtml(String(termek.owner))}</strong></p>
     </div>
   `;
 
