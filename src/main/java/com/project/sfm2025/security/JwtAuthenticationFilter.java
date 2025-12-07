@@ -31,11 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        // átengedjük a drag & drop / képfeltöltés végpontokat token nélkül
-        if (request.getRequestURI().startsWith("/api/uploads/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;

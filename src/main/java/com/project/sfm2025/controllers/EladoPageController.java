@@ -92,6 +92,51 @@ public class EladoPageController {
         return ResponseEntity.notFound().build();
     }
 
+    @PostMapping("/delete/{itemId}")
+    public ResponseEntity<?> deleteItem(Authentication auth,
+                                     @PathVariable("itemId") int itemId) {
+        if (auth == null || auth.getName() == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+
+        Food food = foodRepository.findById(itemId)
+                .orElseThrow();
+        if (food != null) foodRepository.delete(food);
+        if (food == null) {
+            Drink drink = drinkRepository.findById(itemId)
+                    .orElseThrow();
+            if (drink != null) drinkRepository.delete(drink);
+            if (drink == null) {
+                Menu menu = menuRepository.findById(itemId)
+                        .orElseThrow();
+                if (menu != null) menuRepository.delete(menu);
+            }
+        }
+
+        return ResponseEntity.ok("!");
+    }
+
+    @PostMapping("/updateStatus/{orderId}/{newStatus}")
+    public ResponseEntity<?> updateStatus(Authentication auth,
+                                          @PathVariable("orderId") Long orderId,
+                                          @PathVariable("newStatus") String newStatus) {
+        if (auth == null || auth.getName() == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+
+        OrderItem od = orderItemRepository.findById(orderId)
+                        .orElseThrow();
+
+        List<OrderItem> ods = orderItemRepository.findAllByOwnerAndOrderTime(od.getOwner(),od.getOrderTime());
+        for (OrderItem o : ods) {
+            o.setStatus(newStatus);
+            orderItemRepository.save(o);
+        }
+
+        return ResponseEntity.ok("Státusz frissítve!");
+    }
+
+
     private final FileService fileService;
 
     @PostMapping("/saveItem")
@@ -101,63 +146,107 @@ public class EladoPageController {
                                       @RequestParam("description") String description,
                                       @RequestParam("type") String type,
                                       @RequestParam("id") Integer id,
-                                      @RequestParam("picture") MultipartFile picture) {
+                                      @RequestParam(value = "picture", required = false) MultipartFile picture) {
         if (auth == null || auth.getName() == null) {
-            return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Not authenticated"));
+            return ResponseEntity.status(401).body("Not authenticated");
         }
 
         String elado = sanitize(auth.getName());
+        itemData item = new itemData(name, price, description, type, id);
+        String itemNameOld = "";
+        String itemNewName = "";
+        boolean DoesItExist = false;
 
-        // Ellenőrzés: létezik-e már tétel ezzel a névvel és típussal
-        boolean exists = false;
-        if (type.equals("Étel") && foodRepository.findByName(name).isPresent()) exists = true;
-        if (type.equals("Ital") && drinkRepository.findByName(name).isPresent()) exists = true;
-        if (type.equals("Menü") && menuRepository.findByName(name).isPresent()) exists = true;
-
-        if (exists && id == -1) {
-            return ResponseEntity
-                    .ok(Map.of("status", "exists", "message", "Már létezik tétel ezzel a névvel"));
-        }
-
-        // Mentés vagy módosítás
-        try {
-            if (type.equals("Étel")) {
-                Food obj = (id != -1) ? foodRepository.findById(id).orElse(new Food()) : new Food();
-                obj.setOwner(elado);
-                obj.setName(name);
-                obj.setPrice(price);
-                obj.setDescription(description);
-                foodRepository.save(obj);
-            } else if (type.equals("Ital")) {
-                Drink obj = (id != -1) ? drinkRepository.findById(id).orElse(new Drink()) : new Drink();
-                obj.setOwner(elado);
-                obj.setName(name);
-                obj.setPrice(price);
-                obj.setDescription(description);
-                drinkRepository.save(obj);
-            } else if (type.equals("Menü")) {
-                Menu obj = (id != -1) ? menuRepository.findById(id).orElse(new Menu()) : new Menu();
-                obj.setOwner(elado);
-                obj.setName(name);
-                obj.setPrice(price);
-                menuRepository.save(obj);
+        // ÉTEL
+        if (item.getType().equals("Étel")) {
+            Food obj = null;
+            if (item.getId() != -1) {
+                obj = foodRepository.findById(item.getId())
+                        .orElse(null);
             }
+            if (obj == null) {
+                obj = new Food();
+                obj.setOwner(elado);
+            } else {
+                itemNameOld = obj.getName();
+                itemNewName = item.getName();
+                DoesItExist = true;
+            }
+            obj.setDescription(item.getDescription());
+            obj.setName(item.getName());
+            obj.setPrice(item.getPrice());
+            foodRepository.save(obj);
+        }
+        // ITAL
+        if (item.getType().equals("Ital")) {
+            Drink obj = null;
+            if (item.getId() != -1) {
+                obj = drinkRepository.findById(item.getId())
+                        .orElse(null);
+            }
+            if (obj == null) {
+                obj = new Drink();
+                obj.setOwner(elado);
+            }else {
+                itemNameOld = obj.getName();
+                itemNewName = item.getName();
+                DoesItExist = true;
+            }
+            obj.setDescription(item.getDescription());
+            obj.setName(item.getName());
+            obj.setPrice(item.getPrice());
+            drinkRepository.save(obj);
+        }
+        // MENÜ
+        if (item.getType().equals("Menü")) {
+            Menu obj = null;
+            if (item.getId() != -1) {
+                obj = menuRepository.findById(item.getId())
+                        .orElse(null);
+            }
+            if (obj == null) {
+                obj = new Menu();
+                obj.setOwner(elado);
+            } else {
+                itemNameOld = obj.getName();
+                itemNewName = item.getName();
+                DoesItExist = true;
+            }
+            obj.setName(item.getName());
+            obj.setPrice(item.getPrice());
+            menuRepository.save(obj);
+        }
 
             // Kép mentése tételnévvel
-            if (picture != null && !picture.isEmpty()) {
+            if (picture != null && !picture.isEmpty() && !DoesItExist) {
                 if (!picture.getContentType().equals("image/jpeg")) {
-                    return ResponseEntity
-                            .ok(Map.of("status", "error", "message", "Csak JPG képet lehet feltölteni"));
+                    return ResponseEntity.ok("exists");
                 }
-                fileService.saveFileWithItemName(picture, name); // <<< Itt a tételnév
+                try {
+                    fileService.saveFileWithItemName(picture, name);
+                } catch (Exception e) {
+                    // semmi
+                }
+
+            }
+            // kép felülmentése
+            if (picture == null && DoesItExist) {
+                fileService.renameFile(itemNameOld, itemNewName);
+                // ha nem akarjuk hogy eltűnjön a korábbi név hivatkozások miatt
+                //fileService.saveFileWithItemName(picture, itemNewName);
+            }
+            if (picture != null && DoesItExist)
+            {
+                try {
+                    //fileService.renameFile(name, "old_" + name);
+                    fileService.saveFileWithItemName(picture, name);
+                } catch (Exception e) {
+                    // semmi
+                }
             }
 
+            return ResponseEntity.ok("Sikeresen mentve!");
 
-            return ResponseEntity.ok(Map.of("status", "ok", "message", "Sikeresen mentve"));
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body(Map.of("status", "error", "message", e.getMessage()));
-        }
     }
 
 

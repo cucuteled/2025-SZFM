@@ -119,6 +119,7 @@
 const params = new URLSearchParams(window.location.search);
 const itemId = params.get("itemId");
 const content = document.getElementById("contents");
+let isTherePicture = false;
 let globalid;
 let selectedFile = null;
 
@@ -142,8 +143,13 @@ async function loadItem() {
         const item = await res.json();
         document.getElementById("itemname").value = item.name;
         document.getElementById("itemprice").value = item.price;
-        document.getElementById("itemdesc").value = item.description || "";
+        if (item.type === "Menü") {
+            document.getElementById("itemdesc").style.display = "none";
+        } else {
+            document.getElementById("itemdesc").value = item.description || "";
+        }
         document.getElementById("itemtype").value = item.type;
+        isTherePicture = true;
         globalid = item.id;
 
         const pic = document.getElementById("itempic");
@@ -169,8 +175,7 @@ function validate() {
         !isNaN(price) &&
         price > 0 &&
         type &&
-        selectedFile !== null &&                // KÉP is ki van választva
-        selectedFile.type === "image/jpeg";    // CSAK JPG
+        isTherePicture;
 
     saveBtn.style.display = valid ? "inline-block" : "none";
 }
@@ -222,6 +227,7 @@ function handleFile(file) {
 
     const img = document.getElementById("itempic");
     img.src = URL.createObjectURL(file);
+    isTherePicture = true;
 
     validate();
 }
@@ -239,11 +245,19 @@ document.getElementById("savebtn").onclick = async () => {
     form.append("type", document.getElementById("itemtype").value);
     form.append("id", globalid ? globalid : -1);
 
-    if (!selectedFile) {
+    if (!isTherePicture) {
         alert("Válassz ki egy JPG képet!");
         return;
+    } else {
+        if (selectedFile != null) {
+            form.append("picture", selectedFile);
+        } else {
+            if (!isTherePicture) {
+            alert("Válassz ki egy JPG képet!");
+            return; }
+        }
     }
-    form.append("picture", selectedFile);
+    
 
     try {
         const res = await fetch("/elado/saveItem", {
@@ -251,12 +265,12 @@ document.getElementById("savebtn").onclick = async () => {
             body: form
         });
 
-        const data = await res.json();
+        const data = await res.text();
 
-        if (data.status === "ok") {
+        if (res.ok) {
             content.innerHTML = `<div class="itemcontent">
                 <p style="color: green;">Sikeres mentés</p></div>`;
-        } else if (data.status === "exists") {
+        } else if (data === "exists") {
             alert("Már létezik tétel ezzel a névvel!");
         } else {
             alert("Hiba történt: " + data.message);

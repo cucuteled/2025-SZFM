@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
@@ -49,7 +50,6 @@ public class FileService {
 
         Path targetPath = uploadDir.resolve(originalName);
 
-        // Ha már létezik → hiba
         if (Files.exists(targetPath)) {
             throw new FileAlreadyExistsException("A fájl már létezik: " + originalName);
         }
@@ -67,9 +67,13 @@ public class FileService {
         String extension = ".jpg";  // csak JPG-t engedünk
         Path targetPath = uploadDir.resolve(itemName + extension);
 
-        // Ha már létezik → hiba
         if (Files.exists(targetPath)) {
-            throw new FileAlreadyExistsException("A fájl már létezik: " + targetPath.getFileName());
+            File epic = new File(targetPath.toUri());
+            try {
+                epic.delete();
+            } catch (Exception e) {
+
+            }
         }
 
         Files.copy(file.getInputStream(), targetPath);
