@@ -17,6 +17,7 @@ Három gomb:
 Ezen gomb esetén minden beviteli mező kitöltése kötelező és utána frissül az összesített táblázat,
 illetve csak egyszer lehetséges hozzáadni az e-mailt
 
+Egy alapértelmezett jelszóval jön létre az új felhasználó: Default123
 B) Felhasználó keresése
 
 Itt elég csak egy mezőt megadni és az alapján már keres is.

@@ -2,6 +2,7 @@ package com.project.sfm2025.controllers;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -36,5 +37,26 @@ public class FileService {
         } else {
             System.out.println("A fájl nem létezik: " + oldPath.toAbsolutePath());
         }
+    }
+
+    public String saveOriginalNameFile(MultipartFile file) throws IOException {
+
+        String originalName = file.getOriginalFilename();
+
+        if (originalName == null || originalName.isBlank()) {
+            throw new IOException("Érvénytelen fájlnév");
+        }
+
+        Path targetPath = uploadDir.resolve(originalName);
+
+        // Ha már létezik → hiba
+        if (Files.exists(targetPath)) {
+            throw new FileAlreadyExistsException("A fájl már létezik: " + originalName);
+        }
+
+        // Menti
+        Files.copy(file.getInputStream(), targetPath);
+
+        return originalName;
     }
 }

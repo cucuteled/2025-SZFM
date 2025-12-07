@@ -10,6 +10,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.lang.management.MemoryNotificationInfo;
@@ -20,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/elado/")
@@ -94,80 +96,68 @@ public class EladoPageController {
 
     @PostMapping("/saveItem")
     public ResponseEntity<?> saveItem(Authentication auth,
-                                      @RequestBody itemData item) {
+                                      @RequestParam("name") String name,
+                                      @RequestParam("price") int price,
+                                      @RequestParam("description") String description,
+                                      @RequestParam("type") String type,
+                                      @RequestParam("id") Integer id,
+                                      @RequestParam("picture") MultipartFile picture) {
         if (auth == null || auth.getName() == null) {
-            return ResponseEntity.status(401).body("Not authenticated");
+            return ResponseEntity.status(401).body(Map.of("status", "error", "message", "Not authenticated"));
         }
 
         String elado = sanitize(auth.getName());
-        String itemNameOld = "";
-        String itemNewName = "";
-        Boolean DoesItExist = false;
 
-        // ÉTEL
-        if (item.getType().equals("Étel")) {
-            Food obj = null;
-            if (item.getId() != -1) {
-                obj = foodRepository.findById(item.getId())
-                        .orElse(null);
-            }
-            if (obj == null) {
-                obj = new Food();
-                obj.setOwner(elado);
-            } else {
-                itemNameOld = obj.getName();
-                itemNewName = item.getName();
-                DoesItExist = true;
-            }
-            obj.setDescription(item.getDescription());
-            obj.setName(item.getName());
-            obj.setPrice(item.getPrice());
-            foodRepository.save(obj);
-        }
-        // ITAL
-        if (item.getType().equals("Ital")) {
-            Drink obj = null;
-            if (item.getId() != -1) {
-                obj = drinkRepository.findById(item.getId())
-                        .orElse(null);
-            }
-            if (obj == null) {
-                obj = new Drink();
-                obj.setOwner(elado);
-            }else {
-                itemNameOld = obj.getName();
-                itemNewName = item.getName();
-                DoesItExist = true;
-            }
-            obj.setDescription(item.getDescription());
-            obj.setName(item.getName());
-            obj.setPrice(item.getPrice());
-            drinkRepository.save(obj);
-        }
-        // MENÜ
-        if (item.getType().equals("Menü")) {
-            Menu obj = null;
-            if (item.getId() != -1) {
-                obj = menuRepository.findById(item.getId())
-                        .orElse(null);
-            }
-            if (obj == null) {
-                obj = new Menu();
-                obj.setOwner(elado);
-            } else {
-                itemNameOld = obj.getName();
-                itemNewName = item.getName();
-                DoesItExist = true;
-            }
-            obj.setName(item.getName());
-            obj.setPrice(item.getPrice());
-            menuRepository.save(obj);
+        // Ellenőrzés: létezik-e már tétel ezzel a névvel és típussal
+        boolean exists = false;
+        if (type.equals("Étel") && foodRepository.findByName(name).isPresent()) exists = true;
+        if (type.equals("Ital") && drinkRepository.findByName(name).isPresent()) exists = true;
+        if (type.equals("Menü") && menuRepository.findByName(name).isPresent()) exists = true;
+
+        if (exists && id == -1) {
+            return ResponseEntity
+                    .ok(Map.of("status", "exists", "message", "Már létezik tétel ezzel a névvel"));
         }
 
-        if (DoesItExist && !itemNameOld.equals(itemNewName)) {
-            fileService.renameFile(itemNameOld, itemNewName);
-        }
+        // Mentés vagy módosítás
+        try {
+            if (type.equals("Étel")) {
+                Food obj = (id != -1) ? foodRepository.findById(id).orElse(new Food()) : new Food();
+                obj.setOwner(elado);
+                obj.setName(name);
+                obj.setPrice(price);
+                obj.setDescription(description);
+                foodRepository.save(obj);
+            } else if (type.equals("Ital")) {
+                Drink obj = (id != -1) ? drinkRepository.findById(id).orElse(new Drink()) : new Drink();
+                obj.setOwner(elado);
+                obj.setName(name);
+                obj.setPrice(price);
+                obj.setDescription(description);
+                drinkRepository.save(obj);
+            } else if (type.equals("Menü")) {
+                Menu obj = (id != -1) ? menuRepository.findById(id).orElse(new Menu()) : new Menu();
+                obj.setOwner(elado);
+                obj.setName(name);
+                obj.setPrice(price);
+                menuRepository.save(obj);
+            }
 
-        return ResponseEntity.ok("Sikeresen mentve!");
+            // Kép mentése
+            if (picture != null && !picture.isEmpty()) {
+                if (!picture.getContentType().equals("image/jpeg")) {
+                    return ResponseEntity
+                            .ok(Map.of("status", "error", "message", "Csak JPG képet lehet feltölteni"));
+                }
+                fileService.saveOriginalNameFile(picture); // vagy a megfelelő mentő függvényed
+            }
+
+            return ResponseEntity.ok(Map.of("status", "ok", "message", "Sikeresen mentve"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("status", "error", "message", e.getMessage()));
+        }
     }
+
+
 }
