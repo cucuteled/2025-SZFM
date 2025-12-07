@@ -59,4 +59,20 @@ public class FileService {
 
         return originalName;
     }
+
+    public void saveFileWithItemName(MultipartFile file, String itemName) throws IOException {
+        if (file == null || file.isEmpty()) throw new IOException("Üres fájl");
+
+        // Kiterjesztés
+        String extension = ".jpg";  // csak JPG-t engedünk
+        Path targetPath = uploadDir.resolve(itemName + extension);
+
+        // Ha már létezik → hiba
+        if (Files.exists(targetPath)) {
+            throw new FileAlreadyExistsException("A fájl már létezik: " + targetPath.getFileName());
+        }
+
+        Files.copy(file.getInputStream(), targetPath);
+    }
+
 }

@@ -143,14 +143,15 @@ public class EladoPageController {
                 menuRepository.save(obj);
             }
 
-            // Kép mentése
+            // Kép mentése tételnévvel
             if (picture != null && !picture.isEmpty()) {
                 if (!picture.getContentType().equals("image/jpeg")) {
                     return ResponseEntity
                             .ok(Map.of("status", "error", "message", "Csak JPG képet lehet feltölteni"));
                 }
-                fileService.saveOriginalNameFile(picture); // vagy a megfelelő mentő függvényed
+                fileService.saveFileWithItemName(picture, name); // <<< Itt a tételnév
             }
+
 
             return ResponseEntity.ok(Map.of("status", "ok", "message", "Sikeresen mentve"));
         } catch (Exception e) {
