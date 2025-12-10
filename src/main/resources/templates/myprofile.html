@@ -264,6 +264,10 @@ async function listmyorders() {
             }
             
             header.innerHTML += `<p style="color: rgb(200,200,200); size: 10px;">Fizetési mód: ${firstItem.paymentmethod}</p>`;
+            if (firstItem && firstItem.status != "") {
+                if (firstItem.status == "canceled") header.innerHTML += `<p style="color: rgba(100,20,20,0.8); size: 10px;">Elutasítva</p>`;
+                if (firstItem.status == "shipped") header.innerHTML += `<p style="color: rgba(20,100,20,0.8); size: 10px;">Teljesítve</p>`;
+            }
             
             card.appendChild(header);
             card.appendChild(document.createElement("hr"));

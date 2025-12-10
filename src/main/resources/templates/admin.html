@@ -147,6 +147,7 @@
                 <select id="editRole">
                     <option value="USER">USER</option>
                     <option value="ADMIN">ADMIN</option>
+                    <option value="ELADO">ELADO</option>
                 </select>
                 <div class="modal-buttons">
                     <button class="save-btn" onclick="saveUserChanges()">Mentés</button>
@@ -179,7 +180,7 @@
             <select id="jogosultsag">
                 <option value="USER">USER</option>
                 <option value="ADMIN">ADMIN</option>
-                <option value="ADMIN">ELADO</option>
+                <option value="ELADO">ELADO</option>
             </select>
         </div>
 
@@ -270,16 +271,44 @@
         }
     }
 
+    function validateRequired(id) {
+        const el = document.getElementById(id);
+        if (el.value.trim() === "") {
+            el.style.border = "2px solid red";
+            return false;
+        }
+        el.style.border = "";
+        return true;
+    }
+
     // Hozzáadás
     async function addUser() {
         const body = {
-            firstname: document.getElementById("vezeteknev").value,
-            lastname: document.getElementById("keresztnev").value,
-            email: document.getElementById("email").value,
+            firstname: document.getElementById("vezeteknev").value.trim(),
+            lastname: document.getElementById("keresztnev").value.trim(),
+            email: document.getElementById("email").value.trim(),
             role: document.getElementById("jogosultsag").value,
             enabled: true
         };
 
+        // kötelező mezők ellenőrzése
+        if (!validateRequired("vezeteknev") ||
+            !validateRequired("keresztnev") ||
+            !validateRequired("email")) {
+            alert("Minden mező kötelező!");
+            return;
+        }
+
+        // 1) Email ellenőrzés
+        const check = await fetch(`/admin/existsByEmail?email=${encodeURIComponent(body.email)}`);
+        const exists = await check.text();
+
+        if (exists === "true") {
+            alert("Ez az e-mail cím már létezik!");
+            return;
+        }
+
+        // 2) User létrehozása
         const response = await fetch("/admin/createUser", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -291,9 +320,12 @@
             document.getElementById("userModal").style.display = "none";
             await showUserManagement();
         } else {
-            alert("Hiba történt a felhasználó létrehozásakor!");
+            const errorText = await response.text();
+            alert("Hiba: " + errorText);
         }
     }
+
+
 
     // Keresés
     async function searchUser() {
@@ -329,23 +361,33 @@
 
         };
 
-        const response = await fetch("/admin/deleteUserSearch", {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-        });
-
-        if (!response.ok) {
-            const text = await response.text();
-            alert("Hiba: " + text);
+        if (!validateRequired("vezeteknev") ||
+            !validateRequired("keresztnev") ||
+            !validateRequired("email")) {
+            alert("Minden mező kötelező!");
             return;
+        }else
+        {
+            const response = await fetch("/admin/deleteUserSearch", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                alert("Hiba: " + text);
+                return;
+            }
+
+            alert("Felhasználó törölve!");
+            closeDeleteModal();
+            await showUserManagement();
         }
 
-        alert("Felhasználó törölve!");
-        closeDeleteModal();
-        await showUserManagement(); // frissítjük a táblázatot
+
     }
 
 

@@ -50,11 +50,21 @@
 <div class="itemcontent">
     
     <!-- KÉP -->
-<div style="display:flex; justify-content:center; margin-bottom:20px;">
-    <div style="width:150px; height:150px; overflow:hidden; border-radius:15px; border:2px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center;">
-        <img onerror="this.onerror=null; this.src='/pictures/upload.png';" id="itempic" src="/pictures/upload.png" style="min-width:100%; min-height:100%; object-fit:cover;">
+    <div style="display:flex; justify-content:center; margin-bottom:20px;">
+        <div id="dropzone"
+             style="width:150px; height:150px; overflow:hidden; border-radius:15px;
+     border:2px dashed rgba(255,255,255,0.6); display:flex; align-items:center;
+     justify-content:center; cursor:pointer; transition:0.2s;">
+
+            <img id="itempic"
+                 src="/pictures/upload.png"
+                 style="width:100%; height:100%; object-fit:cover;">
+        </div>
+
+        <input type="file" id="fileinput" accept="image/jpeg" style="display:none;">
+
     </div>
-</div>
+
 
 
 
@@ -109,24 +119,28 @@
 const params = new URLSearchParams(window.location.search);
 const itemId = params.get("itemId");
 const content = document.getElementById("contents");
+let isTherePicture = false;
 let globalid;
+let selectedFile = null;
 
+// ----------------------------
+// BETÖLTÉS
+// ----------------------------
 loadItem();
 async function loadItem() {
     const focim = document.getElementById("focim");
     if (!itemId) {
-        // új tétel, ne töltsön semmit
-        focim.textContent = "Új tétel rögzítése"
+        focim.textContent = "Új tétel rögzítése";
         return;
     }
-    focim.textContent = "Tétel módosítása"
+
+    focim.textContent = "Tétel módosítása";
 
     try {
         const res = await fetch(`/elado/${itemId}`);
         if (!res.ok) throw new Error("Tétel nem található");
-        
+
         const item = await res.json();
-        console.log(item);
         document.getElementById("itemname").value = item.name;
         document.getElementById("itemprice").value = item.price;
         if (item.type === "Menü") {
@@ -135,82 +149,142 @@ async function loadItem() {
             document.getElementById("itemdesc").value = item.description || "";
         }
         document.getElementById("itemtype").value = item.type;
+        isTherePicture = true;
         globalid = item.id;
-        
-        
+
         const pic = document.getElementById("itempic");
         pic.src = `/uploads/${encodeURIComponent(item.name)}.jpg`;
-        
-        pic.onerror = () => {
-            pic.onerror = null;
-            pic.src = `/pictures/upload.png`;
-        };
-
     } catch (err) {
         content.innerHTML = err;
     }
 }
 
+// ----------------------------
+// VALIDÁLÁS
+// ----------------------------
 function validate() {
     const name = document.getElementById("itemname").value.trim();
     const price = Number(document.getElementById("itemprice").value);
-    const description = document.getElementById("itemdesc").value.trim();
+    const desc = document.getElementById("itemdesc").value.trim();
     const type = document.getElementById("itemtype").value;
-    const img = document.getElementById("itempic").getAttribute("src");
-    
-    if (type === "Menü") {
-        document.getElementById("itemdesc").style.display = "none";
-    } else {
-        document.getElementById("itemdesc").style.display = "block";
-    }
 
-    // ellenőrzés
-    const isValid = name && !isNaN(price) && price > 0 && type && img && !img.includes("upload.png");
-
-    // Mentés gomb megjelenítése
     const saveBtn = document.getElementById("savebtn");
-    saveBtn.style.display = isValid ? "inline-block" : "none";
+
+    const valid =
+        name &&
+        !isNaN(price) &&
+        price > 0 &&
+        type &&
+        isTherePicture;
+
+    saveBtn.style.display = valid ? "inline-block" : "none";
 }
 
-// Eseménykezelők hozzáadása minden mezőhöz
-document.getElementById("itemname").addEventListener("input", validate);
-document.getElementById("itemprice").addEventListener("input", validate);
-document.getElementById("itemdesc").addEventListener("input", validate);
-document.getElementById("itemtype").addEventListener("change", validate);
-// kép
-document.getElementById("itempic").addEventListener("load", validate);
+// mezők figyelése
+["itemname", "itemprice", "itemdesc", "itemtype"].forEach(id => {
+    document.getElementById(id).addEventListener("input", validate);
+});
 
-// Kezdeti ellenőrzés
-validate();
+// ----------------------------
+// DROPZONE + FILE INPUT
+// ----------------------------
+const dropzone = document.getElementById("dropzone");
+const fileinput = document.getElementById("fileinput");
 
+dropzone.onclick = () => fileinput.click();
 
+fileinput.addEventListener("change", () => handleFile(fileinput.files[0]));
+
+dropzone.addEventListener("dragover", e => {
+    e.preventDefault();
+    dropzone.style.borderColor = "yellow";
+});
+
+dropzone.addEventListener("dragleave", () => {
+    dropzone.style.borderColor = "rgba(255,255,255,0.6)";
+});
+
+dropzone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropzone.style.borderColor = "rgba(255,255,255,0.6)";
+    if (e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+    }
+});
+
+// ----------------------------
+// FÁJL KEZELŐ (JPG ONLY + PREVIEW)
+// ----------------------------
+function handleFile(file) {
+    if (!file) return;
+
+    if (file.type !== "image/jpeg") {
+        alert("Csak JPG képet tölthetsz fel!");
+        return;
+    }
+
+    selectedFile = file;
+
+    const img = document.getElementById("itempic");
+    img.src = URL.createObjectURL(file);
+    isTherePicture = true;
+
+    validate();
+}
+
+// ----------------------------
+// MENTÉS (ADAT + KÉP EGYÜTT)
+// ----------------------------
 document.getElementById("savebtn").onclick = async () => {
-    const thisID = globalid ? globalid : -1;
-    const payload = {
-        name: document.getElementById("itemname").value,
-        price: Number(document.getElementById("itemprice").value),
-        description: document.getElementById("itemdesc").value,
-        type: document.getElementById("itemtype").value,
-        id: thisID
-    }; // todo: VISSZA KÜLDENI A KÉPET IS mentésre
-    
-    console.log(payload);
 
-    const res = await fetch(`/elado/saveItem`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    });
+    const form = new FormData();
 
-    if (res.ok) {
-        content.innerHTML = `<div class="itemcontent"><p style="color: green;">Sikeres mentés</p></div>`;
+    form.append("name", document.getElementById("itemname").value);
+    form.append("price", document.getElementById("itemprice").value);
+    form.append("description", document.getElementById("itemdesc").value);
+    form.append("type", document.getElementById("itemtype").value);
+    form.append("id", globalid ? globalid : -1);
+
+    if (!isTherePicture) {
+        alert("Válassz ki egy JPG képet!");
+        return;
     } else {
-        console.log("Hiba");
+        if (selectedFile != null) {
+            form.append("picture", selectedFile);
+        } else {
+            if (!isTherePicture) {
+            alert("Válassz ki egy JPG képet!");
+            return; }
+        }
+    }
+    
+
+    try {
+        const res = await fetch("/elado/saveItem", {
+            method: "POST",
+            body: form
+        });
+
+        const data = await res.text();
+
+        if (res.ok) {
+            content.innerHTML = `<div class="itemcontent">
+                <p style="color: green;">Sikeres mentés</p></div>`;
+        } else if (data === "exists") {
+            alert("Már létezik tétel ezzel a névvel!");
+        } else {
+            alert("Hiba történt: " + data.message);
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Hiba történt a mentés során!");
     }
 };
 
 
-/// ------------------------------------ VÉGE
+
+
 </script>
 </body>
 </html>

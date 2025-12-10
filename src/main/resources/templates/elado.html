@@ -87,6 +87,15 @@
           background-color: darkgreen;
           transform: scale(1.05);
         }
+        
+        .card-button.delete {
+          background-color: rgb(255,50,50);
+        }
+        
+        .card-button.delete:hover {
+          background-color: rgb(200,25,25);
+          transform: scale(1.05);
+        }
 
     </style>
 </head>
@@ -181,16 +190,54 @@ async function myitems() {
             modifyBtn.onclick = () => {
                 window.open(`/elado/itempanel?itemId=${encodeURIComponent(item.name)}`, '_blank');
             };
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Törlés";
+            deleteBtn.className = "card-button delete";
+            deleteBtn.onclick = () => {
+                    const confirmed = confirm(`Biztos törölni szeretnéd a(z) ${item.name} tételt?`);
+                    if (!confirmed) return;
+                    deleteitem(item.id);
+            };
 
             card.appendChild(pic);
             card.appendChild(textDiv);
             card.appendChild(modifyBtn);
+            card.appendChild(deleteBtn);
 
             contents.appendChild(card);
         });
     } catch (err) {
         contents.innerHTML = "<p>Hiba történt a lekérés közben.</p>";
         console.error(err);
+    }
+}
+
+async function deleteitem(ditemid) {
+    try {
+        const res = await fetch(`/elado/delete/${ditemid}`, {
+            method: "POST",
+            credentials: "same-origin"
+        });
+
+        if (!res.ok) throw new Error("Törlés sikertelen");
+        myitems();
+    } catch (e) {
+    }
+}
+
+async function updateStatus(orderId, newStatus) {
+    const confirmed = confirm(`Biztos frissíteni szeretnéd a rendelés státuszát?`);
+    if (!confirmed) return;
+
+    try {
+        const res = await fetch(`/elado/updateStatus/${orderId}/${newStatus}`, {
+            method: "POST",
+            credentials: "same-origin"
+        });
+
+        if (!res.ok) throw new Error("Frissítés sikertelen");
+
+    } catch (e) {
     }
 }
 
@@ -252,23 +299,26 @@ async function getOrders() {
             right.style.display = "flex";
             right.style.flexDirection = "column";
             right.style.alignItems = "flex-end";
-
-            if (!first.Status || first.Status === "") {
+            if (!first.status || first.status === "") {
                 const done = document.createElement("button");
                 done.textContent = "Teljesítve";
                 done.className = "card-button";
-                done.onclick = () => console.log("Teljesítve:", first.id);
+                done.onclick = () => {
+                     updateStatus(first.id, "shipped");
+                }
 
                 const cancel = document.createElement("button");
                 cancel.textContent = "Elutasít";
                 cancel.className = "card-button cancel";
-                cancel.onclick = () => console.log("Elutasítva:", first.id);
+                cancel.onclick = () => {
+                    updateStatus(first.id, "canceled");
+                }
 
                 right.appendChild(done);
                 right.appendChild(cancel);
             } else {
                 const s = document.createElement("p");
-                s.textContent = `Állapot: ${first.Status}`;
+                s.textContent = `Állapot: ${first.status}`;
                 right.appendChild(s);
             }
 

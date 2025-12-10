@@ -10,6 +10,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.lang.management.MemoryNotificationInfo;
@@ -20,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/elado/")
@@ -90,19 +92,70 @@ public class EladoPageController {
         return ResponseEntity.notFound().build();
     }
 
+    @PostMapping("/delete/{itemId}")
+    public ResponseEntity<?> deleteItem(Authentication auth,
+                                     @PathVariable("itemId") int itemId) {
+        if (auth == null || auth.getName() == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+
+        Food food = foodRepository.findById(itemId)
+                .orElseThrow();
+        if (food != null) foodRepository.delete(food);
+        if (food == null) {
+            Drink drink = drinkRepository.findById(itemId)
+                    .orElseThrow();
+            if (drink != null) drinkRepository.delete(drink);
+            if (drink == null) {
+                Menu menu = menuRepository.findById(itemId)
+                        .orElseThrow();
+                if (menu != null) menuRepository.delete(menu);
+            }
+        }
+
+        return ResponseEntity.ok("!");
+    }
+
+    @PostMapping("/updateStatus/{orderId}/{newStatus}")
+    public ResponseEntity<?> updateStatus(Authentication auth,
+                                          @PathVariable("orderId") Long orderId,
+                                          @PathVariable("newStatus") String newStatus) {
+        if (auth == null || auth.getName() == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+
+        OrderItem od = orderItemRepository.findById(orderId)
+                        .orElseThrow();
+
+        List<OrderItem> ods = orderItemRepository.findAllByOwnerAndOrderTime(od.getOwner(),od.getOrderTime());
+        for (OrderItem o : ods) {
+            o.setStatus(newStatus);
+            orderItemRepository.save(o);
+        }
+
+        return ResponseEntity.ok("Státusz frissítve!");
+    }
+
+
     private final FileService fileService;
 
     @PostMapping("/saveItem")
     public ResponseEntity<?> saveItem(Authentication auth,
-                                      @RequestBody itemData item) {
+                                      @RequestParam("name") String name,
+                                      @RequestParam("price") int price,
+                                      @RequestParam("description") String description,
+                                      @RequestParam("type") String type,
+                                      @RequestParam("id") Integer id,
+                                      @RequestParam(value = "picture", required = false) MultipartFile picture) {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(401).body("Not authenticated");
         }
 
         String elado = sanitize(auth.getName());
+        itemData item = new itemData(name, price, description, type, id);
         String itemNameOld = "";
         String itemNewName = "";
-        Boolean DoesItExist = false;
+        boolean DoesItExist = false;
 
         // ÉTEL
         if (item.getType().equals("Étel")) {
@@ -164,10 +217,37 @@ public class EladoPageController {
             menuRepository.save(obj);
         }
 
-        if (DoesItExist && !itemNameOld.equals(itemNewName)) {
-            fileService.renameFile(itemNameOld, itemNewName);
-        }
+            // Kép mentése tételnévvel
+            if (picture != null && !picture.isEmpty() && !DoesItExist) {
+                if (!picture.getContentType().equals("image/jpeg")) {
+                    return ResponseEntity.ok("exists");
+                }
+                try {
+                    fileService.saveFileWithItemName(picture, name);
+                } catch (Exception e) {
+                    // semmi
+                }
 
-        return ResponseEntity.ok("Sikeresen mentve!");
+            }
+            // kép felülmentése
+            if (picture == null && DoesItExist) {
+                fileService.renameFile(itemNameOld, itemNewName);
+                // ha nem akarjuk hogy eltűnjön a korábbi név hivatkozások miatt
+                //fileService.saveFileWithItemName(picture, itemNewName);
+            }
+            if (picture != null && DoesItExist)
+            {
+                try {
+                    //fileService.renameFile(name, "old_" + name);
+                    fileService.saveFileWithItemName(picture, name);
+                } catch (Exception e) {
+                    // semmi
+                }
+            }
+
+            return ResponseEntity.ok("Sikeresen mentve!");
+
     }
+
+
 }

@@ -128,19 +128,47 @@ public class AdminPageController {
     @PostMapping("/createUser")
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest req) {
 
+        // 1. Kötelező mezők ellenőrzése
+        if (req.getFirstname() == null || req.getFirstname().isBlank() ||
+                req.getLastname() == null || req.getLastname().isBlank() ||
+                req.getEmail() == null || req.getEmail().isBlank() ||
+                req.getRole() == null || req.getRole().isBlank()) {
+
+            return ResponseEntity
+                    .status(400)
+                    .body("All fields are required");
+        }
+
+        // 2. Duplikált e-mail ellenőrzés
+        if (userRepository.existsByEmail(req.getEmail())) {
+            return ResponseEntity
+                    .status(409)           // 409 = Conflict
+                    .body("Email already exists");
+        }
+
+        // 3. User létrehozása
         var user = new com.project.sfm2025.entities.User();
 
         user.setFirstname(req.getFirstname());
         user.setLastname(req.getLastname());
         user.setEmail(req.getEmail());
-        user.setRole(Role.valueOf(req.getRole()));
 
-        // default jelszó
+        try {
+            user.setRole(Role.valueOf(req.getRole().toUpperCase()));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Invalid role");
+        }
+
+        // 4. Default jelszó beállítása
         user.setPassword(passwordEncoder.encode("Default123"));
 
+        // 5. Mentés
         userRepository.save(user);
 
         return ResponseEntity.ok("User created successfully");
     }
+
+
+
 
 }

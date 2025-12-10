@@ -210,13 +210,14 @@ public class CartController {
         }
         couponRepository.saveAll(usedcoupons);
 
+        LocalDateTime timenow = LocalDateTime.now();
         for (CartItem ci : cartItems) {
             OrderItem oi = new OrderItem();
             oi.setOwner(username);
             oi.setProductId(ci.getProductId());
             oi.setName(ci.getName());
             oi.setPrice(ci.getPrice());
-            oi.setOrderTime(LocalDateTime.now());
+            oi.setOrderTime(timenow);
             oi.setQuantity(ci.getQuantity());
 
             if ("etel".equalsIgnoreCase(ci.getType())) {
