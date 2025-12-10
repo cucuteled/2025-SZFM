@@ -37,6 +37,19 @@
         .btn.primary { background: #4CAF50; color: #fff; }
         .btn.disabled { opacity: 0.6; cursor: not-allowed; }
         .center-text { text-align: center; }
+        
+        @media (max-width: 720px) {
+    .sidebar { position: fixed; top: 0; left: 0; width: 100%; height: auto; padding: 10px 0; border-radius: 0; display: flex; justify-content: space-around; flex-wrap: wrap; z-index: 1000; }
+    .sidebar button { width: auto; margin: 5px; }
+    .title { display: none; }
+    .vissza-btn{position:absolute;margin-top:190%;left:15%;width:80%;max-width:300px;height:20px;text-align:center;padding:0;font-size:12px;}
+    .profileContainer {width:80%;}
+    .screencontent {padding-top: 0px; max-width: 90%; box-sizing: border-box; }
+    .modal { width: 90%; padding: 15px; }
+    .modal .controls { flex-direction: column; gap: 8px; align-items: stretch; }
+    .btn { width: 100%; text-align: center; padding: 10px; }
+}
+
     </style>
 </head>
 <body onload="load()">
