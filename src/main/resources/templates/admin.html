@@ -60,6 +60,31 @@
         .cancel-btn { background: gray; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; color: white; }
         .delete-btn-modal { background: #d03030; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; color: white; }
         .delete-btn-modal:hover { background: #ff4444; }
+
+        /*---------------------------------*/
+        .statistics-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px; // távolság a diagramok között
+        padding: 20px;
+            align-items: center;
+
+        }
+
+        .chart-box {
+            width: 70%;
+            height: 400px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+        }
+
+        .chart-box canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
     </style>
 </head>
 <body>
@@ -79,6 +104,7 @@
     let selectedUserId = null;
 
     document.getElementById("profileBtn").addEventListener("click", () => { showUserManagement(); });
+    document.getElementById("statBtn").addEventListener("click", () => { showUserStat(); });
 
     // Általános tartalom render
     function renderContent(html) {
@@ -480,6 +506,342 @@
     }
 
 
+
+</script>
+
+<!-- Chart.js betöltése -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let usersRoleChart = null;
+    let menuFoodDrinkChart = null;
+
+    async function showUserStat() {
+        let html = `
+    <div class="statistics-container">
+        <div class="chart-box"><canvas id="usersRoleChart"></canvas></div>
+        <div class="chart-box"><canvas id="menuFoodDrinkChart"></canvas></div>
+        <div class="chart-box"><canvas id="top5FoodsChart"></canvas></div>
+        <div class="chart-box"><canvas id="top5DrinksChart"></canvas></div>
+        <div class="chart-box"><canvas id="top5MenusChart"></canvas></div>
+    </div>
+    `;
+        renderContent(html);
+
+        loadUsersByRoleChart();
+        loadMenuFoodDrinkChart();
+        showTop5Charts();
+    }
+    function prepareCanvasForHiDPI(canvas) {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+
+    function loadUsersByRoleChart() {
+        fetch('/admin/usersByRole')
+            .then(res => res.json())
+            .then(data => {
+
+                const canvas = document.getElementById('usersRoleChart');
+
+                // Előző chart megsemmisítése
+                if (usersRoleChart) {
+                    usersRoleChart.destroy();
+                    usersRoleChart = null;
+                }
+
+                // HiDPI fix (homályosság megszüntetése + pontos tooltip)
+                prepareCanvasForHiDPI(canvas);
+
+                const ctx = canvas.getContext('2d');
+
+                usersRoleChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            label: 'Felhasználók száma szerepkörönként',
+                            data: Object.values(data),
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(255, 206, 86, 0.6)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Felhasználók szerepkör szerint',
+                                font: { size: 22 }   // nagyobb cím
+                            },
+                            tooltip: {
+                                mode: 'nearest',
+                                intersect: true,
+                                callbacks: {
+                                    title: (items) => items[0].label,
+                                    label: (item) => `${item.raw} db`
+                                }
+                            }
+                        },
+
+                        scales: {
+                            x: { ticks: { font: { size: 14 } } },
+                            y: { beginAtZero: true, ticks: { font: { size: 14 } } }
+                        }
+                    }
+                });
+            });
+    }
+
+    function loadMenuFoodDrinkChart() {
+        fetch('/admin/menuFoodDrinkCount')
+            .then(res => res.json())
+            .then(data => {
+
+                const canvas = document.getElementById('menuFoodDrinkChart');
+
+                if (menuFoodDrinkChart) {
+                    menuFoodDrinkChart.destroy();
+                    menuFoodDrinkChart = null;
+                }
+
+                prepareCanvasForHiDPI(canvas);
+
+                const ctx = canvas.getContext('2d');
+
+                menuFoodDrinkChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            label: 'Darabszám',
+                            data: Object.values(data),
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Menük, ételek, italok száma',
+                                font: { size: 22 }   // nagyobb cím
+                            },
+                            tooltip: {
+                                mode: 'nearest',
+                                intersect: true,
+                                callbacks: {
+                                    title: (items) => items[0].label,
+                                    label: (item) => `${item.raw} db`
+                                }
+                            }
+                        },
+
+                        scales: {
+                            x: { ticks: { font: { size: 14 } } },
+                            y: { beginAtZero: true, ticks: { font: { size: 14 } } }
+                        }
+                    }
+                });
+            });
+    }
+
+    let foodChart = null;
+    let drinkChart = null;
+    let menuChart = null;
+
+    function showTop5Charts() {
+        loadTop5Foods();
+        loadTop5Drinks();
+        loadTop5Menus();
+    }
+
+    function loadTop5Foods() {
+        fetch('/admin/top5Foods')
+            .then(r => r.json())
+            .then(data => {
+
+                const canvas = document.getElementById('top5FoodsChart');
+
+                if (foodChart) {
+                    foodChart.destroy();
+                    foodChart = null;
+                }
+
+                prepareCanvasForHiDPI(canvas);
+                const ctx = canvas.getContext('2d');
+
+                foodChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(x => x.name),
+                        datasets: [{
+                            label: 'TOP 5 Ételek (db)',
+                            data: data.map(x => x.count),
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'TOP 5 Ételek',
+                                font: { size: 22 }
+                            },
+                            tooltip: {
+                                mode: 'nearest',
+                                intersect: true,
+                                callbacks: {
+                                    title: (items) => items[0].label,
+                                    label: (item) => `${item.raw} db`
+                                }
+                            }
+                        },
+
+                        scales: {
+                            x: { ticks: { font: { size: 14 } } },
+                            y: { beginAtZero: true, ticks: { font: { size: 14 } } }
+                        }
+                    }
+                });
+            });
+    }
+
+
+    function loadTop5Drinks() {
+        fetch('/admin/top5Drinks')
+            .then(r => r.json())
+            .then(data => {
+
+                const canvas = document.getElementById('top5DrinksChart');
+
+                if (drinkChart) {
+                    drinkChart.destroy();
+                    drinkChart = null;
+                }
+
+                prepareCanvasForHiDPI(canvas);
+                const ctx = canvas.getContext('2d');
+
+                drinkChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(x => x.name),
+                        datasets: [{
+                            label: 'TOP 5 Italok (db)',
+                            data: data.map(x => x.count),
+                            backgroundColor: 'rgba(255, 206, 86, 0.6)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'TOP 5 Italok',
+                                font: { size: 22 }
+                            },
+                            tooltip: {
+                                mode: 'nearest',
+                                intersect: true,
+                                callbacks: {
+                                    title: (items) => items[0].label,
+                                    label: (item) => `${item.raw} db`
+                                }
+                            }
+                        },
+
+                        scales: {
+                            x: { ticks: { font: { size: 14 } } },
+                            y: { beginAtZero: true, ticks: { font: { size: 14 } } }
+                        }
+                    }
+                });
+            });
+    }
+
+
+    function loadTop5Menus() {
+        fetch('/admin/top5Menus')
+            .then(r => r.json())
+            .then(data => {
+
+                const canvas = document.getElementById('top5MenusChart');
+
+                if (menuChart) {
+                    menuChart.destroy();
+                    menuChart = null;
+                }
+
+                prepareCanvasForHiDPI(canvas);
+                const ctx = canvas.getContext('2d');
+
+                menuChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(x => x.name),
+                        datasets: [{
+                            label: 'TOP 5 Menük (db)',
+                            data: data.map(x => x.count),
+                            backgroundColor: 'rgba(153, 102, 255, 0.6)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'TOP 5 Menük',
+                                font: { size: 22 }
+                            },
+                            tooltip: {
+                                mode: 'nearest',
+                                intersect: true,
+                                callbacks: {
+                                    title: (items) => items[0].label,
+                                    label: (item) => `${item.raw} db`
+                                }
+                            }
+                        },
+
+                        scales: {
+                            x: { ticks: { font: { size: 14 } } },
+                            y: { beginAtZero: true, ticks: { font: { size: 14 } } }
+                        }
+                    }
+                });
+            });
+    }
 
 </script>
 </body>
