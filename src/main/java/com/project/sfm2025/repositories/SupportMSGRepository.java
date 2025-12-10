@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface SupportMSGRepository extends JpaRepository<SupportMSG, Integer>{
+public interface SupportMSGRepository extends JpaRepository<SupportMSG, Long>{
     List<SupportMSG> findAllByFelado(String felado);
 }

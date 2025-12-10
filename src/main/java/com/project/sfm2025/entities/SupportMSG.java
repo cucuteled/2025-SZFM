@@ -12,13 +12,18 @@ public class SupportMSG {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    public Long getId() {
+    private String uzenet;
+    private LocalDateTime ido;
+    private String status;
+    private String subject;
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -33,8 +38,13 @@ public class SupportMSG {
         this.feladonev = feladonev;
     }
 
-    private String uzenet;
-    private LocalDateTime ido;
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getSubject() { return subject; }
+    public void setSubject(String subject) { this.subject = subject; }
+
 
     public String getFelado() {
         return felado;

@@ -681,6 +681,8 @@
     <form id="contactForm">
       <label for="name">Név:</label><br>
       <input type="text" id="name" required><br><br>
+       <label for="subject">Tárgy:</label><br>
+       <input type="text" id="subject" required><br><br>
 
       <label for="email">E-mail:</label><br>
       <input type="email" id="email" required><br><br>
@@ -735,7 +737,8 @@
             const data = {
                 name: document.getElementById("name").value,
                 email: document.getElementById("email").value,
-                message: document.getElementById("message").value
+                message: document.getElementById("message").value,
+                subject: document.getElementById("subject").value
             };
 
             try {
@@ -745,10 +748,17 @@
                     body: JSON.stringify(data)
                 });
 
-                const text = await res.text();
-                document.getElementById("contactResponse").innerText = res.ok
-                    ? "Üzenet sikeresen elküldve!"
-                    : "Hiba: " + text;
+                const text = await res.json();
+                if (res.ok && text.status === "success") {
+                    alert("Sikeres üzenet küldés!");
+                    document.getElementById("name").value = "";
+                    document.getElementById("email").value = "";
+                    document.getElementById("message").value = "";
+                    document.getElementById("subject").value = "";
+
+                } else {
+                    alert("Sikertelen üzenet küldés!")
+                }
 
             } catch (err) {
                 document.getElementById("contactResponse").innerText = "Hálózati hiba: " + err.message;
