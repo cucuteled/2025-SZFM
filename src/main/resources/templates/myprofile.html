@@ -37,7 +37,7 @@
         .btn.primary { background: #4CAF50; color: #fff; }
         .btn.disabled { opacity: 0.6; cursor: not-allowed; }
         .center-text { text-align: center; }
-        
+
         @media (max-width: 720px) {
     .sidebar { position: fixed; top: 0; left: 0; width: 100%; height: auto; padding: 10px 0; border-radius: 0; display: flex; justify-content: space-around; flex-wrap: wrap; z-index: 1000; }
     .sidebar button { width: auto; margin: 5px; }
@@ -49,6 +49,59 @@
     .modal .controls { flex-direction: column; gap: 8px; align-items: stretch; }
     .btn { width: 100%; text-align: center; padding: 10px; }
 }
+
+        .accordion {
+            background-color: rgba(255,255,255,0.15);
+            color: #fff;
+            cursor: pointer;
+            padding: 18px 20px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            font-size: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color .3s ease;
+            text-shadow: 0px 0px 8px rgba(0,0,0,0.8);
+        }
+
+        .accordion:hover {
+            background-color: rgba(255,255,255,0.25);
+        }
+
+        .acc-title {
+            flex-grow: 1;
+        }
+
+        .acc-arrow {
+            font-size: 20px;
+            transition: transform .3s ease;
+        }
+
+        .accordion.active .acc-arrow {
+            transform: rotate(180deg);
+        }
+
+        .panel {
+            margin-top: -5px;
+            background-color: rgba(255,255,255,0.1);
+            overflow: hidden;
+            max-height: 0;
+            border-radius: 0 0 10px 10px;
+            transition: max-height 0.3s ease-out, padding 0.3s;
+            padding: 0 20px;
+        }
+
+        .panel p {
+            color: #fff;
+            font-size: 20px;
+            line-height: 1.5;
+            text-shadow: 0px 0px 8px rgba(0,0,0,0.8);
+        }
 
     </style>
 </head>
@@ -63,13 +116,13 @@
     <button id="ordersBtn">Rendeléseim</button>
     <button id="supportBtn">Támogatás és segítségkérés</button>
     <button id="privacyBtn">Adatvédelem és biztonság</button>
-    
+
     <div id="superpanel">
     <br>
     <button id="adminBtn" style="background: rgba(150,50,255,0.08); display: none;" onclick="window.location.href='/admin'">Admin felület</button>
     <button id="eladoBtn" style="background: rgba(150,100,40,0.08); display: none;" onclick="window.location.href='/elado'">Éttermem kezelése</button>
     </div>
-    
+
     <br>
     <button id="passwordBtn">Jelszó módosítás</button>
     <button id="logoutBtn">Kijelentkezés</button>
@@ -103,7 +156,7 @@
     <div id="couponContainer" style="display:none;">
         <div style="background-color: rgba(20,20,20,0.95); padding: 25px 35px; border-radius: 15px; width: 420px;">
             <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Kupon & Kredit</h2>
-            
+
             <div>
             <label for="couponcode">Kuponkód:</label>
             <div class="input-group">
@@ -114,7 +167,7 @@
             </div>
             <p id="couponMessage" style="margin-top: 10px; font-weight: bold;"></p>
         </div>
-        
+
             <div id="coupon-list">
                 <p class="center-text">Kuponok betöltése...</p>
             </div>
@@ -136,7 +189,7 @@
                 kérjük, lépj kapcsolatba ügyfélszolgálatunkkal. Támogatási csapatunk hétfőtől péntekig, 9:00–17:00 között elérhető,
                 és minden kérdésre igyekeznek gyorsan és részletesen válaszolni. Használhatod az alábbi űrlapot,
                 vagy küldhetsz e-mailt az <strong>support@etterem.hu</strong> címre.
-                
+
                <!-- TODO: ITT JELENJEN MEG A KORÁBBI AZONOS EMAIL CÍMMEL KÜLDÖTT TÁMOGATÁSOK IS ÉS FEJLEMÉNYEI (AZ EGYENLŐRE NINCS DE UI SZEMPONTBÓL LEGYEN KIALAKÍTVA) -->
             </p>
         </div>
@@ -144,15 +197,113 @@
 
     <!-- Adatvédelem és biztonság -->
     <div id="privacyContainer" style="display:none;">
-        <div style="background-color: rgba(255,255,255,0.1); padding: 25px 35px; border-radius: 15px; width: 500px;">
-            <h2 style="margin-top: 0; text-align:center; letter-spacing:1px;">Adatvédelem és biztonság</h2>
-            <p>
-                Webalkalmazásunk kiemelten kezeli a felhasználók adatainak biztonságát.
-                Minden személyes adat titkosított kapcsolat (HTTPS) segítségével kerül továbbításra,
-                és soha nem kerül megosztásra harmadik féllel a hozzájárulásod nélkül.
-                Jelszavaidat biztonságosan, hash-elve tároljuk. Rendszeresen frissítjük a biztonsági protokollokat,
-                hogy adatvédelmi és biztonsági előírásainknak mindenben megfeleljünk.
-            </p>
+        <div id="privacyFAQ" style="width: 800px; margin: 0 auto;">
+
+            <button class="accordion">
+                <span class="acc-title">Milyen személyes adatokat gyűjt az oldal?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Az oldal csak a működéshez feltétlenül szükséges adatokat gyűjti, mint a név, e-mail cím és az üzenet tartalma.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Hogyan védi a rendszer a jelszavakat?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>A jelszavak erős hash algoritmussal (pl. BCrypt) kerülnek tárolásra, így nem visszafejthetők.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Mire használják az általam megadott e-mailt?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Csak a válaszadásra és a kommunikációhoz, harmadik félnek nem adjuk ki.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Meddig tárolják az üzeneteimet?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Az üzeneteket addig tároljuk, amíg a kommunikáció lezárul, majd biztonságosan archiváljuk.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Ki férhet hozzá a személyes adataimhoz?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Csak a weboldal adminisztrátorai és az ügyfélszolgálat.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Lehet-e töröltetni az adataimat?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Igen, kérésre töröljük a személyes adatokat a rendszerből.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Biztonságban vannak az adataim?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Igen, HTTPS-t és titkosítást alkalmazunk az adatátvitelhez és az adatbázisban.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Küldenek nekem reklám e-mailt?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Csak ha ehhez külön engedélyt adtál.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Lehet anonim üzenetet küldeni?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Lehet, de e-mail nélkül nem tudunk válaszolni.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Küldenek nekem harmadik félnek adatot?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Nem, az adatokat harmadik félnek nem adjuk ki, kivéve jogi kötelezettség esetén.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Hogyan tudom módosítani az adataimat?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Kérheted az adataid frissítését az ügyfélszolgálaton keresztül.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Mi történik, ha hibás adatot adok meg?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Kérheted az adatok javítását vagy törlését.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Milyen célból használják a gyűjtött adatokat?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Csak a szolgáltatás nyújtásához, kommunikációhoz és statisztikákhoz.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Értesítenek, ha adatvédelmi változás történik?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Igen, minden fontos változtatásról tájékoztatjuk a felhasználókat.</p>
+            </div>
+            <button class="accordion">
+                <span class="acc-title">Van lehetőség leiratkozni vagy adataimhoz hozzáférni?</span>
+                <span class="acc-arrow">&#9662;</span>
+            </button>
+            <div class="panel">
+                <p>Igen, mindig biztosítjuk a hozzáférést és a törlés lehetőségét.</p>
+            </div>
         </div>
     </div>
 
@@ -213,7 +364,7 @@
         document.getElementById('supportBtn').onclick = () => showSection('supportContainer', 'Támogatás és segítségkérés');
         document.getElementById('privacyBtn').onclick = () => showSection('privacyContainer', 'Adatvédelem és biztonság');
     }
-    
+
 async function listmyorders() {
     try {
         const res = await fetch("/api/v1/cart/myorders", {
@@ -266,19 +417,19 @@ async function listmyorders() {
             const orderDate = new Date(firstItem.orderTime);
             const header = document.createElement("h4");
             header.innerHTML = `🕒 ${orderDate.toLocaleString()}`;
-            
+
             //console.log(firstItem);
             const plannedDate = new Date(firstItem.plannedDelivery);
             if (plannedDate - orderDate > 60000) {
                 header.innerHTML += `<br><p style="color: rgb(110,110,110); size: 15px;">Tervezett szállítás: ${plannedDate.toLocaleString()}</p>`;
             }
-            
+
             header.innerHTML += `<p style="color: rgb(200,200,200); size: 10px;">Fizetési mód: ${firstItem.paymentmethod}</p>`;
             if (firstItem && firstItem.status != "") {
                 if (firstItem.status == "canceled") header.innerHTML += `<p style="color: rgba(100,20,20,0.8); size: 10px;">Elutasítva</p>`;
                 if (firstItem.status == "shipped") header.innerHTML += `<p style="color: rgba(20,100,20,0.8); size: 10px;">Teljesítve</p>`;
             }
-            
+
             card.appendChild(header);
             card.appendChild(document.createElement("hr"));
 
@@ -389,12 +540,12 @@ async function listmyorders() {
             }
             try {
                 let html = '<ul>';
-            
+
                 coupons.forEach((coupon, index) => {
                     const validUntilDate = new Date(coupon.validUntil);
                     const options = { year: 'numeric', month: 'long', day: 'numeric' };
                     const formattedDate = validUntilDate.toLocaleDateString('hu-HU', options);
-            
+
                     html += `
                         <li style="border: 1px solid #777; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                             <strong>${coupon.osszeg} Ft</strong><br>
@@ -407,27 +558,27 @@ async function listmyorders() {
                         </li>
                     `;
                 });
-            
+
                 html += '</ul>';
                 couponListDiv.innerHTML = html;
-            
+
                 coupons.forEach((coupon, index) => {
                     const checkbox = document.getElementById(`coupon-${index}`);
-            
+
                     checkbox.addEventListener('change', async () => {
                         try {
                             const useValue = checkbox.checked;
                             const code = encodeURIComponent(coupon.code);
-            
+
                             const response = await fetch(`/api/v1/coupons/usecoupon?use=${useValue}&code=${code}`, {
                                 method: 'GET',
                                 credentials: 'same-origin'
                             });
-            
+
                             if (!response.ok) {
                                 throw new Error('A szerver hibát adott vissza');
                             }
-            
+
                             const text = await response.text();
                             console.log('Válasz:', text);
                         } catch (err) {
@@ -436,7 +587,7 @@ async function listmyorders() {
                         }
                     });
                 });
-            
+
             } catch (error) {
                 console.error('Kupon hiba:', error);
                 couponListDiv.innerHTML = `
@@ -539,7 +690,7 @@ async function listmyorders() {
     }
 
     window.addEventListener("load", loadProfileData);
-    
+
     // --- ÚJ KUPOPON HOZZÁADÁSA ---
 async function applyCoupon() {
     const couponCodeInput = document.getElementById('couponCode');
@@ -563,7 +714,7 @@ async function applyCoupon() {
         });
 
         const data = await res.text();
-        
+
             if (!res.ok) {
         couponMessage.textContent = data;
         couponMessage.style.color = 'red';
@@ -691,6 +842,23 @@ async function updateProfile() {
     }
 }
 
+    const acc = document.getElementsByClassName("accordion");
+
+    for (let i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+
+            let panel = this.nextElementSibling;
+
+            if (panel.style.maxHeight) {
+                panel.style.maxHeight = null;
+                panel.classList.remove("open");
+            } else {
+                panel.style.maxHeight = panel.scrollHeight + "px";
+                panel.classList.add("open");
+            }
+        });
+    }
 </script>
 
 </body>
