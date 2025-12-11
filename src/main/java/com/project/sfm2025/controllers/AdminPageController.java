@@ -75,11 +75,11 @@ public class AdminPageController {
         var user = userRepository.findById(id).orElse(null);
 
         if (user == null) {
-            return ResponseEntity.status(404).body("User not found");
+            return ResponseEntity.status(404).body("Felhasználó nem található!");
         }
 
         userRepository.delete(user);
-        return ResponseEntity.ok("User deleted successfully");
+        return ResponseEntity.ok("Felhasználó törölve.");
     }
 
     @DeleteMapping("/deleteUserSearch")
@@ -94,11 +94,11 @@ public class AdminPageController {
                 .orElse(null);
 
         if (user == null) {
-            return ResponseEntity.status(404).body("User not found");
+            return ResponseEntity.status(404).body("Felhasználó nem található!");
         }
 
         userRepository.delete(user);
-        return ResponseEntity.ok("User deleted successfully");
+        return ResponseEntity.ok("Felhasználó törölve.");
     }
 
 
@@ -136,14 +136,14 @@ public class AdminPageController {
 
             return ResponseEntity
                     .status(400)
-                    .body("All fields are required");
+                    .body("Minden mező kitöltése kötelező!");
         }
 
         // 2. Duplikált e-mail ellenőrzés
         if (userRepository.existsByEmail(req.getEmail())) {
             return ResponseEntity
                     .status(409)           // 409 = Conflict
-                    .body("Email already exists");
+                    .body("Ez az email már regisztrált!");
         }
 
         // 3. User létrehozása
@@ -165,7 +165,7 @@ public class AdminPageController {
         // 5. Mentés
         userRepository.save(user);
 
-        return ResponseEntity.ok("User created successfully");
+        return ResponseEntity.ok("Felhasználó létrehozva.");
     }
 
 
